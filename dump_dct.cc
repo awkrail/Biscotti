@@ -8,6 +8,10 @@
 #define MAX(a,b) (a>=b?a:b);
 #define MIN(a,b) (a<=b?a:b);
 
+void calculate_reverse_quantized_dct(std::vector<std::vector<int> > *ary){
+    //caluculate reverse quantized table to compare jpeg image DCT and guetzli image DCT
+}
+
 void write_csv(char *filename, std::vector<std::vector<int> > *ary){
     std::ofstream ofs(filename);
     for(int i=0; i<3; i++){
@@ -93,7 +97,6 @@ int main(int argc, char **argv){
     }
 
     std::vector<std::vector<int> > ary[3];
-
     ret = read_JPEG_file(argv[1], ary);
     write_csv(argv[2], ary);
 

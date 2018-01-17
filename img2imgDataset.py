@@ -40,35 +40,12 @@ class Image2ImageDataset(object):
     def make_images_and_labels(self):
         # TODO: check file names. I have to make dataset which parallel labels.
         qopt_files = os.listdir(self.qopt_path)
-        label_files = os.listdir(self.label_path)
 
         # images and labels
         images = [cv2.imread(self.qopt_path + "/" + q_file) for q_file in qopt_files]
-        pad_images = map(self.change_image_size_to_dct, images)
-        for q_opt_file, pad_image in zip(qopt_files, pad_images):
-            cv2.imwrite("resized_images/" + q_opt_file, pad_image)
-        # labels = self.dct_csv2numpy_probability()
-     
-    @staticmethod
-    def change_image_size_to_dct(image):
-        row = image.shape[0]
-        col = image.shape[1]
+        labels = self.dct_csv2numpy_probability()
 
-        mod_r_8 = row % 8
-        mod_c_8 = col % 8
 
-        r_padding = 0
-        c_padding = 0
-
-        if mod_r_8 != 0:
-            r_padding += (8 - mod_r_8)
-        
-        if mod_c_8 != 0:
-            c_padding += (8 - mod_c_8)
-        
-        foundation = np.zeros((row+r_padding, col+c_padding, 3))
-        foundation[:image.shape[0], :image.shape[1], :image.shape[2]] = image
-        return foundation
 
     @staticmethod
     def check0(coeff):
@@ -80,4 +57,3 @@ class Image2ImageDataset(object):
 if __name__ == "__main__":
     dataset = Image2ImageDataset()
     dataset.make_images_and_labels()
-    dataset.check_image_size()

@@ -5,4 +5,4 @@ for file in `cd images/ && ls`; do
     echo "$file done"
 done
 
-python csv2train_data.py
+python img2imgDataset.py

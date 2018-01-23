@@ -47,7 +47,7 @@ class Image2ImageDataset(object):
         now you can only make 3d(YCrCb)Dataset, so you should exclude gray scale images.
         """
         qopt_files = os.listdir(self.qopt_path)
-        images = [cv2.cvtColor(cv2.imread(self.qopt_path + "/" + q_file), cv2.COLOR_BGR2YCrCb) / 255.0 for q_file in qopt_files if not q_file.startswith(".")]
+        images = [cv2.imread(self.qopt_path + "/" + q_file) for q_file in qopt_files if not q_file.startswith(".")]
         labels = self.dct_csv2numpy_probability()
         for i in range(len(qopt_files)):
             img = images[i]
@@ -59,27 +59,11 @@ class Image2ImageDataset(object):
                 print("this image is on gray scale data!")
                 continue
 
-            # 画像の要素数とラベルの要素数が一致してたらYUV444と考えられる
             if self.check_chroma_subsampling(img, label):
-                # write code for image subsampling 444
                 print("this image is YUV444")
-                """
-                height = img.shape[0]
-                width = img.shape[1]
-                height_blocks = int(height / 8)
-                width_blocks = int(height / 8)
-                seq_y = int(label.shape[0] * (1/3))
-                seq_cb = int(label.shape[0] * (2/3))
-                coeff_y, coeff_cbcr = label[:seq_y], label[seq_y:]
-                coeff_cb = coeff_cbcr[:seq_cb]
-                coeff_cr = label[seq_cb:]
-
-                coeff_y = self.resize_coeff_to_img_matrix(coeff_y, width, height)
-                coeff_cb = self.resize_coeff_to_img_matrix(coeff_cb, width, height)
-                coeff_cr = self.resize_coeff_to_img_matrix(coeff_cr, width, height)
-                """
                 continue
-
+            
+            img = cv2.cvtColor(img, cv2.COLOR_BGR2YCrCb) / 255.0
             height = img.shape[0]
             width = img.shape[1]
             height_blocks = int(height / 8)
@@ -103,7 +87,6 @@ class Image2ImageDataset(object):
         for block_y in range(height_blocks):
             for block_x in range(width_blocks):
                 block_ix = height_blocks * block_y + block_x
-                # print(block_ix)
                 block = coeff[block_ix].reshape(8, 8)
                 canvas[block_x*8:block_x*8+8, block_y*8:block_y*8+8] = block
         return canvas.reshape(height, width, 1)
@@ -135,10 +118,7 @@ class Image2ImageDataset(object):
     @staticmethod
     def check_grayscale(image):
         b,g,r = cv2.split(image)
-        eq_bg = b == g
-        eq_br = b == r
-        eq_gr = g == r
-        if np.sum(((eq_bg == eq_br) == (eq_br == eq_gr))) == image.shape[0]*image.shape[1]:
+        if np.sum(b - g) == 0 and np.sum(g - r) == 0 and np.sum(r - b) == 0:
             return True
         else:
             return False

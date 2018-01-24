@@ -124,5 +124,7 @@ class Image2ImageDataset(object):
         return True if image.shape[0] * image.shape[1] * image.shape[2] == label.shape[0] * label.shape[1] else False
 
 if __name__ == "__main__":
+    print("=== making dataset... ===")
     dataset = Image2ImageDataset()
     dataset.make_images_and_labels()
+    print("=========================")

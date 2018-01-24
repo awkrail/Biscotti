@@ -30,9 +30,11 @@ def change_image_size_to_dct(image):
     return foundation
 
 if __name__ == "__main__":
+    print("=== resizing dataset ... ===")
     images_files = os.listdir("images/")
     images = [cv2.imread("images/" + image_file) for image_file in images_files]
     
     for pad_image, image_file in zip(map(change_image_size_to_dct, images), images_files):
         print(image_file ," done!")
         cv2.imwrite("resized_images/" + image_file, pad_image)
+    print("============================")

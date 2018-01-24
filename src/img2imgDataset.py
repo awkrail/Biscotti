@@ -55,7 +55,7 @@ class Image2ImageDataset(object):
             filename = qopt_files[i].replace(".jpg", "").replace(".jpeg", "").replace(".png", "")
             print(filename)
 
-            if self.check_grayscale(img):
+            if self.check_grayscale(img, label):
                 print("this image is on gray scale data!")
                 continue
 
@@ -116,12 +116,8 @@ class Image2ImageDataset(object):
         return canvas.reshape(height, width, 1)
 
     @staticmethod
-    def check_grayscale(image):
-        b,g,r = cv2.split(image)
-        if np.sum(b - g) == 0 and np.sum(g - r) == 0 and np.sum(r - b) == 0:
-            return True
-        else:
-            return False
+    def check_grayscale(image, label):
+        return True if image.shape[0]*image.shape[1] == label.shape[0]*label.shape[1] else False
     
     @staticmethod
     def check_chroma_subsampling(image, label):

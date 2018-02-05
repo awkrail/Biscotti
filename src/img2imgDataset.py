@@ -127,4 +127,4 @@ if __name__ == "__main__":
     print("=== making dataset... ===")
     dataset = Image2ImageDataset()
     dataset.make_images_and_labels()
-    print("=========================")
+    print("===> Done!")

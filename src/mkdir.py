@@ -12,7 +12,7 @@ def make_directory():
     mkdir("qopt_images/")
     mkdir("csv/")
     mkdir("train/")
-    print("==================================")
+    print("===> Done!")
 
 if __name__ == "__main__":
     make_directory()

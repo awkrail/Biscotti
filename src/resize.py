@@ -37,4 +37,4 @@ if __name__ == "__main__":
     for pad_image, image_file in zip(map(change_image_size_to_dct, images), images_files):
         print(image_file ," done!")
         cv2.imwrite("resized_images/" + image_file, pad_image)
-    print("============================")
+    print("===> Done!")

@@ -33,9 +33,9 @@ class Image2ImageDataset(object):
         """
         pass
 
-    def dct_csv2numpy_probability(self):
+    def dct_csv2numpy_probability(self, csv_files):
         checker_0 = np.vectorize(self.check0)
-        for csv_file in os.listdir(self.csv_path):
+        for csv_file in csv_files:
             if csv_file.startswith("."):
                 continue
             csv_numpy = pd.read_csv(self.csv_path + "/" + csv_file, header=None).get_values()
@@ -46,9 +46,18 @@ class Image2ImageDataset(object):
         this method make dataset.
         now you can only make 3d(YCrCb)Dataset, so you should exclude gray scale images.
         """
-        qopt_files = os.listdir(self.qopt_path)
+        # file name should be same qopt_files and csv_files.
+        # In my case, file name is used increment number.
+
+        qopt_files = sorted(os.listdir(self.qopt_path))
+        csv_files = sorted(os.listdir(self.csv_path))
+
+        if not self.assert_two_lists_is_same(qopt_files, csv_files):
+            print("Please check your qopt_images/ and csv/ is same.")
+            exit()
+
         images = [cv2.imread(self.qopt_path + "/" + q_file) for q_file in qopt_files if not q_file.startswith(".")]
-        labels = self.dct_csv2numpy_probability()
+        labels = self.dct_csv2numpy_probability(csv_files)
         for i in range(len(qopt_files)):
             img = images[i]
             label = next(labels)
@@ -122,6 +131,14 @@ class Image2ImageDataset(object):
     @staticmethod
     def check_chroma_subsampling(image, label):
         return True if image.shape[0] * image.shape[1] * image.shape[2] == label.shape[0] * label.shape[1] else False
+    
+    @staticmethod
+    def assert_two_lists_is_same(jpg_files, csv_files):
+        for jpg_file, csv_file in zip(jpg_files, csv_files):
+            if jpg_file.replace(".jpg", "") != csv_file.replace(".csv", ""):
+                return False
+        return True
+
 
 if __name__ == "__main__":
     print("=== making dataset... ===")

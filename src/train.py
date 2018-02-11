@@ -36,13 +36,13 @@ def create_fcn(input_size):
 
     conv5 = Conv2D(512, (3, 3), activation='relu', padding='same', data_format="channels_last")(pool4)
     conv5 = Conv2D(512, (3, 3), activation='relu', padding='same', data_format="channels_last")(conv5)
-    pool5 = MaxPooling2D(pool_size=(3, 3), data_format="channels_last")(conv5) # 元は(2, 2)
+    pool5 = MaxPooling2D(pool_size=(2, 2), data_format="channels_last")(conv5) # 元は(2, 2)
 
     conv6 = Conv2D(1024, (3, 3), activation='relu', padding='same', data_format="channels_last")(pool5)
     conv6 = Conv2D(1024, (3, 3), activation='relu', padding='same', data_format="channels_last")(conv6)
 
     # up7 = merge([UpSampling2D(size=(2, 2))(conv6), conv5], mode='concat', concat_axis=1)
-    up7 = concatenate([UpSampling2D(size=(3, 3), data_format="channels_last")(conv6), conv5], axis=3) # 元は(2, 2)
+    up7 = concatenate([UpSampling2D(size=(2, 2), data_format="channels_last")(conv6), conv5], axis=3) # 元は(2, 2)
     conv7 = Conv2D(512, (3, 3), activation='relu', padding='same', data_format="channels_last")(up7)
     conv7 = Conv2D(512, (3, 3), activation='relu', padding='same', data_format="channels_last")(conv7)
 
@@ -83,7 +83,7 @@ def dice_coef_loss(y_true, y_pred):
 
 
 if __name__ == "__main__":
-    target_size = (1200, 1200) # 変更
+    target_size = (512, 512) # 変更
     dname_checkpoints = 'checkpoints'
     dname_outputs = 'outputs'
     fname_architecture = 'architecture.json'
@@ -94,8 +94,8 @@ if __name__ == "__main__":
     # 画像のサイズを固定してやってみる
     train_path = glob.glob("train/*.npy")
     length = len(train_path)
-    X = np.zeros((length, 1200, 1200, 3)) # TODO: 画像のサイズは固定じゃないようにしたい
-    y = np.zeros((length, 1200, 1200, 3))
+    X = np.zeros((length, 512, 512, 3)) # TODO: 画像のサイズは固定じゃないようにしたい
+    y = np.zeros((length, 512, 512, 3))
 
     for i, t_path in enumerate(train_path):
         data = np.load(t_path)
@@ -105,9 +105,11 @@ if __name__ == "__main__":
     print("==> loaded!")
     print("creating model ...")
 
-    X_train, Y_train = X[:400, :, :, :], y[:400,:, :, :]
-    X_valid, Y_valid = X[400:, :, :, :], y[400:, :, :, :]
-    model = create_fcn(target_size)
+    X_train, Y_train = X[:800, :, :, :], y[:800,:, :, :]
+    X_valid, Y_valid = X[800:, :, :, :], y[800:, :, :, :]
+    del X # for free
+    model = create_fcn(target_size) 
+    model.summary()
 
     # 損失関数，最適化手法を定義
     adam = Adam(lr=1e-5)
@@ -118,10 +120,11 @@ if __name__ == "__main__":
         f.write(json_string)
 
     checkpointer = ModelCheckpoint(filepath="checkpoints/" + fname_weights, save_best_only=False)
+    # import ipdb; ipdb.set_trace()
 
     # トレーニングを開始
     print('start training...')
-    model.fit(X_train, Y_train, batch_size=32, epochs=20, verbose=1,
+    model.fit(X_train, Y_train, batch_size=10, epochs=20, verbose=1,
                 shuffle=True, validation_data=(X_valid, Y_valid),
                 callbacks=[checkpointer])
 

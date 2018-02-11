@@ -31,7 +31,45 @@ class Image2ImageDataset(object):
         this function is used for training scripts.
         other functions is used for making dataset.
         """
-        pass
+        qopt_files = sorted(os.listdir(self.qopt_path))
+        csv_files = sorted(os.listdir(self.csv_path))
+
+        if not self.assert_two_lists_is_same(qopt_files, csv_files):
+            print("Please check your qopt_images/ and csv/ are same")
+        
+        images = self.load_yield_image(qopt_files)
+        labels = self.dct_csv2numpy_probability(csv_files)
+
+        for image, label in zip(images, labels):
+
+            if self.check_grayscale(image, label):
+                print("this image is on gray scale data!")
+                continue
+
+            if self.check_chroma_subsampling(image, label):
+                print("this image is YUV444")
+                continue
+
+            img = cv2.cvtColor(image, cv2.COLOR_BGR2YCrCb) / 255.0
+            height = img.shape[0]
+            width = img.shape[1]
+            height_blocks = int(height / 8)
+            width_blocks = int(width / 8)
+            seq = int(label.shape[0] * (2/3))
+
+            coeff_y, coeff_cbcr = label[:seq], label[seq:]
+            coeff_y = self.resize_coeff_to_img_matrix(coeff_y, width, height)
+            coeff_cb = self.resize420to444(coeff_cbcr[:int(seq/4)], width, height)
+            coeff_cr = self.resize420to444(coeff_cbcr[int(seq/4):], width, height)
+            coeff3d = np.concatenate((coeff_y, coeff_cr, coeff_cb), axis=2)
+            result = np.concatenate((img, coeff3d), axis=2)
+            yield result
+    
+    def load_yield_image(self, qopt_files):
+        for qopt_file in qopt_files:
+            if qopt_file.startswith("."):
+                continue
+            yield cv2.imread(self.qopt_path + "/" + qopt_file)
 
     def dct_csv2numpy_probability(self, csv_files):
         checker_0 = np.vectorize(self.check0)
@@ -53,7 +91,7 @@ class Image2ImageDataset(object):
         csv_files = sorted(os.listdir(self.csv_path))
 
         if not self.assert_two_lists_is_same(qopt_files, csv_files):
-            print("Please check your qopt_images/ and csv/ is same.")
+            print("Please check your qopt_images/ and csv/ are same.")
             exit()
 
         images = [cv2.imread(self.qopt_path + "/" + q_file) for q_file in qopt_files if not q_file.startswith(".")]

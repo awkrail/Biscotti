@@ -124,7 +124,7 @@ class Image2ImageDataset(object):
             coeff3d = np.concatenate((coeff_y, coeff_cr, coeff_cb), axis=2)
             result = np.concatenate((img, coeff3d), axis=2)
             np.save(self.train_path + filename + ".npy", result)
-            print(filename, "is done!")
+            print(filename, "has done!")
 
     @staticmethod
     def resize_coeff_to_img_matrix(coeff, width, height):

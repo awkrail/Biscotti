@@ -26,7 +26,7 @@ def change_image_size_to_dct(image):
     foundation = np.zeros((row+r_padding, col+c_padding, 3))
     foundation[:image.shape[0], :image.shape[1], :image.shape[2]] = image
     print("before row, col (", row, ", ", col, " )")
-    print("after  row col (", row+r_padding, ", ", col, " )")
+    print("after  row col (", row+r_padding, ", ", col+c_padding, " )")
     return foundation
 
 if __name__ == "__main__":

@@ -36,6 +36,7 @@ class Image2ImageDataset(object):
 
         if not self.assert_two_lists_is_same(qopt_files, csv_files):
             print("Please check your qopt_images/ and csv/ are same")
+            exit()
         
         images = self.load_yield_image(qopt_files)
         labels = self.dct_csv2numpy_probability(csv_files)

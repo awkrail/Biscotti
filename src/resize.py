@@ -12,8 +12,8 @@ class ImageRisizer(object):
         self.image_files = sorted(image_files)
     
     def resize(self, predict=False):
-        images = [cv2.imread("images/" + images_file) for images_file in self.images_files]
-        for image, images_file in zip(image, self.images_files):
+        images = [cv2.imread("images/" + images_file) for images_file in self.image_files]
+        for image, images_file in zip(images, self.image_files):
             if images_file.startswith("."):
                 continue
             if predict:

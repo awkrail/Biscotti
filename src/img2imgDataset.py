@@ -134,9 +134,9 @@ class Image2ImageDataset(object):
         height_blocks = int(height / 8)
         for block_y in range(height_blocks):
             for block_x in range(width_blocks):
-                block_ix = height_blocks * block_y + block_x
+                block_ix = width_blocks * block_y + block_x
                 block = coeff[block_ix].reshape(8, 8)
-                canvas[block_x*8:block_x*8+8, block_y*8:block_y*8+8] = block
+                canvas[block_y*8:block_y*8+8, block_x*8:block_x*8+8] = block
         return canvas.reshape(height, width, 1)
 
     @staticmethod
@@ -151,16 +151,16 @@ class Image2ImageDataset(object):
         canvas = np.zeros((height, width))
         width_blocks = int(width / 16)
         height_blocks = int(height / 16)
-        for block_y in range(width_blocks):
-            for block_x in range(height_blocks):
+        for block_y in range(height_blocks):
+            for block_x in range(width_blocks):
                 canvas16 = np.zeros((16, 16)).astype(np.int32)
-                block_ix = height_blocks * block_y + block_x
+                block_ix = width_blocks * block_y + block_x
                 block = coeff[block_ix].reshape(8, 8)
                 for i in range(8):
                     for j in range(8):
                         dct22 = block[i][j] * np.ones((2, 2)).astype(np.int32)
-                        canvas16[j*2:j*2+2, i*2:i*2+2] = dct22
-                canvas[block_x*16:block_x*16+16, block_y*16:block_y*16+16] = canvas16
+                        canvas16[i*2:i*2+2, j*2:j*2+2] = dct22
+                canvas[block_y*16:block_y*16+16, block_x*16:block_x*16+16] = canvas16
         return canvas.reshape(height, width, 1)
 
     @staticmethod

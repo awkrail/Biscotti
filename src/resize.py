@@ -12,9 +12,10 @@ class ImageRisizer(object):
         self.image_files = sorted(image_files)
     
     def resize(self, predict=False):
-        images = [cv2.imread("images/" + images_file) for images_file in self.image_files]
-        for image, images_file in zip(images, self.image_files):
-            if images_file.startswith("."):
+        images = self.yield_image()
+        for i, image in enumerate(images):
+            if image is None:
+                print("may be broken file")
                 continue
             if predict:
                 row = image.shape[0]
@@ -33,34 +34,15 @@ class ImageRisizer(object):
                 new_row = row + mod_r_8
                 new_col = col + mod_c_8
                 resized_image = cv2.resize(image, (new_row, new_col), interpolation=cv2.INTER_NEAREST)
-                cv2.imwrite("resized_images/" + images_file, resized_image)
+                cv2.imwrite("resized_images/" + str(i) + ".jpg", resized_image)
             else:
                 resized_image = cv2.resize(image, (224, 224))
-                cv2.imwrite("resized_images/" + images_file, resized_image)
-
-
-def change_image_size_to_dct(image):
-    row = image.shape[0]
-    col = image.shape[1]
-
-    mod_r_8 = row % 8
-    mod_c_8 = col % 8
-
-    r_padding = 0
-    c_padding = 0
-
-    if mod_r_8 != 0:
-        r_padding += (8 - mod_r_8)
-        
-    if mod_c_8 != 0:
-        c_padding += (8 - mod_c_8)
+                cv2.imwrite("resized_images/" + str(i) + ".jpg", resized_image)
+                print(i, "done!")
     
-
-    foundation = np.zeros((row+r_padding, col+c_padding, 3))
-    foundation[:image.shape[0], :image.shape[1], :image.shape[2]] = image
-    print("before row, col (", row, ", ", col, " )")
-    print("after  row col (", row+r_padding, ", ", col+c_padding, " )")
-    return foundation
+    def yield_image(self):
+        for image_file in self.image_files:
+            yield cv2.imread("images/" + image_file)
 
 if __name__ == "__main__":
     print("=== resizing dataset ... ===")

@@ -72,16 +72,6 @@ def create_fcn(input_size):
 
     return fcn
 
-def dice_coef(y_true, y_pred):
-    y_true = K.flatten(y_true)
-    y_pred = K.flatten(y_pred)
-    intersection = K.sum(y_true * y_pred)
-    return (2.*intersection + 1) / (K.sum(y_true) + K.sum(y_pred) + 1)
-
-def dice_coef_loss(y_true, y_pred):
-    return -dice_coef(y_true, y_pred)
-
-
 if __name__ == "__main__":
     target_size = (512, 512) # 変更
     dname_checkpoints = 'checkpoints'
@@ -113,7 +103,7 @@ if __name__ == "__main__":
 
     # 損失関数，最適化手法を定義
     adam = Adam(lr=1e-5)
-    model.compile(optimizer=adam, loss=dice_coef_loss, metrics=[dice_coef])
+    model.compile(optimizer=adam, loss="binary_crossentropy", metrics=["accuracy"])
 
     json_string = model.to_json()
     with open("architecture/architecture.json", 'w') as f:

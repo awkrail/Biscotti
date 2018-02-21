@@ -86,7 +86,9 @@ class Predictor():
         self.predict_dct = None
     
     def predict(self):
-        dct_predict = self.model.predict(image.reshape(1, 224, 224, 3)).reshape(224, 224, 3)
+        row = self.target_size[0]
+        col = self.target_size[1]
+        dct_predict = self.model.predict(image.reshape(1, row, col, 3)).reshape(row, col, 3)
         self.predict_dct = dct_predict
 
     def eval(self):
@@ -236,11 +238,11 @@ class Predictor():
 
 
 if __name__ == "__main__":
-    target_size = (224, 224) # change to your image size
-    image = cv2.imread("test/img224.jpg")
+    target_size = (512, 512) # change to your image size
+    image = cv2.imread("images512/0.jpg")
     image = cv2.cvtColor(image, cv2.COLOR_BGR2YCrCb) / 255.0
-    predictor = Predictor(target_size, image, "checkpoints/model_weights_150.h5", "test/heatmap/", "test/coeffs_csv/", "test/guetzli_img224.csv")
+    predictor = Predictor(target_size, image, "checkpoints/model_weights_23.h5", "test/heatmap/", "test/coeffs_csv512/", "test/guetzli_img224.csv")
     predictor.predict()
-    predictor.eval()
-    predictor.plot()
+    # predictor.eval()
+    predictor.plot(plot_guetzli_dct=False)
     predictor.dump_csv()

@@ -112,7 +112,7 @@ class Predictor():
         if binary:
             dct_binary = np.round(self.predict_dct)
             for i in range(3):
-                self.plot_heatmap(self.guetzli_dct[:, :, i], self.result_png_path + paths[i])
+                self.plot_heatmap(dct_binary[:, :, i], self.result_png_path + "binary_" + paths[i])
         for i in range(3):
             self.plot_heatmap(self.predict_dct[:, :, i], self.result_png_path + paths[i])
     
@@ -238,11 +238,11 @@ class Predictor():
 
 
 if __name__ == "__main__":
-    target_size = (512, 512) # change to your image size
-    image = cv2.imread("images512/0.jpg")
+    target_size = (224, 224) # change to your image size
+    image = cv2.imread("test/illust.jpg")
     image = cv2.cvtColor(image, cv2.COLOR_BGR2YCrCb) / 255.0
-    predictor = Predictor(target_size, image, "checkpoints/model_weights_23.h5", "test/heatmap/", "test/coeffs_csv512/", "test/guetzli_img224.csv")
+    predictor = Predictor(target_size, image, "checkpoints/model_weights_109.h5", "test/heatmap/", "test/coeffs_csv/", guetzli_csv_path="csv/illust.csv")
     predictor.predict()
-    # predictor.eval()
-    predictor.plot(plot_guetzli_dct=False)
+    predictor.eval()
+    predictor.plot(plot_guetzli_dct=True, binary=True)
     predictor.dump_csv()

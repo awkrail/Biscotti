@@ -75,9 +75,10 @@ class DctCsvLoader(object):
 
 
 class Predictor():
-    def __init__(self, target_size, image, model_path, result_png_path, csv_path, guetzli_csv_path):
+    def __init__(self, target_size, image, threshold, model_path, result_png_path, csv_path, guetzli_csv_path):
         self.target_size = target_size
         self.image = image
+        self.threshold = threshold
         self.result_png_path = result_png_path
         self.csv_path = csv_path
         self.model = self.create_fcn()
@@ -91,10 +92,10 @@ class Predictor():
         dct_predict = self.model.predict(image.reshape(1, row, col, 3)).reshape(row, col, 3)
         self.predict_dct = dct_predict
 
-    def eval(self, threshold):
+    def eval(self):
         # Y accuracy
         thresholder = np.vectorize(self.change_threshold)
-        dct_binary = thresholder(self.predict_dct, threshold)
+        dct_binary = thresholder(self.predict_dct, self.threshold)
         print("evaluate accuracy...")
         y_accuracy = np.sum(dct_binary[:, :, 0] == self.guetzli_dct[:, :, 0]) / (dct_binary.shape[0] * dct_binary.shape[1])
         print("Y: ", y_accuracy)
@@ -105,22 +106,22 @@ class Predictor():
         cb_accuracy = np.sum(dct_binary[:, :, 2] == self.guetzli_dct[:, :, 2]) / (dct_binary.shape[0] * dct_binary.shape[1])
         print("Cb: ", cb_accuracy)
 
-    def plot(self, threshold, plot_guetzli_dct=True, binary=False):
+    def plot(self, plot_guetzli_dct=True, binary=False):
         paths = ["y.png", "cr.png", "cb.png"]
         if plot_guetzli_dct:
             for i in range(3):
                 self.plot_heatmap(self.guetzli_dct[:, :, i], self.result_png_path + "guetzli_" + paths[i])
         if binary:
             thresholder = np.vectorize(self.change_threshold)
-            dct_binary = thresholder(self.predict_dct, threshold)
+            dct_binary = thresholder(self.predict_dct, self.threshold)
             for i in range(3):
                 self.plot_heatmap(dct_binary[:, :, i], self.result_png_path + "binary_" + paths[i])
         for i in range(3):
             self.plot_heatmap(self.predict_dct[:, :, i], self.result_png_path + paths[i])
     
-    def dump_csv(self, threshold):
+    def dump_csv(self):
         thresholder = np.vectorize(self.change_threshold)
-        dct_binary = thresholder(self.predict_dct, threshold)
+        dct_binary = thresholder(self.predict_dct, self.threshold)
 
         y420 = dct_binary[:, :, 0]
         cr420 = self.resize444to420(dct_binary[:, :, 1])
@@ -249,10 +250,15 @@ class Predictor():
 
 if __name__ == "__main__":
     target_size = (224, 224) # change to your image size
+    # model_path, result_png_path, csv_path, guetzli_csv_path
     image = cv2.imread("test/illust.jpg")
     image = cv2.cvtColor(image, cv2.COLOR_BGR2YCrCb) / 255.0
-    predictor = Predictor(target_size, image, "checkpoints/model_weights_151_ver2.h5", "test/heatmap/", "test/coeffs_csv/", guetzli_csv_path="csv/illust.csv")
+    predictor = Predictor(target_size, image, threshold=0.5,
+                    model_path="checkpoints/model_weights_151_ver2.h5", 
+                    result_png_path="test/heatmap/",
+                    csv_path="test/coeffs_csv/",
+                    guetzli_csv_path="csv/illust.csv")
     predictor.predict()
-    predictor.eval(threshold=0.9)
-    predictor.plot(threshold=0.9, plot_guetzli_dct=True, binary=True)
-    predictor.dump_csv(threshold=0.9)
+    predictor.eval()
+    predictor.plot(plot_guetzli_dct=True, binary=True)
+    predictor.dump_csv()

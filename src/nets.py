@@ -12,22 +12,18 @@ def create_fcn(input_size):
     conv2 = Conv2D(64, (3, 3), strides=(2, 2), padding='same', data_format="channels_last")(conv1)
     conv2 = LeakyReLU(0.2)(conv2)
     conv2 = BatchNormalization(axis=-1)(conv2)
-    # pool1 = MaxPooling2D(pool_size=(2, 2), data_format="channels_last")(conv1)
 
     conv3 = Conv2D(128, (3, 3), strides=(2, 2), padding='same', data_format="channels_last")(conv2)
     conv3 = LeakyReLU(0.2)(conv3)
     conv3 = BatchNormalization(axis=-1)(conv3)
-    # pool2 = MaxPooling2D(pool_size=(2, 2), data_format="channels_last")(conv2)
 
     conv4 = Conv2D(256, (3, 3), strides=(2, 2), padding='same', data_format="channels_last")(conv3)
     conv4 = LeakyReLU(0.2)(conv4)
     conv4 = BatchNormalization(axis=-1)(conv4)
-    # pool3 = MaxPooling2D(pool_size=(2, 2), data_format="channels_last")(conv3)
 
     conv5 = Conv2D(512, (3, 3), strides=(2, 2), padding='same', data_format="channels_last")(conv4)
     conv5 = LeakyReLU(0.2)(conv5)
     conv5 = BatchNormalization(axis=-1)(conv5)
-    # pool4 = MaxPooling2D(pool_size=(2, 2), data_format="channels_last")(conv4)
 
     conv6 = Conv2D(1024, (3, 3), strides=(2, 2), padding='same', data_format="channels_last")(conv5)
     conv6 = Conv2D(1024, (3, 3), padding='same', data_format="channels_last")(conv6)

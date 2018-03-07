@@ -52,7 +52,7 @@ def train(args):
     generator_model.compile(loss='binary_crossentropy', optimizer=opt_discriminator, metrics=['accuracy'])
 
     # checkpoint
-    checkpointer = ModelCheckpoint(filepath="checkpoints/model_weights_{epoch:02d}.h5", save_best_only=False)
+    checkpointer = ModelCheckpoint(filepath=output + "/model_weights_{epoch:02d}.h5", save_best_only=False)
     # start training...
     print('start training...')
     generator_model.fit(images, dcts, batch_size=10, epochs=20, verbose=1,

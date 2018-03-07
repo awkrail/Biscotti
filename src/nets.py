@@ -2,7 +2,12 @@ from keras.models import Model
 from keras.layers.convolutional import Conv2D, Deconv2D, ZeroPadding2D, UpSampling2D
 from keras.layers import Input, Concatenate, concatenate, LeakyReLU, BatchNormalization, Activation
 
-def create_fcn(input_size):
+# PatchGAN-discriminator
+def discriminator(img_shape, disc_shape, patch_num):
+    pass
+
+# U-Net
+def generator(input_size):
     # EncoderSide
     inputs = Input((input_size[0], input_size[1], 3))
 
@@ -55,8 +60,21 @@ def create_fcn(input_size):
 
     return fcn
 
+def generator_discriminator(generator, discriminator, img_shape, patch_size):
+    pass
 
-def my_load_generator(img_shape):
-    model = create_fcn(img_shape)
+
+def get_generator(img_shape):
+    model = generator(img_shape)
+    model.summary()
+    return model
+
+def get_discriminator(img_shape, disc_shape, patch_num):
+    model = discriminator(img_shape, disc_shape, patch_num)
+    model.summary()
+    return model
+
+def get_GAN(generator, discriminator, img_shape, patch_size):
+    model = GAN(generator, discriminator, img_shape, patch_size)
     model.summary()
     return model

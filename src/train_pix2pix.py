@@ -48,7 +48,7 @@ def train(args):
     opt_discriminator = Adam(lr=1e-3, beta_1=0.9, beta_2=0.999, epsilon=1e-08)
 
     # load generator model
-    generator_model = nets.my_load_generator(img_shape)
+    generator_model = nets.get_generator(img_shape)
     generator_model.compile(loss='binary_crossentropy', optimizer=opt_discriminator, metrics=['accuracy'])
 
     # checkpoint

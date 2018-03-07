@@ -49,7 +49,7 @@ def train(args):
 
     # load generator model
     generator_model = nets.my_load_generator(img_shape)
-    generator_model.compile(loss='binary_crossentropy', optimizer=opt_discriminator)
+    generator_model.compile(loss='binary_crossentropy', optimizer=opt_discriminator, metrics=['accuracy'])
 
     # checkpoint
     checkpointer = ModelCheckpoint(filepath="checkpoints/model_weights_{epoch:02d}.h5", save_best_only=False)

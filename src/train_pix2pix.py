@@ -33,7 +33,7 @@ def train(args):
 
 
     # load data
-    images, dcts, images_val, dcts_val = load_img_and_dct_data(args.datasetpath)
+    images, images_val, dcts,  dcts_val = load_img_and_dct_data(args.datasetpath)
     print("train_image shape: ", images.shape)
     print("train_dct shape: ", dcts.shape)
     print("validation image shape: ", images_val.shape)

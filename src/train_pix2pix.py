@@ -24,7 +24,7 @@ def load_img_and_dct_data(dataset_path):
     threshold = int(X.shape[0]*0.9)
     X_train, X_valid = X[:threshold], X[threshold:]
     y_train, y_valid = y[:threshold], y[threshold:]
-    return X_train, X_train, y_valid, y_valid
+    return X_train, X_valid, y_train, y_valid
 
 def train(args):
     output = args.outputfile

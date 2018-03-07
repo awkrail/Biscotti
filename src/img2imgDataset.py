@@ -22,9 +22,9 @@ TODO: this script doesn't accept gray scale.
 
 class Image2ImageDataset(object):
     def __init__(self):
-        self.qopt_path = "qopt_images/"
-        self.train_path = "train/"
-        self.csv_path = "csv/"
+        self.qopt_path = "dataset224/qopt_images/"
+        self.train_path = "train224/"
+        self.csv_path = "dataset224/csv/"
     
     def load_dataset(self):
         """

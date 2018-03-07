@@ -63,7 +63,7 @@ def create_fcn(input_size):
     conv11 = Conv2D(32, (3, 3), activation='relu', padding='same', data_format="channels_last")(up11)
     conv11 = Conv2D(32, (3, 3), activation='relu', padding='same', data_format="channels_last")(conv11)
     
-    conv12 = Conv2D(3, (1, 1), activation='sigmoid', data_format="channels_last")(conv11)
+    conv12 = Conv2D(3, (1, 1), activation='tanh', data_format="channels_last")(conv11)
 
     fcn = Model(input=inputs, output=conv12)
     return fcn

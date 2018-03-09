@@ -116,6 +116,9 @@ def train(args):
                 ("G L1", gen_loss[1]),
                 ("G logloss", gen_loss[2])
             ])
+        
+        # save weight
+        generator_model.save_weights(args.outputfile + "/generator_%d.h5"%epoch)
 
     """
     # checkpoint

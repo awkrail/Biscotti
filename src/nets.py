@@ -146,5 +146,4 @@ def get_discriminator(img_shape, disc_shape, patch_num):
 
 def get_GAN(generator, discriminator, img_shape, patch_size):
     model = generator_discriminator(generator, discriminator, img_shape, patch_size)
-    model.summary()
     return model

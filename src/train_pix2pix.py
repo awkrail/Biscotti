@@ -106,7 +106,7 @@ def train(args):
 
             idx = np.random.choice(dcts.shape[0], args.batch_size)
             X_gen_target, X_gen = dcts[idx], images[idx]
-            y_gen = np.zeros((X_gen.shape[0], 2), dtype=uint8)
+            y_gen = np.zeros((X_gen.shape[0], 2), dtype=np.uint8)
             y_gen[:, 1] = 1
 
             # Freeze the discriminator

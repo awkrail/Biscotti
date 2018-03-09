@@ -41,7 +41,7 @@ def discriminator(img_shape, disc_img_shape, patch_num):
     print('PatchGAN Summary')
     PatchGAN.summary()
     
-    x = [PatchGAN(list_input[i], list_raw_input[i]) for i in range(patch_num)]
+    x = [PatchGAN([list_input[i], list_raw_input[i]]) for i in range(patch_num)]
 
     if len(x) > 1:
         x = Concatenate(axis=-1)(x)

@@ -71,15 +71,19 @@ def train(args):
 
     # load generator model
     generator_model = nets.get_generator(img_shape)
+    # load discriminator
     discriminator_model = nets.get_discriminator(img_shape, disc_img_shape, patch_num)
     generator_model.compile(loss='binary_crossentropy', optimizer=opt_discriminator, metrics=['accuracy'])
     discriminator_model.trainable = False
-
+    
     dcgan_model = nets.get_GAN(generator_model, discriminator_model, img_shape, args.patch_size)
 
     loss = ['binary_crossentropy', 'binary_crossentropy']
     loss_weights = [1E1, 1]
-    dcgan_model.compile(loss=loss, loss_weights=loss_weights, optimizer=opt_discriminator)
+    dcgan_model.compile(loss=loss, loss_weights=loss_weights, optimizer=opt_dcgan)
+
+    discriminator_model.trainable = True
+    discriminator_model.compile(loss="binary_crossentropy", optimizer=opt_discriminator)
 
     print("start training...")
     for epoch in range(args.epoch):

@@ -8,21 +8,21 @@ from keras.layers import Input, Concatenate, concatenate, LeakyReLU, BatchNormal
 # PatchGAN-discriminator
 def discriminator(img_shape, disc_img_shape, patch_num):
     disc_raw_img_shape = (disc_img_shape[0], disc_img_shape[1], img_shape[-1])
-    list_input = [Input(shape=disc_img_shape, name='disc_input_'+str(i)) for i in range(patch_num)]
-    list_raw_input = [Input(shape=disc_raw_img_shape, name='disc_raw_input_'+str(i)) for i in range(patch_num)]
+    list_input = [Input(shape=disc_img_shape, name='disc_input_'+str(i)) for i in range(patch_num)] # => DCT
+    list_raw_input = [Input(shape=disc_raw_img_shape, name='disc_raw_input_'+str(i)) for i in range(patch_num)] # => Input Image
     
     filter_num = 64
     conv_num = int(np.floor(np.log(disc_img_shape[1]) / np.log(2)))
     list_filters = [filter_num*min(8, (2**i)) for i in range(conv_num)]
 
     # First_Convolution_for_generated_images
-    generated_patch_input = Input(shape=disc_img_shape, name="discriminator_input") # 生成された方のデータ
+    generated_patch_input = Input(shape=disc_img_shape, name="discriminator_dct_input") # DCT
     xg = Conv2D(list_filters[0], kernel_size=(3, 3), strides=(2, 2), name="disc_conv2d_1", padding="same")(generated_patch_input)
     xg = BatchNormalization(axis=-1)(xg)
     xg = LeakyReLU(0.2)(xg)
 
     # first_Convolution_for_predicted_guetzli_DCT
-    raw_patch_input = Input(shape=disc_raw_img_shape, name="discriminator_guetzli_dct_input")
+    raw_patch_input = Input(shape=disc_raw_img_shape, name="discriminator_image_input") # Raw Input
     xr = Conv2D(list_filters[0], kernel_size=(3, 3), strides=(2, 2), name="dic_dct_conv2d_1", padding="same")(raw_patch_input)
     xr = BatchNormalization(axis=-1)(xr)
     xr = LeakyReLU(0.2)(xr)
@@ -40,7 +40,7 @@ def discriminator(img_shape, disc_img_shape, patch_num):
     PatchGAN = Model(inputs=[generated_patch_input, raw_patch_input], outputs=[x], name='PatchGAN')
     print('PatchGAN Summary')
     PatchGAN.summary()
-
+    
     x = [PatchGAN(list_input[i], list_raw_input[i]) for i in range(patch_num)]
 
     if len(x) > 1:

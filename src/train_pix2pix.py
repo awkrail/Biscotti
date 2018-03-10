@@ -50,11 +50,9 @@ def get_disc_batch(X_dct, X_input, generator_model, batch_counter, patch_size):
     return X_disc, y_disc
 
 def get_train_iterator(perm, images, dcts, batch_size):
-    for p in perm:
-        X_image = images[p]
-        X_dcts = dcts[p]
-        for i in range(0, images.shape[0], batch_size):
-            yield X_dcts[i:i+batch_size], X_images[i:i+batch_size]
+    perm_batch = [perm[i:i+batch_size] for i in range(0, perm.shape[0], batch_size)]
+    for pb in perm_batch:
+        yield dcts[pb], images[pb]
 
 def train(args):
     output = args.outputfile
@@ -94,19 +92,9 @@ def train(args):
 
     print("start training...")
     for epoch in range(args.epoch):
-        perm = np.random.permutation(images.shape[0]) # 入力側
-
-        # => サーバ側のメモリエラー
-        # import ipdb; ipdb.set_trace()
-        """
-        X_dct = dcts[perm]
-        X_input_images = images[perm]
-        X_dctIter = [X_dct[i:i+args.batch_size] for i in range(0, images.shape[0], args.batch_size)]
-        X_imageIter = [X_input_images[i:i+args.batch_size] for i in range(0, images.shape[0], args.batch_size)]
-        """
-
+        perm = np.random.permutation(images.shape[0])
         b_it = 0
-        progbar = generic_utils.Progbar(len(X_imageIter)*args.batch_size)
+        progbar = generic_utils.Progbar(images.shape[0])
         for X_dct_batch, X_input_batch in get_train_iterator(perm, images, dcts, args.batch_size):
             b_it += 1
 

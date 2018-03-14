@@ -1,4 +1,3 @@
-
 import argparse
 import os
 import numpy as np
@@ -27,35 +26,82 @@ def load_img_and_dct_data(dataset_path):
     y_train, y_valid = y[:threshold], y[threshold:]
     return X_train, X_train, y_valid, y_valid
 
+
+def load_img_and_dct_data_on_batch(dataset_path, dataset_files):
+    load_length = len(dataset_files)
+    X = np.zeros((load_length, 224, 224, 3))
+    y = np.zeros((load_length, 224, 224, 3))
+
+    for i, file in enumerate(dataset_files):
+        data = np.load(dataset_path + "/" + file)
+        img, dct = data[:, :, :3], data[:, :, 3:]
+        X[i] = img
+        y[i] = dct
+    
+    return X, y
+
+
+def load_train_data_on_batch(dataset_path, perm, train_files, batch_size):
+    X = np.zeros((batch_size, 224, 224, 3))
+    y = np.zeros((batch_size, 224, 224, 3))
+    for i, p_num in enumerate(perm):
+        data = np.load(dataset_path + "/" + train_files[p_num])
+        img, dct = data[:, :, :3], data[:, :, 3:]
+        X[i] = img
+        y[i] = dct
+    return X, y 
+
+
+def load_validation_dataset(dataset_path, test_files):
+    X = np.zeros((len(test_files), 224, 224, 3))
+    y = np.zeros((len(test_files), 224, 224, 3))
+    for i, test_file in enumerate(test_files):
+        data = np.load(dataset_path + "/" + test_file)
+        img, dct = data[:, :, :3], data[:, :, 3:]
+        X[i] = img
+        y[i] = dct
+    return X, y
+
+
 def train(args):
-
     # load data
-    images, dcts, images_val, dcts_val = load_img_and_dct_data(args.datasetpath)
-    print("train_image shape: ", images.shape)
-    print("train_dct shape: ", dcts.shape)
-    print("validation image shape: ", images_val.shape)
-    print("validation dct shape: ", dcts_val.shape)
-
-    img_shape = images.shape[-3:]
-    patch_num = (img_shape[0] // args.patch_size) * (img_shape[1] // args.patch_size)
-    disc_img_shape = (args.patch_size, args.patch_size, images.shape[-1])
-
+    data_files = sorted(os.listdir(args.datasetpath))
+    threshold = int(len(data_files)*0.9)
+    train_files = data_files[:threshold]
+    test_files = data_files[threshold:]
+    X_valid, y_valid = load_validation_dataset(args.dataset_path, test_files)
+    batch_size = args.batch_size
+    output = args.outputfile
+    
     # set optimizer
     opt_unet = Adam(lr=1e-3, beta_1=0.9, beta_2=0.999, epsilon=1e-08)
 
     # load generator model
-    generator_model = nets.my_load_generator(img_shape)
-    generator_model.compile(loss='binary_crossentropy', optimizer=opt_unet)
+    target_size = (224, 224, 3)
+    generator_model = nets.my_load_generator(target_size)
+    generator_model.compile(loss='binary_crossentropy', optimizer=opt_unet, metrics=['accuracy'])
 
     # checkpoint
-    output = args.outputfile
     checkpointer = ModelCheckpoint(filepath=output + "/model_weights_{epoch:02d}.h5", save_best_only=False)
-    
+
     # start training...
+    """
     print('start training...')
     generator_model.fit(images, dcts, batch_size=10, epochs=20, verbose=1,
                 shuffle=True, validation_data=(images_val, dcts_val),
                 callbacks=[checkpointer])
+    """
+
+    for epoch in range(args.epoch):
+        perms = np.random.permutation(len(train_files))
+        perm_batch = [perms[i:i+batch_size] for i in range(0, len(train_files), batch_size)]
+        for pb in perm_batch:
+            X_train, y_train = load_train_data_on_batch(args.datasetpath, pb, train_files, batch_size)
+            generator_model.train_on_batch(X_train, y_train)
+
+        score = generator_model.evaluate(X_valid, y_valid)
+        print("epoch {} : accuracy {}".format(epoch, score))
+        generator_model.save_weight(output + "/model_weights_{}.h5".format(epoch), save_best_only=False)
 
 
 def main():

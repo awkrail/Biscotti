@@ -141,7 +141,7 @@ def main():
     parser.add_argument("--datasetpath", '-d', type=str, required=True)
     parser.add_argument("--outputfile", "-o", type=str, required=True)
     parser.add_argument("--patch_size", "-p", type=int, default=112)
-    parser.add_argument("--batch_size", "-b", type=str, default=5)
+    parser.add_argument("--batch_size", "-b", type=int, default=5)
     parser.add_argument("--epoch", type=int, default=400)
     args = parser.parse_args()
     K.set_image_data_format("channels_last")

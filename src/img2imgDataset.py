@@ -2,6 +2,7 @@ import numpy as np
 import cv2
 import os
 import pandas as pd
+import argparse
 
 """
 [WIP]
@@ -21,50 +22,10 @@ TODO: this script doesn't accept gray scale.
 
 
 class Image2ImageDataset(object):
-    def __init__(self):
-        self.qopt_path = "dataset224/qopt_images/"
-        self.train_path = "train224/"
-        self.csv_path = "dataset224/csv/"
-    
-    def load_dataset(self):
-        """
-        this function is used for training scripts.
-        other functions is used for making dataset.
-        """
-        qopt_files = sorted(os.listdir(self.qopt_path))
-        csv_files = sorted(os.listdir(self.csv_path))
-
-        if not self.assert_two_lists_is_same(qopt_files, csv_files):
-            print("Please check your qopt_images/ and csv/ are same")
-            exit()
-        
-        images = self.load_yield_image(qopt_files)
-        labels = self.dct_csv2numpy_probability(csv_files)
-
-        for image, label in zip(images, labels):
-
-            if self.check_grayscale(image, label):
-                print("this image is on gray scale data!")
-                continue
-
-            if self.check_chroma_subsampling(image, label):
-                print("this image is YUV444")
-                continue
-
-            img = cv2.cvtColor(image, cv2.COLOR_BGR2YCrCb) / 255.0
-            height = img.shape[0]
-            width = img.shape[1]
-            height_blocks = int(height / 8)
-            width_blocks = int(width / 8)
-            seq = int(label.shape[0] * (2/3))
-
-            coeff_y, coeff_cbcr = label[:seq], label[seq:]
-            coeff_y = self.resize_coeff_to_img_matrix(coeff_y, width, height)
-            coeff_cb = self.resize420to444(coeff_cbcr[:int(seq/4)], width, height)
-            coeff_cr = self.resize420to444(coeff_cbcr[int(seq/4):], width, height)
-            coeff3d = np.concatenate((coeff_y, coeff_cr, coeff_cb), axis=2)
-            result = np.concatenate((img, coeff3d), axis=2)
-            yield result
+    def __init__(self, qopt_images_path, train_path, csv_path):
+        self.qopt_path = qopt_images_path
+        self.train_path = train_path
+        self.csv_path = csv_path
     
     def load_yield_image(self, qopt_files):
         for qopt_file in qopt_files:
@@ -180,7 +141,17 @@ class Image2ImageDataset(object):
 
 
 if __name__ == "__main__":
+    parser = argparse.ArgumentParser(description="Making dataset for training biscotti")
+    parser.add_argument("--qopt_images", '-q', type=str, default="qopt_images/")
+    parser.add_argument("--csv", "-c", type=str, default="csv/")
+    parser.add_argument("--train_path", "-t", type=str, default="train/")
+    args = parser.parse_args()
+
+    qopt_images_path = args.qopt_images
+    csv_path = args.csv
+    train_path = args.train_path
+
     print("=== making dataset... ===")
-    dataset = Image2ImageDataset()
+    dataset = Image2ImageDataset(qopt_images_path, train_path, csv_path)
     dataset.make_images_and_labels()
     print("===> Done!")

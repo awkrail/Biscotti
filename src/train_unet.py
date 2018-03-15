@@ -103,8 +103,8 @@ def train(args):
             progbar.add(batch_size, values=[("loss", loss)])
 
         score = generator_model.evaluate(X_valid, y_valid)
-        print("epoch {} : accuracy {}".format(epoch, score))
-        generator_model.save_weights(output + "/model_weights_{}.h5".format(epoch), save_best_only=False)
+        print("epoch {} : loss: {} accuracy {}".format(epoch, score[0], score[1]))
+        generator_model.save_weights(output + "/model_weights_{}.h5".format(epoch))
 
 
 def main():

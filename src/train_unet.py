@@ -79,7 +79,7 @@ def train(args):
 
     # load generator model
     target_size = (224, 224, 3)
-    generator_model = nets.my_load_generator(target_size)
+    generator_model = nets.get_generator(target_size)
     generator_model.compile(loss='binary_crossentropy', optimizer=opt_unet, metrics=['accuracy'])
 
     # checkpoint
@@ -96,7 +96,7 @@ def train(args):
     for epoch in range(args.epoch):
         perms = np.random.permutation(len(train_files))
         perm_batch = [perms[i:i+batch_size] for i in range(0, len(train_files), batch_size)]
-        progbar = generic_utils.Progbar(images.shape[0])
+        progbar = generic_utils.Progbar(threshold)
         for pb in perm_batch:
             X_train, y_train = load_train_data_on_batch(args.datasetpath, pb, train_files, batch_size)
             loss = generator_model.train_on_batch(X_train, y_train)

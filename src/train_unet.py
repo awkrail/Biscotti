@@ -5,6 +5,7 @@ import numpy as np
 import keras.backend as K
 from keras.optimizers import Adam
 
+from keras.utils import generic_utils
 from keras.callbacks import ModelCheckpoint
 
 import nets
@@ -95,13 +96,15 @@ def train(args):
     for epoch in range(args.epoch):
         perms = np.random.permutation(len(train_files))
         perm_batch = [perms[i:i+batch_size] for i in range(0, len(train_files), batch_size)]
+        progbar = generic_utils.Progbar(images.shape[0])
         for pb in perm_batch:
             X_train, y_train = load_train_data_on_batch(args.datasetpath, pb, train_files, batch_size)
-            generator_model.train_on_batch(X_train, y_train)
+            loss = generator_model.train_on_batch(X_train, y_train)
+            progbar.add(batch_size, values=[("loss", loss)])
 
         score = generator_model.evaluate(X_valid, y_valid)
         print("epoch {} : accuracy {}".format(epoch, score))
-        generator_model.save_weight(output + "/model_weights_{}.h5".format(epoch), save_best_only=False)
+        generator_model.save_weights(output + "/model_weights_{}.h5".format(epoch), save_best_only=False)
 
 
 def main():
@@ -109,7 +112,7 @@ def main():
     parser.add_argument("--datasetpath", '-d', type=str, required=True)
     parser.add_argument("--outputfile", "-o", type=str, required=True)
     parser.add_argument("--patch_size", "-p", type=int, default=112)
-    parser.add_argument("--batch_size", "-b", type=str, default=5)
+    parser.add_argument("--batch_size", "-b", type=int, default=5)
     parser.add_argument("--epoch", type=int, default=400)
     args = parser.parse_args()
     K.set_image_data_format("channels_last")

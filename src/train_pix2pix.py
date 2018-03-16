@@ -143,6 +143,7 @@ def main():
     parser.add_argument("--patch_size", "-p", type=int, default=112)
     parser.add_argument("--batch_size", "-b", type=int, default=5)
     parser.add_argument("--epoch", type=int, default=400)
+    parser.add_argument("--train_size", "-t", type=int, default=224)
     args = parser.parse_args()
     K.set_image_data_format("channels_last")
 

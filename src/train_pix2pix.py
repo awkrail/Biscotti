@@ -54,21 +54,52 @@ def get_train_iterator(perm, images, dcts, batch_size):
     for pb in perm_batch:
         yield dcts[pb], images[pb]
 
+def load_train_data_on_batch(dataset_path, perm, train_files, batch_size):
+    X = np.zeros((batch_size, 224, 224, 3))
+    y = np.zeros((batch_size, 224, 224, 3))
+    for i, p_num in enumerate(perm):
+        data = np.load(dataset_path + "/" + train_files[p_num])
+        img, dct = data[:, :, :3], data[:, :, 3:]
+        X[i] = img
+        y[i] = dct
+    return y, X
+
+
+def load_validation_dataset(dataset_path, test_files):
+    X = np.zeros((len(test_files), 224, 224, 3))
+    y = np.zeros((len(test_files), 224, 224, 3))
+    for i, test_file in enumerate(test_files):
+        data = np.load(dataset_path + "/" + test_file)
+        img, dct = data[:, :, :3], data[:, :, 3:]
+        X[i] = img
+        y[i] = dct
+    return X, y
+
 def train(args):
     output = args.outputfile
     if not os.path.exists("./figure"):
         os.mkdir("./figure")
 
-    # load data
-    images, images_val, dcts,  dcts_val = load_img_and_dct_data(args.datasetpath)
-    print("train_image shape: ", images.shape)
-    print("train_dct shape: ", dcts.shape)
-    print("validation image shape: ", images_val.shape)
-    print("validation dct shape: ", dcts_val.shape)
+    # image_shape
+    image_shape = args.train_size
 
-    img_shape = images.shape[-3:]
-    patch_num = (img_shape[0] // args.patch_size) * (img_shape[1] // args.patch_size)
-    disc_img_shape = (args.patch_size, args.patch_size, images.shape[-1])
+    # load data
+    # images, images_val, dcts,  dcts_val = load_img_and_dct_data(args.datasetpath)
+    # print("train_image shape: ", images.shape)
+    # print("train_dct shape: ", dcts.shape)
+    # print("validation image shape: ", images_val.shape)
+    # print("validation dct shape: ", dcts_val.shape)
+    # img_shape = images.shape[-3:]
+    data_files = sorted(os.listdir(args.datasetpath))
+    threshold = int(len(data_files)*0.9)
+    train_files = data_files[:threshold]
+    test_files = data_files[threshold:]
+    X_valid, y_valid = load_validation_dataset(args.dataset_path, test_files)
+    batch_size = args.batch_size
+
+    patch_num = (image_shape // args.patch_size) * (image_shape // args.patch_size)
+    img_shape = (args.image_shape, args.image_shape, 3)
+    disc_img_shape = (args.patch_size, args.patch_size, 3)
 
     # set optimizer
     opt_dcgan = Adam(lr=1e-3, beta_1=0.9, beta_2=0.999, epsilon=1e-08)
@@ -91,11 +122,15 @@ def train(args):
     discriminator_model.compile(loss="binary_crossentropy", optimizer=opt_discriminator)
 
     print("start training...")
+    # TODO: permごとにtrainから読み込むことで学習させるようにソースコードを変更する
     for epoch in range(args.epoch):
-        perm = np.random.permutation(images.shape[0])
+        perm = np.random.permutation(len(train_files))
+        perm_batch = [perm[i:i+batch_size] for i in range(0, len(train_files), batch_size)]
         b_it = 0
-        progbar = generic_utils.Progbar(images.shape[0])
-        for X_dct_batch, X_input_batch in get_train_iterator(perm, images, dcts, args.batch_size):
+        progbar = generic_utils.Progbar(len(train_files))
+
+        # ここからバッチごとに処理を行う
+        for X_dct_batch, X_input_batch in load_train_data_on_batch(args.dataset_path, perm_batch[b_it], train_files, batch_size):
             b_it += 1
 
             X_disc, y_disc = get_disc_batch(X_dct_batch, X_input_batch, generator_model, b_it, args.patch_size)
@@ -105,8 +140,11 @@ def train(args):
             # update discriminator
             disc_loss = discriminator_model.train_on_batch(disc_input, y_disc)
 
-            idx = np.random.choice(dcts.shape[0], args.batch_size)
-            X_gen_target, X_gen = dcts[idx], images[idx]
+            # 変更不可欠
+            idx = np.random.choice(len(train_files), args.batch_size)
+            
+            # X_gen_target, X_gen = dcts[idx], images[idx]
+            X_gen_target, X_gen = load_train_data_on_batch(args.dataset_path, idx, train_files, batch_size)
             y_gen = np.zeros((X_gen.shape[0], 2), dtype=np.uint8)
             y_gen[:, 1] = 1
 
@@ -124,17 +162,6 @@ def train(args):
         
         # save weight
         generator_model.save_weights(args.outputfile + "/generator_%d.h5"%epoch)
-
-    """
-    # checkpoint
-    checkpointer = ModelCheckpoint(filepath=output + "/model_weights_{epoch:02d}.h5", save_best_only=False)
-    # start training...
-    print('start training...')
-    generator_model.fit(images, dcts, batch_size=10, epochs=20, verbose=1,
-                shuffle=True, validation_data=(images_val, dcts_val),
-                callbacks=[checkpointer])
-    """
-
 
 def main():
     parser = argparse.ArgumentParser(description="Training pix2pix")

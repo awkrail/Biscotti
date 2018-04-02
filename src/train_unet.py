@@ -70,7 +70,7 @@ def train(args):
     threshold = int(len(data_files)*0.9)
     train_files = data_files[:threshold]
     test_files = data_files[threshold:]
-    X_valid, y_valid = load_validation_dataset(args.dataset_path, test_files)
+    X_valid, y_valid = load_validation_dataset(args.datasetpath, test_files)
     batch_size = args.batch_size
     output = args.outputfile
     

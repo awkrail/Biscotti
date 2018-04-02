@@ -79,7 +79,7 @@ def generator_3layer(input_size):
     conv6 = Conv2D(64, (3, 3), activation='relu', padding='same')(up2)
     conv6 = BatchNormalization(axis=-1)(conv6)
     
-    up3 = concatenate([UpSampling2D(sie=(2, 2), data_format="channels_last")(conv6), conv1], axis=3)
+    up3 = concatenate([UpSampling2D(size=(2, 2), data_format="channels_last")(conv6), conv1], axis=3)
     conv7 = Conv2D(32, (3, 3), activation='relu', padding='same')(up3)
     conv7 = BatchNormalization(axis=-1)(conv7)
 

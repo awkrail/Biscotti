@@ -98,9 +98,10 @@ def train(args):
         perm_batch = [perms[i:i+batch_size] for i in range(0, len(train_files), batch_size)]
         progbar = generic_utils.Progbar(threshold)
         for pb in perm_batch:
+            import ipdb; ipdb.set_trace()
             X_train, y_train = load_train_data_on_batch(args.datasetpath, pb, train_files, batch_size)
             loss = generator_model.train_on_batch(X_train, y_train)
-            progbar.add(batch_size, values=[("loss", loss)])
+            progbar.add(batch_size, values=[("loss", loss[0]), ("accuracy", loss[1])])
 
         score = generator_model.evaluate(X_valid, y_valid)
         print("epoch {} : loss: {} accuracy {}".format(epoch, score[0], score[1]))

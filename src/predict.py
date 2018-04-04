@@ -130,6 +130,7 @@ class Predictor():
         y420 = dct_binary[:, :, 0]
         cr420 = self.resize444to420(dct_binary[:, :, 1])
         cb420 = self.resize444to420(dct_binary[:, :, 2])
+        import ipdb; ipdb.set_trace()
 
         # modify for guetzli
         y = self.ModifyCoeffsForGuetzliDataStruct(y420)
@@ -274,7 +275,12 @@ class Predictor():
                 canvas64 = np.zeros((8, 8))
                 for k in range(8):
                     for u in range(8):
-                        canvas64[k][u] = coeffs[j+k][i+u]
+                        print("k: ", k)
+                        print("u: ", u)
+                        print("block_ix: ", block_ix)
+                        print("i: ", i)
+                        print("j: ", j)
+                        canvas64[k][u] = coeffs[j+k][i+u] # error
                 foundation[block_ix] = canvas64.flatten()
                 block_ix += 1
         return foundation
@@ -301,6 +307,8 @@ if __name__ == "__main__":
                         help="default csv path")
     parser.add_argument("--guetzli_csv_path", "-gc", type=str, 
                         help="guetzli csv path")
+    parser.add_argument("--threshold", "-th", type=float, default=0.5,
+                        help="threshold")
     args = parser.parse_args()
 
 
@@ -308,7 +316,7 @@ if __name__ == "__main__":
     # model_path, result_png_path, csv_path, guetzli_csv_path
     image = cv2.imread(args.imagepath)
     image = cv2.cvtColor(image, cv2.COLOR_BGR2YCrCb) / 255.0
-    predictor = Predictor(target_size, image, threshold=0.5,
+    predictor = Predictor(target_size, image, threshold=args.threshold,
                     model_path=args.modelpath, 
                     result_png_path=args.resultpath,
                     csv_path=args.csvpath,

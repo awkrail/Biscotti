@@ -105,7 +105,9 @@ def train(args):
 
         score = generator_model.evaluate(X_valid, y_valid)
         print("epoch {} : loss: {} accuracy {}".format(epoch, score[0], score[1]))
-        generator_model.save_weights(output + "/model_weights_{}.h5".format(epoch))
+        # TODO: to load keras.models.load_model, change save_weights into model.save 
+        # generator_model.save_weights(output + "/model_weights_{}.h5".format(epoch))
+        generator_model.save(output + '/model_weights_{}.h5'.format(epoch))
 
 
 def main():

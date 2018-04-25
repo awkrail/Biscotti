@@ -34,7 +34,8 @@ def main(model_path, out_dir, num_out, prefix, name, readable):
     tf.train.write_graph(sess.graph.as_graph_def(), out_dir, f, as_text=True)
     print('Saved the graph definition in ascii at :', out_dir + '/' + f)
   
-  constant_graph = graph_util.convert_variables_to_constant(sess, sess.graph.as_graph_def(), pred_node_names)
+  # WATCH: convert_variables_to_constant => convert_variables_to_constants
+  constant_graph = graph_util.convert_variables_to_constants(sess, sess.graph.as_graph_def(), pred_node_names)
   graph_io.write_graph(constant_graph, out_dir, name, as_text=False)
   print('Saved the constant graph at: ', out_dir + '/' + name)
 

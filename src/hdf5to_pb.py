@@ -18,7 +18,6 @@ def main(model_path, out_dir, num_out, prefix, name, readable):
     os.mkdir(out_dir)
   
   K.set_learning_phase(0)
-  import ipdb; ipdb.set_trace()
   net_model = load_model(model_path)
 
   pred = [None]*num_out

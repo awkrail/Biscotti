@@ -84,7 +84,6 @@ class Predictor():
         self.threshold = threshold
         self.result_png_path = result_png_path
         self.csv_path = csv_path
-        # TODO: Change 3layer
         self.model = self.create_generator_3layer()
         self.model.load_weights(model_path)
         self.guetzli_dct = DctCsvLoader(guetzli_csv_path, target_size).get_csv()

@@ -3,5 +3,4 @@ images
 qopt_images
 opt_images
 resized_images
-train
-label
+.vscode

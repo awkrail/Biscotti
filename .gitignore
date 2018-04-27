@@ -5,3 +5,4 @@ opt_images
 resized_images
 .vscode
 src/__pycache__
+obj

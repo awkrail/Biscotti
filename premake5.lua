@@ -2,8 +2,11 @@ workspace "biscotti"
   configurations { "Release", "Debug" }
   language "C++"
   flags { "C++11" }
-  includedirs { ".", "third_party/butteraugli", "third_party/tensorflow" } -- TODO: ADD Tensorflow
-
+  includedirs { ".", "third_party/butteraugli", "third_party/tensorflow",
+                "third_party/tensorflow/bazel-tensorflow/external/eigen_archive",
+                "third_party/tensorflow/bazel-tensorflow/external/protobuf/src",
+                "third_party/tensorflow/bazel-genfiles",
+                "third_party/tensorflow/bazel-tensorflow/external/nsync/public" }
   filter "action:vs*"
     platforms { "x86_64", "x86" }
   
@@ -14,7 +17,7 @@ workspace "biscotti"
   
   filter "action:gmake"
     symbols "On"
-  
+
   filter "configurations:Debug"
     symbols "On"
   filter "configurations:Release"
@@ -23,42 +26,25 @@ workspace "biscotti"
 
   project "biscotti_static"
     kind "StaticLib"
-    files
-      {
-        "Biscotti/*.cc",
-        "Biscotti/*.h",
-        "third_party/butteraugli/butteraugli/butteraugli.cc",
-        "third_party/butteraugli/butteraugli/butteraugli.h",
-        "third_party/tensorflow",
-        "third_party/tensorflow/bazel-tensorflow/external/eigen_archive",
-        "third_party/tensorflow/bazel-tensorflow/external/protobuf/src",
-        "third_party/tensorflow/bazel-genfiles",
-        "third_party/tensorflow/bazel-tensorflow/external/nsync/public"
-      }
+    files {
+      "Biscotti/*.cc",
+      "Biscotti/*.h",
+      "third_party/butteraugli/butteraugli/butteraugli.cc",
+      "third_party/butteraugli/butteraugli/butteraugli.h"
+    }
     removefiles "Biscotti/biscotti.cc"
     filter "action:gmake"
-      -- I think it has something wrong
-      linkoptions { "`pkg-config --libs libpng || libpng-config --static --ldflags -L third_party/tensorflow/bazel-bin/tensorflow -ltensorflow_cc -ltensorflow_framework`" }
-      buildoptions { "`pkg-config --cflags libpng || libpng-config --static --cflags -L third_party/tensorflow/bazel-bin/tensorflow -ltensorflow_cc -ltensorflow_framework`" }
-  
+      linkoptions { "`pkg-config --libs libpng || libpng-config --static --ldflags`" }
+      buildoptions { "`pkg-config --cflags libpng || libpng-config --static --cflags`", "-L ./tensorflow/bazel-bin/tensorflow", "-ltensorflow_cc", "-ltensorflow_framework" }
+
   project "biscotti"
     kind "ConsoleApp"
     filter "action:gmake"
-      -- I think it has something wrong
-      linkoptions { "`pkg-config --libs libpng || libpng-config --ldflags -L third_party/tensorflow/bazel-bin/tensorflow -ltensorflow_cc -ltensorflow_framework`" }
-      buildoptions { "`pkg-config --cflags libpng || libpng-config --cflags -L third_party/tensorflow/bazel-bin/tensorflow -ltensorflow_cc -ltensorflow_framework`" }
-    filter "action:vs*"
-      links { "shlwapi" }
-    filter {}
-    files
-      {
-        "Biscotti/*.cc",
-        "Biscotti/*.h",
-        "third_party/butteraugli/butteraugli/butteraugli.cc",
-        "third_party/butteraugli/butteraugli/butteraugli.h",
-        "third_party/tensorflow",
-        "third_party/tensorflow/bazel-tensorflow/external/eigen_archive",
-        "third_party/tensorflow/bazel-tensorflow/external/protobuf/src",
-        "third_party/tensorflow/bazel-genfiles",
-        "third_party/tensorflow/bazel-tensorflow/external/nsync/public"
-      }
+      linkoptions { "`pkg-config --libs libpng || libpng-config --static --ldflags`" }
+      buildoptions { "`pkg-config --cflags libpng || libpng-config --static --cflags`", "-L third_party/tensorflow/bazel-bin/tensorflow", "-ltensorflow_cc", "-ltensorflow_framework" }
+    files {
+      "Biscotti/*.cc",
+      "Biscotti/*.h",
+      "third_party/butteraugli/butteraugli/butteraugli.cc",
+      "third_party/butteraugli/butteraugli/butteraugli.h"
+    }

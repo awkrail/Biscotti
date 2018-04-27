@@ -37,12 +37,14 @@ workspace "biscotti"
       }
     removefiles "Biscotti/biscotti.cc"
     filter "action:gmake"
+      -- I think it has something wrong
       linkoptions { "`pkg-config --libs libpng || libpng-config --static --ldflags -L third_party/tensorflow/bazel-bin/tensorflow -ltensorflow_cc -ltensorflow_framework`" }
       buildoptions { "`pkg-config --cflags libpng || libpng-config --static --cflags -L third_party/tensorflow/bazel-bin/tensorflow -ltensorflow_cc -ltensorflow_framework`" }
   
   project "biscotti"
     kind "ConsoleApp"
     filter "action:gmake"
+      -- I think it has something wrong
       linkoptions { "`pkg-config --libs libpng || libpng-config --ldflags -L third_party/tensorflow/bazel-bin/tensorflow -ltensorflow_cc -ltensorflow_framework`" }
       buildoptions { "`pkg-config --cflags libpng || libpng-config --cflags -L third_party/tensorflow/bazel-bin/tensorflow -ltensorflow_cc -ltensorflow_framework`" }
     filter "action:vs*"

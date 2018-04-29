@@ -179,9 +179,10 @@ int main(int argc, char* argv[]) {
   float input_mean = 0;
   float input_std = 255;
   tensorflow::Status read_tensor_status = 
-      ::ReadTensorFromImageFile(image_path, input_height, input_width, input_mean, 
-                                                  input_std, &tensors);
+      ReadTensorFromImageFile(image_path, input_height, input_width, input_mean, 
+                              input_std, &tensors);
   if(!read_tensor_status.ok()) {
     LOG(ERROR) << read_tensor_status;
   }
+  
 }

@@ -184,5 +184,4 @@ int main(int argc, char* argv[]) {
   if(!read_tensor_status.ok()) {
     LOG(ERROR) << read_tensor_status;
   }
-  
 }

@@ -3,6 +3,8 @@
 #include <vector>
 #include <cassert>
 
+#include <chrono> // for profiling
+
 #include "tensorflow/cc/ops/const_op.h"
 #include "tensorflow/cc/ops/image_ops.h"
 #include "tensorflow/cc/ops/standard_ops.h"
@@ -141,12 +143,16 @@ namespace {
 }
 
 int main(int argc, char* argv[]) {
-  tensorflow::string image_path = "";
-  tensorflow::string graph_path = "";
-  tensorflow::int32 input_width = -1;
-  tensorflow::int32 input_height = -1;
-  tensorflow::string input_layer = "";
-  tensorflow::string output_layer = "";
+  // for profiling
+  std::chrono::system_clock::time_point  start, end; // 型は auto で可
+  start = std::chrono::system_clock::now(); // 計測開始時間
+
+  tensorflow::string image_path = "test/0.jpg";
+  tensorflow::string graph_path = "pb_model/output_graph.pb";
+  tensorflow::int32 input_width = 512;
+  tensorflow::int32 input_height = 512;
+  tensorflow::string input_layer = "input_1";
+  tensorflow::string output_layer = "biscotti_0";
   std::vector<tensorflow::Flag> flag_list = {
     tensorflow::Flag("image", &image_path, "image to be procesessed"),
     tensorflow::Flag("graph", &graph_path, "graph to be executed"),
@@ -184,4 +190,29 @@ int main(int argc, char* argv[]) {
   if(!read_tensor_status.ok()) {
     LOG(ERROR) << read_tensor_status;
   }
+
+  // ..?
+  const tensorflow::Tensor& tensor = tensors[0];
+
+  std::vector<tensorflow::Tensor> outputs;
+  tensorflow::Status run_status = session->Run({{input_layer, tensor}},
+                                              {output_layer}, {}, &outputs);
+  if(!run_status.ok()) {
+    std::cout << "Running model failed" << std::endl;
+    LOG(ERROR) << "Running model failed: " << run_status;
+    return -1;
+  }
+
+  std::cout << outputs[0].NumElements() << std::endl;
+  assert(outputs[0].NumElements() == input_width*input_height*3);
+  tensorflow::TTypes<float>::Flat result_flat = outputs[0].flat<float>();
+
+  for(int i=0; i<outputs[0].NumElements(); ++i) {
+    std::cout << result_flat(i) << std::endl;
+  }
+
+  end = std::chrono::system_clock::now();  // 計測終了時間
+  double elapsed = std::chrono::duration_cast<std::chrono::milliseconds>(end-start).count(); //処理に要した時間をミリ秒に変換
+  std::cout << "elapsed_time : " << elapsed << std::endl; 
+
 }

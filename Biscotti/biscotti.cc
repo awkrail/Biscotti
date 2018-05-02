@@ -208,7 +208,11 @@ int main(int argc, char* argv[]) {
   tensorflow::TTypes<float>::Flat result_flat = outputs[0].flat<float>();
 
   for(int i=0; i<outputs[0].NumElements(); ++i) {
-    std::cout << result_flat(i) << std::endl;
+    if(result_flat(i) >= 0.5) {
+      std::cout << 1 << std::endl;
+    } else {
+      std::cout << 0 << std::endl;
+    }
   }
 
   end = std::chrono::system_clock::now();  // 計測終了時間

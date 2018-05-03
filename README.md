@@ -88,4 +88,4 @@ There are 8 options.
 - making command line tool
 
 ## LICENSE
-Under [Apache 2.0 License](https://www.apache.org/licenses/LICENSE-2.0)
+This repo is under [Apache 2.0 License](https://www.apache.org/licenses/LICENSE-2.0)

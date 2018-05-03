@@ -27,12 +27,12 @@ workspace "biscotti"
   project "biscotti_static"
     kind "StaticLib"
     files {
-      "Biscotti/*.cc",
-      "Biscotti/*.h",
+      "biscotti/*.cc",
+      "biscotti/*.h",
       "third_party/butteraugli/butteraugli/butteraugli.cc",
       "third_party/butteraugli/butteraugli/butteraugli.h"
     }
-    removefiles "Biscotti/biscotti.cc"
+    removefiles "biscotti/biscotti.cc"
     filter "action:gmake"
       linkoptions { "`pkg-config --libs libpng || libpng-config --static --ldflags`", "-L third_party/tensorflow/bazel-bin/tensorflow", "-ltensorflow_cc", "-ltensorflow_framework" }
       buildoptions { "`pkg-config --cflags libpng || libpng-config --static --cflags`" }
@@ -43,8 +43,8 @@ workspace "biscotti"
       linkoptions { "`pkg-config --libs libpng || libpng-config --ldflags`", "-L third_party/tensorflow/bazel-bin/tensorflow", "-ltensorflow_cc", "-ltensorflow_framework" }
       buildoptions { "`pkg-config --cflags libpng || libpng-config --cflags`" }
     files {
-      "Biscotti/*.cc",
-      "Biscotti/*.h",
+      "biscotti/*.cc",
+      "biscotti/*.h",
       "third_party/butteraugli/butteraugli/butteraugli.cc",
       "third_party/butteraugli/butteraugli/butteraugli.h"
     }

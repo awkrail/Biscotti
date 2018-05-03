@@ -1,5 +1,5 @@
 /*
- * Copyright 2016 Google Inc.
+ * Copyright 2018 Taichi Nishimura
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,13 +14,13 @@
  * limitations under the License.
  */
 
-#include "guetzli/butteraugli_comparator.h"
+#include "biscotti/butteraugli_comparator.h"
 
 #include <algorithm>
 
-#include "guetzli/debug_print.h"
-#include "guetzli/gamma_correct.h"
-#include "guetzli/score.h"
+#include "biscotti/debug_print.h"
+#include "biscotti/gamma_correct.h"
+#include "biscotti/score.h"
 
 namespace guetzli {
 

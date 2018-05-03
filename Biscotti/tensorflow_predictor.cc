@@ -1,3 +1,19 @@
+/*
+ * Copyright 2018 Taichi Nishimura
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
 #include <fstream>
 #include <utility>
 #include <vector>
@@ -24,12 +40,41 @@
 #include "tensorflow/core/public/session.h"
 #include "tensorflow/core/util/command_line_flags.h"
 
-// These are all common classes it's handy to reference with no namespace.
-// using tensorflow::Flag;
-// using tensorflow::Tensor;
-// using tensorflow::Status;
-// using tensorflow::string;
-// using tensorflow::int32;
+namespace biscotti {
+  Predictor::Predictor(const tensorflow::string image_path,  const tensorflow::string graph_path,
+                       const tensorflow::int32 input_width,  const tensorflow::int32 input_height,
+                       const tensorflow::string input_layer, const tensorflow::string output_layer,
+                       const std::vector<tensorflow::Tensor>& outputs)
+                      : image_path(image_path),
+                        graph_path(graph_path),
+                        input_width(input_width),
+                        input_height(input_height),
+                        input_layer(input_layer),
+                        output_layer(output_layer),
+                        outputs(outputs) {}
+  
+  // this method is used for processing all units.
+  // load graph, load image(but loading image is duplicated with guetzli process, so I will delete it),
+  // and run session.
+  // by this method, output property will be replaced.
+  void Predictor::Process() {
+    std::vector<tensorflow::Flag> flag_list = {
+      tensorflow::Flag("image", &image_path, "image to be procesessed"),
+      tensorflow::Flag("graph", &graph_path, "graph to be executed"),
+      tensorflow::Flag("input_width", &input_width, "image width"),
+      tensorflow::Flag("input_height", &input_height, "image height"),
+      tensorflow::Flag("input_layer", &input_layer, "name of input layer"),
+      tensorflow::Flag("output_layer", &output_layer, "name of output layer"),
+    };
+    // TODO List
+    // Parse process
+    // global initialize
+    // load and initialize model
+    // Read Image
+    // run session, and set output tensor to output property
+  }
+}
+
 
 namespace {
   static tensorflow::Status ReadEntireFile(tensorflow::Env* env, const tensorflow::string& filename,

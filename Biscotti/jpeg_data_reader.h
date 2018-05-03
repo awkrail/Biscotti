@@ -1,5 +1,5 @@
 /*
- * Copyright 2016 Google Inc.
+ * Copyright 2018 Taichi Nishimura
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -24,7 +24,7 @@
 
 #include <string>
 
-#include "guetzli/jpeg_data.h"
+#include "biscotti/jpeg_data.h"
 
 namespace guetzli {
 

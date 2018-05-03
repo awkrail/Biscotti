@@ -1,5 +1,5 @@
 /*
- * Copyright 2016 Google Inc.
+ * Copyright 2018 Taichi Nishimura
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,7 +17,7 @@
 #ifndef GUETZLI_DEBUG_PRINT_H_
 #define GUETZLI_DEBUG_PRINT_H_
 
-#include "guetzli/stats.h"
+#include "biscotti/stats.h"
 
 namespace guetzli {
 

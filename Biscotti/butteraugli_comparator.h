@@ -1,5 +1,5 @@
 /*
- * Copyright 2016 Google Inc.
+ * Copyright 2018 Taichi Nishimura
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -20,10 +20,10 @@
 #include <vector>
 
 #include "butteraugli/butteraugli.h"
-#include "guetzli/comparator.h"
-#include "guetzli/jpeg_data.h"
-#include "guetzli/output_image.h"
-#include "guetzli/stats.h"
+#include "biscotti/comparator.h"
+#include "biscotti/jpeg_data.h"
+#include "biscotti/output_image.h"
+#include "biscotti/stats.h"
 
 namespace guetzli {
 

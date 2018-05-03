@@ -1,5 +1,5 @@
 /*
- * Copyright 2016 Google Inc.
+ * Copyright 2018 Taichi Nishimura
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -18,7 +18,7 @@
 //
 // Note! DCT output is kept scaled by 16, to retain maximum 16bit precision
 
-#include "guetzli/fdct.h"
+#include "biscotti/fdct.h"
 
 namespace guetzli {
 

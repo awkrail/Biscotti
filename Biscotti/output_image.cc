@@ -1,5 +1,5 @@
 /*
- * Copyright 2016 Google Inc.
+ * Copyright 2018 Taichi Nishimura
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-#include "guetzli/output_image.h"
+#include "biscotti/output_image.h"
 
 #include <algorithm>
 #include <assert.h>
@@ -23,12 +23,12 @@
 #include <cmath>
 #include <cstdlib>
 
-#include "guetzli/idct.h"
-#include "guetzli/color_transform.h"
-#include "guetzli/dct_double.h"
-#include "guetzli/gamma_correct.h"
-#include "guetzli/preprocess_downsample.h"
-#include "guetzli/quantize.h"
+#include "biscotti/idct.h"
+#include "biscotti/color_transform.h"
+#include "biscotti/dct_double.h"
+#include "biscotti/gamma_correct.h"
+#include "biscotti/preprocess_downsample.h"
+#include "biscotti/quantize.h"
 
 namespace guetzli {
 

@@ -1,5 +1,5 @@
 /*
- * Copyright 2016 Google Inc.
+ * Copyright 2018 Taichi Nishimura
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,15 +14,15 @@
  * limitations under the License.
  */
 
-#include "guetzli/jpeg_data_writer.h"
+#include "biscotti/jpeg_data_writer.h"
 
 #include <assert.h>
 #include <cstdlib>
 #include <string.h>
 
-#include "guetzli/entropy_encode.h"
-#include "guetzli/fast_log.h"
-#include "guetzli/jpeg_bit_writer.h"
+#include "biscotti/entropy_encode.h"
+#include "biscotti/fast_log.h"
+#include "biscotti/jpeg_bit_writer.h"
 
 namespace guetzli {
 

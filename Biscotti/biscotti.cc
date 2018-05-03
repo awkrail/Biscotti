@@ -1,5 +1,5 @@
 /*
- * Copyright 2016 Google Inc.
+ * Copyright 2018 Taichi Nishimura
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -23,11 +23,11 @@
 #include <sstream>
 #include <string.h>
 #include "png.h"
-#include "guetzli/jpeg_data.h"
-#include "guetzli/jpeg_data_reader.h"
-#include "guetzli/processor.h"
-#include "guetzli/quality.h"
-#include "guetzli/stats.h"
+#include "biscotti/jpeg_data.h"
+#include "biscotti/jpeg_data_reader.h"
+#include "biscotti/processor.h"
+#include "biscotti/quality.h"
+#include "biscotti/stats.h"
 
 namespace {
 

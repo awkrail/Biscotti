@@ -19,8 +19,6 @@
 #include <vector>
 #include <cassert>
 
-#include <chrono> // for profiling
-
 #include "tensorflow/cc/ops/const_op.h"
 #include "tensorflow/cc/ops/image_ops.h"
 #include "tensorflow/cc/ops/standard_ops.h"
@@ -57,7 +55,7 @@ namespace biscotti {
                         outputs(outputs) {}
 
   int Predictor::predict_index(const int index) const {
-    // 毎回これを呼び出すことになるのは非効率な気がする. どこかにストックすべき..
+    // TODO : Stock result_flat
     tensorflow::TTypes<float>::Flat result_flat = outputs[0].flat<float>();
     if(result_flat(index) >= 0.5) {
       return 1;
@@ -98,20 +96,19 @@ namespace biscotti {
     // run session, and set output tensor to output property
     const tensorflow::Tensor& tensor = tensors[0];
 
-    std::vector<tensorflow::Tensor> results;
+    // std::vector<tensorflow::Tensor> results;
     tensorflow::Status run_status = session->Run({{input_layer, tensor}},
-                                              {output_layer}, {}, &results);
+                                                {output_layer}, {}, &outputs);
     if(!run_status.ok()) {
       LOG(ERROR) << "Running model failed: " << run_status;
       return false;
     }
 
-    outputs = &results; // error!
     return true;
   }
 
   tensorflow::Status Predictor::ReadEntireFile(tensorflow::Env* env, const tensorflow::string& file_name,
-                                    tensorflow::Tensor* output) {
+                                               tensorflow::Tensor* output) {
     tensorflow::uint64 file_size = 0;
     TF_RETURN_IF_ERROR(env->GetFileSize(file_name, &file_size));
 
@@ -158,13 +155,11 @@ namespace biscotti {
 
     // Read filename into a tensor name input
     tensorflow::Tensor input(tensorflow::DT_STRING, tensorflow::TensorShape());
-    // error!
     TF_RETURN_IF_ERROR(
-      ReadEntireFile(tensorflow::Env::Default(), file_name, &input));
+      Predictor::ReadEntireFile(tensorflow::Env::Default(), file_name, &input));
     
-    // error
     auto file_reader =
-        PlaceHolder(root.WithOpName("input"), tensorflow::DataType::DT_STRING);
+        Placeholder(root.WithOpName("input"), tensorflow::DataType::DT_STRING);
     
     std::vector<std::pair<tensorflow::string, tensorflow::Tensor>> inputs = {
         {"input", input},

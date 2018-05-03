@@ -55,11 +55,12 @@ class Predictor {
               std::vector<tensorflow::Tensor>& outputs);
     bool Process();
     int predict_index(const int index) const;
+    static tensorflow::Status ReadEntireFile(tensorflow::Env* env, const tensorflow::string& filename,
+                                             tensorflow::Tensor* output);
+
 
     
   private:
-    tensorflow::Status ReadEntireFile(tensorflow::Env* env, const tensorflow::string& filename,
-                                      tensorflow::Tensor* output);
     tensorflow::Status LoadGraph(const tensorflow::string& graph_path,
                                 std::unique_ptr<tensorflow::Session>* session);
     tensorflow::Status ReadTensorFromImageFile(const tensorflow::string& file_name, const int input_height,

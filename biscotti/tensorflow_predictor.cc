@@ -47,7 +47,7 @@ namespace biscotti {
   Predictor::Predictor(const tensorflow::string image_path,  const tensorflow::string graph_path,
                        const tensorflow::int32 input_width,  const tensorflow::int32 input_height,
                        const tensorflow::string input_layer, const tensorflow::string output_layer,
-                       const std::vector<tensorflow::Tensor>& outputs)
+                       std::vector<tensorflow::Tensor>& outputs)
                       : image_path(image_path),
                         graph_path(graph_path),
                         input_width(input_width),
@@ -59,7 +59,7 @@ namespace biscotti {
   int Predictor::predict_index(const int index) const {
     // 毎回これを呼び出すことになるのは非効率な気がする. どこかにストックすべき..
     tensorflow::TTypes<float>::Flat result_flat = outputs[0].flat<float>();
-    if(result_flat(i) >= 0.5) {
+    if(result_flat(index) >= 0.5) {
       return 1;
     } else {
       return 0;
@@ -105,7 +105,31 @@ namespace biscotti {
       LOG(ERROR) << "Running model failed: " << run_status;
       return false;
     }
-    outputs = &results;
+
+    outputs = &results; // error!
+    return true;
+  }
+
+  tensorflow::Status Predictor::ReadEntireFile(tensorflow::Env* env, const tensorflow::string& file_name,
+                                    tensorflow::Tensor* output) {
+    tensorflow::uint64 file_size = 0;
+    TF_RETURN_IF_ERROR(env->GetFileSize(file_name, &file_size));
+
+    tensorflow::string contents;
+    contents.resize(file_size);
+
+    std::unique_ptr<tensorflow::RandomAccessFile> file;
+    TF_RETURN_IF_ERROR(env->NewRandomAccessFile(file_name, &file));
+
+    tensorflow::StringPiece data;
+    TF_RETURN_IF_ERROR(file->Read(0, file_size, &data, &(contents)[0]));
+    if(data.size() != file_size) {
+      return tensorflow::errors::DataLoss("Truncated read of '", file_name,
+                                        "' expected ", file_size, " got ",
+                                        data.size());
+    }
+    output->scalar<tensorflow::string>()() = data.ToString();
+    return tensorflow::Status::OK();
   }
 
   tensorflow::Status Predictor::LoadGraph(const tensorflow::string& graph_file_name,
@@ -134,9 +158,11 @@ namespace biscotti {
 
     // Read filename into a tensor name input
     tensorflow::Tensor input(tensorflow::DT_STRING, tensorflow::TensorShape());
+    // error!
     TF_RETURN_IF_ERROR(
       ReadEntireFile(tensorflow::Env::Default(), file_name, &input));
     
+    // error
     auto file_reader =
         PlaceHolder(root.WithOpName("input"), tensorflow::DataType::DT_STRING);
     
@@ -186,28 +212,6 @@ namespace biscotti {
         tensorflow::NewSession(tensorflow::SessionOptions()));
     TF_RETURN_IF_ERROR(session->Create(graph));
     TF_RETURN_IF_ERROR(session->Run({inputs}, {output_name}, {}, out_tensors));
-    return tensorflow::Status::OK();
-  }
-
-  tensorflow::Status ReadEntireFile(tensorflow::Env* env, const tensorflow::string& file_name,
-                                    tensorflow::Tensor* output) {
-    tensorflow::uint64 file_size = 0;
-    TF_RETURN_IF_ERROR(env->GetFileSize(file_name, &file_size));
-
-    tensorflow::string contents;
-    contents.resize(file_size);
-
-    std::unique_ptr<tensorflow::RandomAccessFile> file;
-    TF_RETURN_IF_ERROR(env->NewRandomAccessFile(file_name, &file));
-
-    tensorflow::StringPiece data;
-    TF_RETURN_IF_ERROR(file->Read(0, file_size, &data, &(contents)[0]));
-    if(data.size() != file_size) {
-      return tensorflow::errors::DataLoss("Truncated read of '", file_name,
-                                        "' expected ", file_size, " got ",
-                                        data.size());
-    }
-    output->scalar<tensorflow::string>()() = data.ToString();
     return tensorflow::Status::OK();
   }
 }

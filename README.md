@@ -1,24 +1,26 @@
 # Biscotti
-Perceptual JPEG encoder<br>
-[WIP]Faster Implement than [Guetzli](https://github.com/google/guetzli) with Deep Learning
+[WIP]  
+Perceptual JPEG encoder  
+Faster Implement than [Guetzli](https://github.com/google/guetzli) with Deep Learning
 
 ## Description
-Biscotti is a JPEG encoder that aims to be faster guetzli by using Deep Learning. Guetzli aims for excellent compression density at high visual quality. Guetzli can generate very high-quality image, but it is too slow to use for services. My goal is making neural network that learn guetzli's compression patterns and to become faster than guetzli.
+Biscotti is a JPEG encoder that aims to be faster guetzli by using Deep Learning. Guetzli aims for excellent compression density at high visual quality. Guetzli can generate very high-quality image, but it is too slow to use for services. My goal is to make neural network that learn guetzli's compression patterns and to become faster than guetzli.
 
 ## Requirements
-Python >= 3.0
-Keras == 2.1.3
-Tensorflow == 1.7.0
-numpy == 1.14.2
-opencv-python == 3.1.0
-pandas == 0.22.0
-matplotlib == 2.0.2
+Python >= 3.0  
+Keras == 2.1.3  
+Tensorflow == 1.7.0  
+numpy == 1.14.2  
+opencv-python == 3.1.0  
+pandas == 0.22.0  
+matplotlib == 2.0.2  
 
 run `pip install requirements.txt`
 
 ## Install
-Biscotti have two dependencies libraries. [butteraugli](https://github.com/google/butteraugli) and [tensorflow](https://github.com/tensorflow/tensorflow)
-```
+Biscotti have two dependencies libraries.  
+[butteraugli](https://github.com/google/butteraugli) and [tensorflow](https://github.com/tensorflow/tensorflow)
+```sh
 cd third_party
 
 # clone
@@ -38,17 +40,14 @@ WIP
 
 ## Train
 ### 1. Make Dataset
-You should set your images(jpg) at `images/`
-
-After that, run `./train_bin/script/dump_qopt_images.sh`
-
-This script will make necessary folders
+You should set your images(jpg) at `images/`  
+After that, run `./train_bin/script/dump_qopt_images.sh`  
+This script will make necessary folders  
 
 **Note:** This script is very slow because of guetzli
 
 ### 2. Training
 If you want to train unet, run `python src/train_unet.py [options]`
-
 ```
 There are 5 options.
 1. datasetpath .. training dataset path. if you run ./train_bin/script/dump_qopt_images.sh, write train/
@@ -62,9 +61,9 @@ if yo want to train pix2pix, it is added patch_size option.(I adopt PatchGAN(htt
 ```
 
 ### 3. evaluation
-Please run `train_bin/Release/guetzli_dumper`. It will dump image coefficient after guetzli, and save csv/
-
-Please run `python src/predict.py`
+Please run `train_bin/Release/guetzli_dumper`.  
+It will dump image coefficient after guetzli, and save csv/  
+After that, run `python src/predict.py`
 
 There are 8 options.
 ```

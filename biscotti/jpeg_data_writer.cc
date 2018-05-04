@@ -24,7 +24,7 @@
 #include "biscotti/fast_log.h"
 #include "biscotti/jpeg_bit_writer.h"
 
-namespace guetzli {
+namespace biscotti {
 
 namespace {
 
@@ -565,4 +565,4 @@ void BuildSequentialHuffmanCodes(
                              ac_huffman_code_tables);
 }
 
-}  // namespace guetzli
+}  // namespace biscotti

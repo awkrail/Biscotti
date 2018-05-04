@@ -25,7 +25,7 @@
 #include "biscotti/output_image.h"
 #include "biscotti/stats.h"
 
-namespace guetzli {
+namespace biscotti {
 
 constexpr int kButteraugliStep = 3;
 
@@ -79,6 +79,6 @@ class ButteraugliComparator : public Comparator {
   ProcessStats* stats_;
 };
 
-}  // namespace guetzli
+}  // namespace biscotti
 
 #endif  // GUETZLI_BUTTERAUGLI_COMPARATOR_H_

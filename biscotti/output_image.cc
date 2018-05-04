@@ -30,7 +30,7 @@
 #include "biscotti/preprocess_downsample.h"
 #include "biscotti/quantize.h"
 
-namespace guetzli {
+namespace biscotti {
 
 OutputImageComponent::OutputImageComponent(int w, int h)
     : width_(w), height_(h) {
@@ -448,4 +448,4 @@ std::string OutputImage::FrameTypeStr() const {
   return std::string(buf, len);
 }
 
-}  // namespace guetzli
+}  // namespace biscotti

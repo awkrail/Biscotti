@@ -19,11 +19,11 @@
 
 #include "biscotti/stats.h"
 
-namespace guetzli {
+namespace biscotti {
 
 void PrintDebug(ProcessStats* stats, std::string s);
 
-}  // namespace guetzli
+}  // namespace biscotti
 
 #define GUETZLI_LOG(stats, ...)                                    \
   do {                                                             \
@@ -33,7 +33,7 @@ void PrintDebug(ProcessStats* stats, std::string s);
     assert(res > 0 && "expected successful printing");             \
     (void)res;                                                     \
     debug_string[sizeof(debug_string) - 1] = '\0';                 \
-    ::guetzli::PrintDebug(                      \
+    ::biscotti::PrintDebug(                      \
          stats, std::string(debug_string));        \
   } while (0)
 #define GUETZLI_LOG_QUANT(stats, q)                    \

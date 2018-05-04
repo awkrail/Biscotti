@@ -71,7 +71,7 @@ namespace biscotti {
   bool Predictor::Process() {
     // TODO List
     // global initialize
-    // tensorflow::port::InitMain
+    // tensorflow::port::InitMain <- これないから怪しそう...
     // load and initialize model
     std::unique_ptr<tensorflow::Session> session;
     tensorflow::Status load_graph_status = LoadGraph(graph_path, &session);

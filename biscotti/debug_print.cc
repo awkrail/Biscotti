@@ -16,7 +16,7 @@
 
 #include "biscotti/debug_print.h"
 
-namespace guetzli {
+namespace biscotti {
 
 void PrintDebug(ProcessStats* stats, std::string s) {
   if (stats->debug_output) {
@@ -27,4 +27,4 @@ void PrintDebug(ProcessStats* stats, std::string s) {
   }
 }
 
-}  // namespace guetzli
+}  // namespace biscotti

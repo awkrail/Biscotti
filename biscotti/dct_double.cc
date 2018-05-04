@@ -19,7 +19,7 @@
 #include <algorithm>
 #include <cmath>
 
-namespace guetzli {
+namespace biscotti {
 
 namespace {
 
@@ -84,4 +84,4 @@ void ComputeBlockIDCTDouble(double block[64]) {
   TransformBlock(block, IDCT1d);
 }
 
-}  // namespace guetzli
+}  // namespace biscotti

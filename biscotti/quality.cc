@@ -16,7 +16,7 @@
 
 #include "biscotti/quality.h"
 
-namespace guetzli {
+namespace biscotti {
 
 namespace {
 
@@ -84,4 +84,4 @@ double ButteraugliScoreForQuality(double quality) {
       kScoreForQuality[index - kLowestQuality + 1] * mix;
 }
 
-}  // namespace guetzli
+}  // namespace biscotti

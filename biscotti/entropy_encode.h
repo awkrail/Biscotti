@@ -22,7 +22,7 @@
 #include <stddef.h>
 #include <stdint.h>
 
-namespace guetzli {
+namespace biscotti {
 
 // A node of a Huffman tree.
 struct HuffmanTree {
@@ -57,6 +57,6 @@ void CreateHuffmanTree(const uint32_t *data,
                        HuffmanTree* tree,
                        uint8_t *depth);
 
-}  // namespace guetzli
+}  // namespace biscotti
 
 #endif  // GUETZLI_ENTROPY_ENCODE_H_

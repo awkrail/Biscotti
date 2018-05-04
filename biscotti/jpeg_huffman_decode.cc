@@ -23,7 +23,7 @@
 
 #include "biscotti/jpeg_data.h"
 
-namespace guetzli {
+namespace biscotti {
 
 // Returns the table width of the next 2nd level table, count is the histogram
 // of bit lengths for the remaining symbols, len is the code length of the next
@@ -119,4 +119,4 @@ int BuildJpegHuffmanTable(const int* count_in, const int* symbols,
   return total_size;
 }
 
-}  // namespace guetzli
+}  // namespace biscotti

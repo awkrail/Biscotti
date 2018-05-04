@@ -270,11 +270,11 @@ int main(int argc, char** argv) {
   std::string in_data = ReadFileOrDie(argv[opt_idx]);
   std::string out_data;
 
-  guetzli::Params params;
+  biscotti::Params params;
   params.butteraugli_target = static_cast<float>(
-      guetzli::ButteraugliScoreForQuality(quality));
+      biscotti::ButteraugliScoreForQuality(quality));
 
-  guetzli::ProcessStats stats;
+  biscotti::ProcessStats stats;
 
   if (verbose) {
     stats.debug_output_file = stderr;
@@ -298,13 +298,13 @@ int main(int argc, char** argv) {
       fprintf(stderr, "Memory limit would be exceeded. Failing.\n");
       return 1;
     }
-    if (!guetzli::Process(params, &stats, rgb, xsize, ysize, &out_data)) {
+    if (!biscotti::Process(params, &stats, rgb, xsize, ysize, &out_data)) {
       fprintf(stderr, "Guetzli processing failed\n");
       return 1;
     }
   } else {
-    guetzli::JPEGData jpg_header;
-    if (!guetzli::ReadJpeg(in_data, guetzli::JPEG_READ_HEADER, &jpg_header)) {
+    biscotti::JPEGData jpg_header;
+    if (!biscotti::ReadJpeg(in_data, biscotti::JPEG_READ_HEADER, &jpg_header)) {
       fprintf(stderr, "Error reading JPG data from input file\n");
       return 1;
     }
@@ -315,7 +315,7 @@ int main(int argc, char** argv) {
       fprintf(stderr, "Memory limit would be exceeded. Failing.\n");
       return 1;
     }
-    if (!guetzli::Process(params, &stats, in_data, &out_data)) {
+    if (!biscotti::Process(params, &stats, in_data, &out_data)) {
       fprintf(stderr, "Guetzli processing failed\n");
       return 1;
     }

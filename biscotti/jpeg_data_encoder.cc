@@ -21,7 +21,7 @@
 
 #include "biscotti/fdct.h"
 
-namespace guetzli {
+namespace biscotti {
 
 namespace {
 
@@ -135,4 +135,4 @@ bool EncodeRGBToJpeg(const std::vector<uint8_t>& rgb, int w, int h,
   return EncodeRGBToJpeg(rgb, w, h, quant, jpg);
 }
 
-}  // namespace guetzli
+}  // namespace biscotti

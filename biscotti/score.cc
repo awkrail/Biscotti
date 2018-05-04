@@ -18,7 +18,7 @@
 
 #include <cmath>
 
-namespace guetzli {
+namespace biscotti {
 
 double ScoreJPEG(double butteraugli_distance, int size,
                  double butteraugli_target) {
@@ -40,4 +40,4 @@ double ScoreJPEG(double butteraugli_distance, int size,
   }
 }
 
-}  // namespace guetzli
+}  // namespace biscotti

@@ -21,7 +21,7 @@
 #include <algorithm>
 #include <math.h>
 
-namespace guetzli {
+namespace biscotti {
 
 // kIDCTMatrix[8*x+u] = alpha(u)*cos((2*x+1)*u*M_PI/16)*sqrt(2), with fixed 13
 // bit precision, where alpha(0) = 1/sqrt(2) and alpha(u) = 1 for u > 0.
@@ -160,4 +160,4 @@ void ComputeBlockIDCT(const coeff_t* block, uint8_t* out) {
   }
 }
 
-}  // namespace guetzli
+}  // namespace biscotti

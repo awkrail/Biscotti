@@ -19,7 +19,7 @@
 
 #include <math.h>
 
-namespace guetzli {
+namespace biscotti {
 
 inline int Log2FloorNonZero(uint32_t n) {
 #ifdef __GNUC__
@@ -35,6 +35,6 @@ inline int Log2Floor(uint32_t n) {
   return n == 0 ? -1 : Log2FloorNonZero(n);
 }
 
-}  // namespace guetzli
+}  // namespace biscotti
 
 #endif  // GUETZLI_FAST_LOG_H_

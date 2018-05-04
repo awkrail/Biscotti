@@ -22,7 +22,7 @@
 #include "biscotti/gamma_correct.h"
 #include "biscotti/score.h"
 
-namespace guetzli {
+namespace biscotti {
 
 namespace {
 using ::butteraugli::ImageF;
@@ -562,4 +562,4 @@ double ButteraugliComparator::ScoreOutputSize(int size) const {
 }
 
 
-}  // namespace guetzli
+}  // namespace biscotti

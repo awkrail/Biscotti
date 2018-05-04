@@ -150,7 +150,7 @@ std::vector<float> Blur(const std::vector<float>& image, int w, int h) {
 
 }  // namespace
 
-namespace guetzli {
+namespace biscotti {
 
 // Do the sharpening to the v channel, but only in areas where it will help
 // channel should be 2 for v sharpening, or 1 for less effective u sharpening
@@ -475,4 +475,4 @@ std::vector<std::vector<float> > RGBToYUV420(
   return yuv_guess;
 }
 
-}  // namespace guetzli
+}  // namespace biscotti

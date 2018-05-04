@@ -19,7 +19,7 @@
 #ifndef GUETZLI_JPEG_ERROR_H_
 #define GUETZLI_JPEG_ERROR_H_
 
-namespace guetzli {
+namespace biscotti {
 
 enum JPEGReadError {
   JPEG_OK = 0,
@@ -66,6 +66,6 @@ enum JPEGReadError {
   JPEG_IMAGE_TOO_LARGE,
 };
 
-}  // namespace guetzli
+}  // namespace biscotti
 
 #endif  // GUETZLI_JPEG_ERROR_H_

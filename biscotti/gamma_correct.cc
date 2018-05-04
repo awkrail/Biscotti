@@ -18,7 +18,7 @@
 
 #include <cmath>
 
-namespace guetzli {
+namespace biscotti {
 
 const double* NewSrgb8ToLinearTable() {
   double* table = new double[256];
@@ -37,4 +37,4 @@ const double* Srgb8ToLinearTable() {
   return kSrgb8ToLinearTable;
 }
 
-}  // namespace guetzli
+}  // namespace biscotti

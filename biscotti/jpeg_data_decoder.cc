@@ -18,7 +18,7 @@
 
 #include "biscotti/output_image.h"
 
-namespace guetzli {
+namespace biscotti {
 
 // Mimic libjpeg's heuristics to guess jpeg color space.
 // Requires that the jpg has 3 components.
@@ -53,4 +53,4 @@ std::vector<uint8_t> DecodeJpegToRGB(const JPEGData& jpg) {
   return std::vector<uint8_t>();
 }
 
-}  // namespace guetzli
+}  // namespace biscotti

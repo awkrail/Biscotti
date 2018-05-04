@@ -19,13 +19,13 @@
 
 #include "biscotti/jpeg_data.h"
 
-namespace guetzli {
+namespace biscotti {
 
 // Fills in 'result' with the inverse DCT of 'block'.
 // The arguments 'block' and 'result' point to 8x8 arrays that are arranged in
 // a row-by-row memory layout.
 void ComputeBlockIDCT(const coeff_t* block, uint8_t* result);
 
-}  // namespace guetzli
+}  // namespace biscotti
 
 #endif  // GUETZLI_IDCT_H_

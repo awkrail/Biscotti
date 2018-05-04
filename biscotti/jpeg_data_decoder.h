@@ -23,7 +23,7 @@
 
 #include "biscotti/jpeg_data.h"
 
-namespace guetzli {
+namespace biscotti {
 
 // Decodes the parsed jpeg coefficients into an RGB image.
 // There can be only either 1 or 3 image components, in either case, an RGB
@@ -36,6 +36,6 @@ std::vector<uint8_t> DecodeJpegToRGB(const JPEGData& jpg);
 // Requires that the jpg has 3 components.
 bool HasYCbCrColorSpace(const JPEGData& jpg);
 
-}  // namespace guetzli
+}  // namespace biscotti
 
 #endif  // GUETZLI_JPEG_DATA_DECODER_H_

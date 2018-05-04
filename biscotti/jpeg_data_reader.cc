@@ -22,7 +22,7 @@
 
 #include "biscotti/jpeg_huffman_decode.h"
 
-namespace guetzli {
+namespace biscotti {
 
 namespace {
 
@@ -1078,4 +1078,4 @@ bool ReadJpeg(const std::string& data, JpegReadMode mode,
                   mode, jpg);
 }
 
-}  // namespace guetzli
+}  // namespace biscotti

@@ -22,7 +22,7 @@
 
 #include "biscotti/jpeg_data.h"
 
-namespace guetzli {
+namespace biscotti {
 
 class OutputImageComponent {
  public:
@@ -152,6 +152,6 @@ class OutputImage {
   std::vector<OutputImageComponent> components_;
 };
 
-}  // namespace guetzli
+}  // namespace biscotti
 
 #endif  // GUETZLI_OUTPUT_IMAGE_H_

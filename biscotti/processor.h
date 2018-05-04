@@ -24,7 +24,7 @@
 #include "biscotti/jpeg_data.h"
 #include "biscotti/stats.h"
 
-namespace guetzli {
+namespace biscotti {
 
 struct Params {
   float butteraugli_target = 1.0;
@@ -55,6 +55,6 @@ bool Process(const Params& params, ProcessStats* stats,
              const std::vector<uint8_t>& rgb, int w, int h,
              std::string* out);
 
-}  // namespace guetzli
+}  // namespace biscotti
 
 #endif  // GUETZLI_PROCESSOR_H_

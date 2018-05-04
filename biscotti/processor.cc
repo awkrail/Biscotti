@@ -31,8 +31,9 @@
 #include "biscotti/jpeg_data_writer.h"
 #include "biscotti/output_image.h"
 #include "biscotti/quantize.h"
+#include "biscotti/tensorflow_predictor.h"
 
-namespace guetzli {
+namespace biscotti {
 
 namespace {
 
@@ -72,6 +73,8 @@ class Processor {
   void MaybeOutput(const std::string& encoded_jpg);
   void DownsampleImage(OutputImage* img);
   void OutputJpeg(const JPEGData& in, std::string* out);
+  void SetCoeffBlocksWithInference(const JPEGData& jpg_in, const Predictor& pred,
+                                   OutputImage* img);
 
   Params params_;
   Comparator* comparator_;
@@ -789,6 +792,21 @@ bool IsGrayscale(const JPEGData& jpg) {
   return true;
 }
 
+void Processor::SetCoeffBlocksWithInference(const JPEGData& jpg_in, const Predictor& pred,
+                                           OutputImage* img) {
+  // TODO : Add some process
+  // 1. transform coeffcients inference results into YUV420 forms.
+  // 2. Multiply coefficients inference with blocks.
+  // 3. call SetCoeffBlock
+  // 4. call OutputJpeg
+  std::string encoded_jpg;
+  {
+    JPEGData jpg_out = jpg_in;
+    img->SaveToJpegData(&jpg_out);
+    OutputJpeg(jpg_out, &encoded_jpg);
+  }  
+}
+
 bool Processor::ProcessJpegData(const Params& params, const JPEGData& jpg_in,
                                 Comparator* comparator, GuetzliOutput* out,
                                 ProcessStats* stats) {
@@ -868,6 +886,15 @@ bool Processor::ProcessJpegData(const Params& params, const JPEGData& jpg_in,
     img.CopyFromJpegData(jpg);
     img.ApplyGlobalQuantization(best_q);
 
+    // TODO
+    // Now Only I support YUV420, and 3dimension(only RGB, not GRAYSCALE, and not RGBA),
+    // and only jpg image. I will support them in a few days.
+    /**
+    std::vector<tensorflow::Tensor> outputs(0);
+    biscotti::Predictor predictor("test/0.jpg", "pb_model/output_graph.pb", 
+                        jpg.width(), jpg.height(), "input_1", "biscotti_0", &outputs);
+    predictor.Process();
+    **/
     if (!downsample) {
       SelectFrequencyMasking(jpg, &img, 7, 1.0, false);
     } else {
@@ -947,4 +974,4 @@ bool Process(const Params& params, ProcessStats* stats,
   return ok;
 }
 
-}  // namespace guetzli
+}  // namespace biscotti

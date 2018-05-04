@@ -20,7 +20,7 @@
 
 #include "biscotti/fdct.h"
 
-namespace guetzli {
+namespace biscotti {
 
 namespace {
 
@@ -239,4 +239,4 @@ void ComputeBlockDCT(coeff_t* coeffs) {
   RowDct(coeffs + 7 * 8, kTable17);
 }
 
-}  // namespace guetzli
+}  // namespace biscotti

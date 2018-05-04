@@ -21,7 +21,7 @@
 
 #include <inttypes.h>
 
-namespace guetzli {
+namespace biscotti {
 
 static const int kJpegHuffmanRootTableBits = 8;
 // Maximum huffman lookup table size.
@@ -46,6 +46,6 @@ struct HuffmanTableEntry {
 int BuildJpegHuffmanTable(const int* counts, const int* symbols,
                           HuffmanTableEntry* lut);
 
-}  // namespace guetzli
+}  // namespace biscotti
 
 #endif  // GUETZLI_JPEG_HUFFMAN_DECODE_H_

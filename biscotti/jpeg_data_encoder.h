@@ -21,7 +21,7 @@
 
 #include "biscotti/jpeg_data.h"
 
-namespace guetzli {
+namespace biscotti {
 
 
 // Adds APP0 header data.
@@ -36,6 +36,6 @@ bool EncodeRGBToJpeg(const std::vector<uint8_t>& rgb, int w, int h,
 bool EncodeRGBToJpeg(const std::vector<uint8_t>& rgb, int w, int h,
                      const int* quant, JPEGData* jpg);
 
-}  // namespace guetzli
+}  // namespace biscotti
 
 #endif  // GUETZLI_JPEG_DATA_ENCODER_H_

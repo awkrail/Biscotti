@@ -26,7 +26,7 @@
 
 #include "biscotti/jpeg_error.h"
 
-namespace guetzli {
+namespace biscotti {
 
 static const int kDCTBlockSize = 64;
 static const int kMaxComponents = 4;
@@ -206,6 +206,6 @@ struct JPEGData {
 void InitJPEGDataForYUV444(int w, int h, JPEGData* jpg);
 void SaveQuantTables(const int q[3][kDCTBlockSize], JPEGData* jpg);
 
-}  // namespace guetzli
+}  // namespace biscotti
 
 #endif  // GUETZLI_JPEG_DATA_H_

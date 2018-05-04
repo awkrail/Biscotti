@@ -17,7 +17,7 @@
 #ifndef GUETZLI_DCT_DOUBLE_H_
 #define GUETZLI_DCT_DOUBLE_H_
 
-namespace guetzli {
+namespace biscotti {
 
 // Performs in-place floating point 8x8 DCT on block[0..63].
 // Note that the DCT used here is the DCT-2 with the first term multiplied by
@@ -27,6 +27,6 @@ void ComputeBlockDCTDouble(double block[64]);
 // Performs in-place floating point 8x8 inverse DCT on block[0..63].
 void ComputeBlockIDCTDouble(double block[64]);
 
-}  // namespace guetzli
+}  // namespace biscotti
 
 #endif  // GUETZLI_DCT_DOUBLE_H_

@@ -19,7 +19,7 @@
 #include <assert.h>
 #include <string.h>
 
-namespace guetzli {
+namespace biscotti {
 
 bool JPEGData::Is420() const {
   return (components.size() == 3 &&
@@ -101,4 +101,4 @@ void SaveQuantTables(const int q[3][kDCTBlockSize], JPEGData* jpg) {
   }
 }
 
-}  // namespace guetzli
+}  // namespace biscotti

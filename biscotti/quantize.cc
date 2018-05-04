@@ -16,7 +16,7 @@
 
 #include "biscotti/quantize.h"
 
-namespace guetzli {
+namespace biscotti {
 
 bool QuantizeBlock(coeff_t block[kDCTBlockSize],
                    const int q[kDCTBlockSize]) {
@@ -29,4 +29,4 @@ bool QuantizeBlock(coeff_t block[kDCTBlockSize],
   return changed;
 }
 
-}  // namespace guetzli
+}  // namespace biscotti

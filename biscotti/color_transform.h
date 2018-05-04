@@ -17,7 +17,7 @@
 #ifndef GUETZLI_COLOR_TRANSFORM_H_
 #define GUETZLI_COLOR_TRANSFORM_H_
 
-namespace guetzli {
+namespace biscotti {
 
 static const int kCrToRedTable[256] = {
   -179, -178, -177, -175, -174, -172, -171, -170, -168, -167, -165, -164,
@@ -218,6 +218,6 @@ inline void ColorTransformYCbCrToRGB(uint8_t* pixel) {
   pixel[2] = kRangeLimit[y + kCbToBlueTable[cb]];
 }
 
-}  // namespace guetzli
+}  // namespace biscotti
 
 #endif  // GUETZLI_COLOR_TRANSFORM_H_

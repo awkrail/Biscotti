@@ -17,10 +17,10 @@
 #ifndef GUETZLI_GAMMA_CORRECT_H_
 #define GUETZLI_GAMMA_CORRECT_H_
 
-namespace guetzli {
+namespace biscotti {
 
 const double* Srgb8ToLinearTable();
 
-}  // namespace guetzli
+}  // namespace biscotti
 
 #endif  // GUETZLI_GAMMA_CORRECT_H_

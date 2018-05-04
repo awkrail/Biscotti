@@ -19,10 +19,10 @@
 
 #include <vector>
 
-namespace guetzli {
+namespace biscotti {
 
 double ScoreJPEG(double butteraugli_distance, int size,
                  double butteraugli_target);
 
-}  // namespace guetzli
+}  // namespace biscotti
 #endif  // GUETZLI_SCORE_H_

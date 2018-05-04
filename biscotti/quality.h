@@ -17,10 +17,10 @@
 #ifndef GUETZLI_QUALITY_H_
 #define GUETZLI_QUALITY_H_
 
-namespace guetzli {
+namespace biscotti {
 
 double ButteraugliScoreForQuality(double quality);
 
-}  // namespace guetzli
+}  // namespace biscotti
 
 #endif  // GUETZLI_QUALITY_H_

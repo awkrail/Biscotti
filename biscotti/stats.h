@@ -24,7 +24,7 @@
 #include <vector>
 
 
-namespace guetzli {
+namespace biscotti {
 
 static const char* const  kNumItersCnt = "number of iterations";
 static const char* const kNumItersUpCnt = "number of iterations up";
@@ -39,6 +39,6 @@ struct ProcessStats {
   std::string filename;
 };
 
-}  // namespace guetzli
+}  // namespace biscotti
 
 #endif  // GUETZLI_STATS_H_

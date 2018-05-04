@@ -20,7 +20,7 @@
 #include <stdint.h>
 #include <memory>
 
-namespace guetzli {
+namespace biscotti {
 
 // Returns non-zero if and only if x has a zero byte, i.e. one of
 // x & 0xff, x & 0xff00, ..., x & 0xff00000000000000 is zero.
@@ -108,6 +108,6 @@ struct BitWriter {
   bool overflow;
 };
 
-}  // namespace guetzli
+}  // namespace biscotti
 
 #endif  // GUETZLI_JPEG_BIT_WRITER_H_

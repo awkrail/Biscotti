@@ -22,7 +22,7 @@
 #include <stdint.h>
 #include <vector>
 
-namespace guetzli {
+namespace biscotti {
 
 // Preprocesses the u (1) or v (2) channel of the given YUV image (range 0-255).
 std::vector<std::vector<float>> PreProcessChannel(
@@ -35,6 +35,6 @@ std::vector<std::vector<float>> PreProcessChannel(
 std::vector<std::vector<float> > RGBToYUV420(
     const std::vector<uint8_t>& rgb_in, const int width, const int height);
 
-}  // namespace guetzli
+}  // namespace biscotti
 
 #endif  // GUETZLI_PREPROCESS_DOWNSAMPLE_H_

@@ -22,7 +22,7 @@
 #include "biscotti/output_image.h"
 #include "biscotti/stats.h"
 
-namespace guetzli {
+namespace biscotti {
 
 // Represents a baseline image, a comparison metric and an image acceptance
 // criteria based on this metric.
@@ -96,6 +96,6 @@ class Comparator {
 };
 
 
-}  // namespace guetzli
+}  // namespace biscotti
 
 #endif  // GUETZLI_COMPARATOR_H_

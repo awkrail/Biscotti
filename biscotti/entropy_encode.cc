@@ -21,7 +21,7 @@
 #include <assert.h>
 #include <algorithm>
 
-namespace guetzli {
+namespace biscotti {
 
 bool SetDepth(int p0, HuffmanTree *pool, uint8_t *depth, int max_depth) {
   int stack[17];
@@ -144,4 +144,4 @@ void CreateHuffmanTree(const uint32_t *data,
   }
 }
 
-}  // namespace guetzli
+}  // namespace biscotti

@@ -25,7 +25,7 @@
 
 #include "biscotti/jpeg_data.h"
 
-namespace guetzli {
+namespace biscotti {
 
 // Function pointer type used to write len bytes into buf. Returns the
 // number of bytes written or -1 on error.
@@ -100,6 +100,6 @@ void UpdateACHistogramForDCTBlock(const coeff_t* coeffs,
 size_t ClusterHistograms(JpegHistogram* histo, size_t* num, int* histo_indexes,
                          uint8_t* depths);
 
-}  // namespace guetzli
+}  // namespace biscotti
 
 #endif  // GUETZLI_JPEG_DATA_WRITER_H_

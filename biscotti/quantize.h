@@ -19,7 +19,7 @@
 
 #include "biscotti/jpeg_data.h"
 
-namespace guetzli {
+namespace biscotti {
 
 inline coeff_t Quantize(coeff_t raw_coeff, int quant) {
   const int r = raw_coeff % quant;
@@ -30,6 +30,6 @@ inline coeff_t Quantize(coeff_t raw_coeff, int quant) {
 
 bool QuantizeBlock(coeff_t block[kDCTBlockSize], const int q[kDCTBlockSize]);
 
-}  // namespace guetzli
+}  // namespace biscotti
 
 #endif  // GUETZLI_QUANTIZE_H_

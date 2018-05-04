@@ -26,7 +26,7 @@
 
 #include "biscotti/jpeg_data.h"
 
-namespace guetzli {
+namespace biscotti {
 
 enum JpegReadMode {
   JPEG_READ_HEADER,   // only basic headers
@@ -45,6 +45,6 @@ bool ReadJpeg(const uint8_t* data, const size_t len, JpegReadMode mode,
 bool ReadJpeg(const std::string& data, JpegReadMode mode,
               JPEGData* jpg);
 
-}  // namespace guetzli
+}  // namespace biscotti
 
 #endif  // GUETZLI_JPEG_DATA_READER_H_

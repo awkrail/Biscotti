@@ -145,9 +145,9 @@ namespace biscotti {
   return tensorflow::Status::OK();
   }
 
-  tensorflow::Status ReadTensorFromImageFile(const tensorflow::string& file_name, const int input_height,
-                                            const int input_width, const float input_mean, const int input_std,
-                                            std::vector<tensorflow::Tensor>* out_tensors) {
+  tensorflow::Status Predictor::ReadTensorFromImageFile(const tensorflow::string& file_name, const int input_height,
+                                                        const int input_width, const float input_mean, const float input_std,
+                                                        std::vector<tensorflow::Tensor>* out_tensors) {
     auto root = tensorflow::Scope::NewRootScope();
     using namespace ::tensorflow::ops;
     tensorflow::string input_name = "file_reader";

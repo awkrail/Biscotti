@@ -61,7 +61,7 @@ if yo want to train pix2pix, it is added patch_size option.(I adopt PatchGAN(htt
 ```
 
 ### 3. evaluation
-Please run `train_bin/Release/guetzli_dumper`.  
+Please run `train_bin/Release/BISCOTTI_dumper`.  
 It will dump image coefficient after guetzli, and save csv/  
 After that, run `python src/predict.py`
 
@@ -72,7 +72,7 @@ There are 8 options.
 3. targetsize .. image size you want to evaluate.(default 224) 
 4. resultpath .. path which save results
 5. csvpath .. path which save result csv
-6. guetzli_csv_path .. path which 
+6. BISCOTTI_csv_path .. path which 
 ```
 
 ## Support
@@ -89,3 +89,10 @@ There are 8 options.
 
 ## LICENSE
 This repo is under [Apache 2.0 License](https://www.apache.org/licenses/LICENSE-2.0)
+
+## Author
+Taichi Nishimura
+
+## Reference
+- [guetzli](https://github.com/google/guetzli)
+- [butteraugli](https://github.com/google/butteraugli)

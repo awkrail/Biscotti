@@ -16,8 +16,8 @@
 
 // Functions for writing a JPEGData object into a jpeg byte stream.
 
-#ifndef GUETZLI_JPEG_DATA_WRITER_H_
-#define GUETZLI_JPEG_DATA_WRITER_H_
+#ifndef BISCOTTI_JPEG_DATA_WRITER_H_
+#define BISCOTTI_JPEG_DATA_WRITER_H_
 
 #include <stdint.h>
 #include <string.h>
@@ -102,4 +102,4 @@ size_t ClusterHistograms(JpegHistogram* histo, size_t* num, int* histo_indexes,
 
 }  // namespace biscotti
 
-#endif  // GUETZLI_JPEG_DATA_WRITER_H_
+#endif  // BISCOTTI_JPEG_DATA_WRITER_H_

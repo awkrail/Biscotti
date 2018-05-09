@@ -14,8 +14,8 @@
  * limitations under the License.
  */
 
-#ifndef GUETZLI_DCT_DOUBLE_H_
-#define GUETZLI_DCT_DOUBLE_H_
+#ifndef BISCOTTI_DCT_DOUBLE_H_
+#define BISCOTTI_DCT_DOUBLE_H_
 
 namespace biscotti {
 
@@ -29,4 +29,4 @@ void ComputeBlockIDCTDouble(double block[64]);
 
 }  // namespace biscotti
 
-#endif  // GUETZLI_DCT_DOUBLE_H_
+#endif  // BISCOTTI_DCT_DOUBLE_H_

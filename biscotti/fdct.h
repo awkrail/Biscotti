@@ -14,8 +14,8 @@
  * limitations under the License.
  */
 
-#ifndef GUETZLI_FDCT_H_
-#define GUETZLI_FDCT_H_
+#ifndef BISCOTTI_FDCT_H_
+#define BISCOTTI_FDCT_H_
 
 #include "biscotti/jpeg_data.h"
 
@@ -28,4 +28,4 @@ void ComputeBlockDCT(coeff_t* block);
 
 }  // namespace biscotti
 
-#endif  // GUETZLI_FDCT_H_
+#endif  // BISCOTTI_FDCT_H_

@@ -14,8 +14,8 @@
  * limitations under the License.
  */
 
-#ifndef GUETZLI_BUTTERAUGLI_COMPARATOR_H_
-#define GUETZLI_BUTTERAUGLI_COMPARATOR_H_
+#ifndef BISCOTTI_BUTTERAUGLI_COMPARATOR_H_
+#define BISCOTTI_BUTTERAUGLI_COMPARATOR_H_
 
 #include <vector>
 
@@ -81,4 +81,4 @@ class ButteraugliComparator : public Comparator {
 
 }  // namespace biscotti
 
-#endif  // GUETZLI_BUTTERAUGLI_COMPARATOR_H_
+#endif  // BISCOTTI_BUTTERAUGLI_COMPARATOR_H_

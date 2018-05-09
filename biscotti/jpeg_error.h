@@ -16,8 +16,8 @@
 
 // Definition of error codes for parsing jpeg files.
 
-#ifndef GUETZLI_JPEG_ERROR_H_
-#define GUETZLI_JPEG_ERROR_H_
+#ifndef BISCOTTI_JPEG_ERROR_H_
+#define BISCOTTI_JPEG_ERROR_H_
 
 namespace biscotti {
 
@@ -68,4 +68,4 @@ enum JPEGReadError {
 
 }  // namespace biscotti
 
-#endif  // GUETZLI_JPEG_ERROR_H_
+#endif  // BISCOTTI_JPEG_ERROR_H_

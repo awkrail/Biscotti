@@ -14,8 +14,8 @@
  * limitations under the License.
  */
 
-#ifndef GUETZLI_JPEG_DATA_ENCODER_H_
-#define GUETZLI_JPEG_DATA_ENCODER_H_
+#ifndef BISCOTTI_JPEG_DATA_ENCODER_H_
+#define BISCOTTI_JPEG_DATA_ENCODER_H_
 
 #include <stdint.h>
 
@@ -38,4 +38,4 @@ bool EncodeRGBToJpeg(const std::vector<uint8_t>& rgb, int w, int h,
 
 }  // namespace biscotti
 
-#endif  // GUETZLI_JPEG_DATA_ENCODER_H_
+#endif  // BISCOTTI_JPEG_DATA_ENCODER_H_

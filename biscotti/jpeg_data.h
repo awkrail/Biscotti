@@ -16,8 +16,8 @@
 
 // Data structures that represent the contents of a jpeg file.
 
-#ifndef GUETZLI_JPEG_DATA_H_
-#define GUETZLI_JPEG_DATA_H_
+#ifndef BISCOTTI_JPEG_DATA_H_
+#define BISCOTTI_JPEG_DATA_H_
 
 #include <stddef.h>
 #include <stdint.h>
@@ -208,4 +208,4 @@ void SaveQuantTables(const int q[3][kDCTBlockSize], JPEGData* jpg);
 
 }  // namespace biscotti
 
-#endif  // GUETZLI_JPEG_DATA_H_
+#endif  // BISCOTTI_JPEG_DATA_H_

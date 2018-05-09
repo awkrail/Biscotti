@@ -14,8 +14,8 @@
  * limitations under the License.
  */
 
-#ifndef GUETZLI_PROCESSOR_H_
-#define GUETZLI_PROCESSOR_H_
+#ifndef BISCOTTI_PROCESSOR_H_
+#define BISCOTTI_PROCESSOR_H_
 
 #include <string>
 #include <vector>
@@ -57,4 +57,4 @@ bool Process(const Params& params, ProcessStats* stats,
 
 }  // namespace biscotti
 
-#endif  // GUETZLI_PROCESSOR_H_
+#endif  // BISCOTTI_PROCESSOR_H_

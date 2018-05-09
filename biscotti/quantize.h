@@ -14,8 +14,8 @@
  * limitations under the License.
  */
 
-#ifndef GUETZLI_QUANTIZE_H_
-#define GUETZLI_QUANTIZE_H_
+#ifndef BISCOTTI_QUANTIZE_H_
+#define BISCOTTI_QUANTIZE_H_
 
 #include "biscotti/jpeg_data.h"
 
@@ -32,4 +32,4 @@ bool QuantizeBlock(coeff_t block[kDCTBlockSize], const int q[kDCTBlockSize]);
 
 }  // namespace biscotti
 
-#endif  // GUETZLI_QUANTIZE_H_
+#endif  // BISCOTTI_QUANTIZE_H_

@@ -14,8 +14,8 @@
  * limitations under the License.
  */
 
-#ifndef GUETZLI_QUALITY_H_
-#define GUETZLI_QUALITY_H_
+#ifndef BISCOTTI_QUALITY_H_
+#define BISCOTTI_QUALITY_H_
 
 namespace biscotti {
 
@@ -23,4 +23,4 @@ double ButteraugliScoreForQuality(double quality);
 
 }  // namespace biscotti
 
-#endif  // GUETZLI_QUALITY_H_
+#endif  // BISCOTTI_QUALITY_H_

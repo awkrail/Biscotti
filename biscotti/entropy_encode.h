@@ -16,8 +16,8 @@
 
 // Entropy encoding (Huffman) utilities.
 
-#ifndef GUETZLI_ENTROPY_ENCODE_H_
-#define GUETZLI_ENTROPY_ENCODE_H_
+#ifndef BISCOTTI_ENTROPY_ENCODE_H_
+#define BISCOTTI_ENTROPY_ENCODE_H_
 
 #include <stddef.h>
 #include <stdint.h>
@@ -59,4 +59,4 @@ void CreateHuffmanTree(const uint32_t *data,
 
 }  // namespace biscotti
 
-#endif  // GUETZLI_ENTROPY_ENCODE_H_
+#endif  // BISCOTTI_ENTROPY_ENCODE_H_

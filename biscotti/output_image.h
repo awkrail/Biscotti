@@ -14,8 +14,8 @@
  * limitations under the License.
  */
 
-#ifndef GUETZLI_OUTPUT_IMAGE_H_
-#define GUETZLI_OUTPUT_IMAGE_H_
+#ifndef BISCOTTI_OUTPUT_IMAGE_H_
+#define BISCOTTI_OUTPUT_IMAGE_H_
 
 #include <stdint.h>
 #include <vector>
@@ -154,4 +154,4 @@ class OutputImage {
 
 }  // namespace biscotti
 
-#endif  // GUETZLI_OUTPUT_IMAGE_H_
+#endif  // BISCOTTI_OUTPUT_IMAGE_H_

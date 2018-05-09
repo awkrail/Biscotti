@@ -71,7 +71,7 @@ void ButteraugliComparator::Compare(const OutputImage& img) {
   comparator_.Diffmap(rgb_planes, distmap);
   CopyToPacked(distmap, &distmap_);
   distance_ = ::butteraugli::ButteraugliScoreFromDiffmap(distmap);
-  GUETZLI_LOG(stats_, " BA[100.00%%] D[%6.4f]", distance_);
+  BISCOTTI_LOG(stats_, " BA[100.00%%] D[%6.4f]", distance_);
 }
 
 namespace {

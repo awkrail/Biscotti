@@ -14,8 +14,8 @@
  * limitations under the License.
  */
 
-#ifndef GUETZLI_SCORE_H_
-#define GUETZLI_SCORE_H_
+#ifndef BISCOTTI_SCORE_H_
+#define BISCOTTI_SCORE_H_
 
 #include <vector>
 
@@ -25,4 +25,4 @@ double ScoreJPEG(double butteraugli_distance, int size,
                  double butteraugli_target);
 
 }  // namespace biscotti
-#endif  // GUETZLI_SCORE_H_
+#endif  // BISCOTTI_SCORE_H_

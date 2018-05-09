@@ -16,8 +16,8 @@
 
 // Functions for reading a jpeg byte stream into a JPEGData object.
 
-#ifndef GUETZLI_JPEG_DATA_READER_H_
-#define GUETZLI_JPEG_DATA_READER_H_
+#ifndef BISCOTTI_JPEG_DATA_READER_H_
+#define BISCOTTI_JPEG_DATA_READER_H_
 
 #include <stddef.h>
 #include <stdint.h>
@@ -47,4 +47,4 @@ bool ReadJpeg(const std::string& data, JpegReadMode mode,
 
 }  // namespace biscotti
 
-#endif  // GUETZLI_JPEG_DATA_READER_H_
+#endif  // BISCOTTI_JPEG_DATA_READER_H_

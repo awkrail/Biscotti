@@ -14,8 +14,8 @@
  * limitations under the License.
  */
 
-#ifndef GUETZLI_IDCT_H_
-#define GUETZLI_IDCT_H_
+#ifndef BISCOTTI_IDCT_H_
+#define BISCOTTI_IDCT_H_
 
 #include "biscotti/jpeg_data.h"
 
@@ -28,4 +28,4 @@ void ComputeBlockIDCT(const coeff_t* block, uint8_t* result);
 
 }  // namespace biscotti
 
-#endif  // GUETZLI_IDCT_H_
+#endif  // BISCOTTI_IDCT_H_

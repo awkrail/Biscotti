@@ -14,8 +14,8 @@
  * limitations under the License.
  */
 
-#ifndef GUETZLI_STATS_H_
-#define GUETZLI_STATS_H_
+#ifndef BISCOTTI_STATS_H_
+#define BISCOTTI_STATS_H_
 
 #include <cstdio>
 #include <map>
@@ -41,4 +41,4 @@ struct ProcessStats {
 
 }  // namespace biscotti
 
-#endif  // GUETZLI_STATS_H_
+#endif  // BISCOTTI_STATS_H_

@@ -14,8 +14,8 @@
  * limitations under the License.
  */
 
-#ifndef GUETZLI_DEBUG_PRINT_H_
-#define GUETZLI_DEBUG_PRINT_H_
+#ifndef BISCOTTI_DEBUG_PRINT_H_
+#define BISCOTTI_DEBUG_PRINT_H_
 
 #include "biscotti/stats.h"
 
@@ -25,7 +25,7 @@ void PrintDebug(ProcessStats* stats, std::string s);
 
 }  // namespace biscotti
 
-#define GUETZLI_LOG(stats, ...)                                    \
+#define BISCOTTI_LOG(stats, ...)                                    \
   do {                                                             \
     char debug_string[1024];                                       \
     int res = snprintf(debug_string, sizeof(debug_string),         \
@@ -36,14 +36,14 @@ void PrintDebug(ProcessStats* stats, std::string s);
     ::biscotti::PrintDebug(                      \
          stats, std::string(debug_string));        \
   } while (0)
-#define GUETZLI_LOG_QUANT(stats, q)                    \
+#define BISCOTTI_LOG_QUANT(stats, q)                    \
   for (int y = 0; y < 8; ++y) {                        \
     for (int c = 0; c < 3; ++c) {                      \
       for (int x = 0; x < 8; ++x)                      \
-        GUETZLI_LOG(stats, " %2d", (q)[c][8 * y + x]); \
-      GUETZLI_LOG(stats, "   ");                       \
+        BISCOTTI_LOG(stats, " %2d", (q)[c][8 * y + x]); \
+      BISCOTTI_LOG(stats, "   ");                       \
     }                                                  \
-    GUETZLI_LOG(stats, "\n");                          \
+    BISCOTTI_LOG(stats, "\n");                          \
   }
 
-#endif  // GUETZLI_DEBUG_PRINT_H_
+#endif  // BISCOTTI_DEBUG_PRINT_H_

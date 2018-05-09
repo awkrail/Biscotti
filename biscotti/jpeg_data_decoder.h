@@ -16,8 +16,8 @@
 
 // Library to decode jpeg coefficients into an RGB image.
 
-#ifndef GUETZLI_JPEG_DATA_DECODER_H_
-#define GUETZLI_JPEG_DATA_DECODER_H_
+#ifndef BISCOTTI_JPEG_DATA_DECODER_H_
+#define BISCOTTI_JPEG_DATA_DECODER_H_
 
 #include <stdint.h>
 
@@ -38,4 +38,4 @@ bool HasYCbCrColorSpace(const JPEGData& jpg);
 
 }  // namespace biscotti
 
-#endif  // GUETZLI_JPEG_DATA_DECODER_H_
+#endif  // BISCOTTI_JPEG_DATA_DECODER_H_

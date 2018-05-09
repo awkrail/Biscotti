@@ -14,8 +14,8 @@
  * limitations under the License.
  */
 
-#ifndef GUETZLI_COLOR_TRANSFORM_H_
-#define GUETZLI_COLOR_TRANSFORM_H_
+#ifndef BISCOTTI_COLOR_TRANSFORM_H_
+#define BISCOTTI_COLOR_TRANSFORM_H_
 
 namespace biscotti {
 
@@ -220,4 +220,4 @@ inline void ColorTransformYCbCrToRGB(uint8_t* pixel) {
 
 }  // namespace biscotti
 
-#endif  // GUETZLI_COLOR_TRANSFORM_H_
+#endif  // BISCOTTI_COLOR_TRANSFORM_H_

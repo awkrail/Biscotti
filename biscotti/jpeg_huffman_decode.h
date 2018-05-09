@@ -16,8 +16,8 @@
 
 // Utility function for building a Huffman lookup table for the jpeg decoder.
 
-#ifndef GUETZLI_JPEG_HUFFMAN_DECODE_H_
-#define GUETZLI_JPEG_HUFFMAN_DECODE_H_
+#ifndef BISCOTTI_JPEG_HUFFMAN_DECODE_H_
+#define BISCOTTI_JPEG_HUFFMAN_DECODE_H_
 
 #include <inttypes.h>
 
@@ -48,4 +48,4 @@ int BuildJpegHuffmanTable(const int* counts, const int* symbols,
 
 }  // namespace biscotti
 
-#endif  // GUETZLI_JPEG_HUFFMAN_DECODE_H_
+#endif  // BISCOTTI_JPEG_HUFFMAN_DECODE_H_

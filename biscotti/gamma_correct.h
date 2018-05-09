@@ -14,8 +14,8 @@
  * limitations under the License.
  */
 
-#ifndef GUETZLI_GAMMA_CORRECT_H_
-#define GUETZLI_GAMMA_CORRECT_H_
+#ifndef BISCOTTI_GAMMA_CORRECT_H_
+#define BISCOTTI_GAMMA_CORRECT_H_
 
 namespace biscotti {
 
@@ -23,4 +23,4 @@ const double* Srgb8ToLinearTable();
 
 }  // namespace biscotti
 
-#endif  // GUETZLI_GAMMA_CORRECT_H_
+#endif  // BISCOTTI_GAMMA_CORRECT_H_

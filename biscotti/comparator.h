@@ -14,8 +14,8 @@
  * limitations under the License.
  */
 
-#ifndef GUETZLI_COMPARATOR_H_
-#define GUETZLI_COMPARATOR_H_
+#ifndef BISCOTTI_COMPARATOR_H_
+#define BISCOTTI_COMPARATOR_H_
 
 #include <vector>
 
@@ -98,4 +98,4 @@ class Comparator {
 
 }  // namespace biscotti
 
-#endif  // GUETZLI_COMPARATOR_H_
+#endif  // BISCOTTI_COMPARATOR_H_

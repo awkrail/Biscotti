@@ -14,8 +14,8 @@
  * limitations under the License.
  */
 
-#ifndef GUETZLI_FAST_LOG_H_
-#define GUETZLI_FAST_LOG_H_
+#ifndef BISCOTTI_FAST_LOG_H_
+#define BISCOTTI_FAST_LOG_H_
 
 #include <math.h>
 
@@ -37,4 +37,4 @@ inline int Log2Floor(uint32_t n) {
 
 }  // namespace biscotti
 
-#endif  // GUETZLI_FAST_LOG_H_
+#endif  // BISCOTTI_FAST_LOG_H_

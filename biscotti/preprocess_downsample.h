@@ -16,8 +16,8 @@
 
 // Preprocesses U and V channel for better results after downsampling.
 
-#ifndef GUETZLI_PREPROCESS_DOWNSAMPLE_H_
-#define GUETZLI_PREPROCESS_DOWNSAMPLE_H_
+#ifndef BISCOTTI_PREPROCESS_DOWNSAMPLE_H_
+#define BISCOTTI_PREPROCESS_DOWNSAMPLE_H_
 
 #include <stdint.h>
 #include <vector>
@@ -37,4 +37,4 @@ std::vector<std::vector<float> > RGBToYUV420(
 
 }  // namespace biscotti
 
-#endif  // GUETZLI_PREPROCESS_DOWNSAMPLE_H_
+#endif  // BISCOTTI_PREPROCESS_DOWNSAMPLE_H_

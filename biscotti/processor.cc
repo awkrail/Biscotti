@@ -141,13 +141,13 @@ void Processor::OutputJpeg(const JPEGData& jpg,
 
 void Processor::MaybeOutput(const std::string& encoded_jpg) {
   double score = comparator_->ScoreOutputSize(encoded_jpg.size());
-  GUETZLI_LOG(stats_, " Score[%.4f]", score);
+  BISCOTTI_LOG(stats_, " Score[%.4f]", score);
   if (score < final_output_->score || final_output_->score < 0) {
     final_output_->jpeg_data = encoded_jpg;
     final_output_->score = score;
-    GUETZLI_LOG(stats_, " (*)");
+    BISCOTTI_LOG(stats_, " (*)");
   }
-  GUETZLI_LOG(stats_, "\n");
+  BISCOTTI_LOG(stats_, "\n");
 }
 
 bool CompareQuantData(const QuantData& a, const QuantData& b) {
@@ -312,11 +312,11 @@ QuantData Processor::TryQuantMatrix(const JPEGData& jpg_in,
     img->SaveToJpegData(&jpg_out);
     OutputJpeg(jpg_out, &encoded_jpg);
   }
-  GUETZLI_LOG(stats_, "Iter %2d: %s quantization matrix:\n",
+  BISCOTTI_LOG(stats_, "Iter %2d: %s quantization matrix:\n",
               stats_->counters[kNumItersCnt] + 1,
               img->FrameTypeStr().c_str());
-  GUETZLI_LOG_QUANT(stats_, q);
-  GUETZLI_LOG(stats_, "Iter %2d: %s GQ[%5.2f] Out[%7zd]",
+  BISCOTTI_LOG_QUANT(stats_, q);
+  BISCOTTI_LOG(stats_, "Iter %2d: %s GQ[%5.2f] Out[%7zd]",
               stats_->counters[kNumItersCnt] + 1,
               img->FrameTypeStr().c_str(),
               QuantMatrixHeuristicScore(q), encoded_jpg.size());
@@ -356,9 +356,9 @@ bool Processor::SelectQuantMatrix(const JPEGData& jpg_in, const bool downsample,
   }
 
   memcpy(&best_q[0][0], &best.q[0][0], kBlockSize * sizeof(best_q[0][0]));
-  GUETZLI_LOG(stats_, "\n%s selected quantization matrix:\n",
+  BISCOTTI_LOG(stats_, "\n%s selected quantization matrix:\n",
               downsample ? "YUV420" : "YUV444");
-  GUETZLI_LOG_QUANT(stats_, best_q);
+  BISCOTTI_LOG_QUANT(stats_, best_q);
   return best.dist_ok;
 }
 
@@ -766,7 +766,7 @@ void Processor::SelectFrequencyMasking(const JPEGData& jpg, OutputImage* img,
         img->SaveToJpegData(&jpg_out);
         OutputJpeg(jpg_out, &encoded_jpg);
       }
-      GUETZLI_LOG(stats_,
+      BISCOTTI_LOG(stats_,
                   "Iter %2d: %s(%d) %s Coeffs[%d/%zd] "
                   "Blocks[%zd/%d/%d] ValThres[%.4f] Out[%7zd] EstErr[%.2f%%]",
                   stats_->counters[kNumItersCnt], img->FrameTypeStr().c_str(),
@@ -846,9 +846,9 @@ bool Processor::ProcessJpegData(const Params& params, const JPEGData& jpg_in,
   std::string encoded_jpg;
   OutputJpeg(jpg_in, &encoded_jpg);
   final_output_->score = -1;
-  GUETZLI_LOG(stats, "Original Out[%7zd]", encoded_jpg.size());
+  BISCOTTI_LOG(stats, "Original Out[%7zd]", encoded_jpg.size());
   if (comparator_ == nullptr) {
-    GUETZLI_LOG(stats, " <image too small for Butteraugli>\n");
+    BISCOTTI_LOG(stats, " <image too small for Butteraugli>\n");
     final_output_->jpeg_data = encoded_jpg;
     final_output_->score = encoded_jpg.size();
     // Butteraugli doesn't work with images this small.

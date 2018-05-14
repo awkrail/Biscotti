@@ -798,55 +798,77 @@ void Processor::MultiplyProbabilityWithCoefficients(const JPEGData& jpg_in,
                                                     std::vector<float>& ycbcr) {
   // どうやってブロックごとに切り出して持ってくるのかという問題
   // TODO : compの数は可変にすることはできない? 全部3?
+  int start_point = 0;
+
   for(int comp=0; comp<3; ++comp) {
 
-    const int width = img->component(comp).width();
-    const int height = img->component(comp).height();
+    const int width = img->component(comp).width() / img->component(comp).factor_x();
+    const int height = img->component(comp).height() / img->component(comp).factor_y();
     const int block_width = img->component(comp).width_in_blocks();
     const int block_height = img->component(comp).height_in_blocks();
+    const int block_num = block_width * block_height;
+    std::cout << "comp : " << comp << std::endl;
+    std::cout << "width : " << width << std::endl;
+    std::cout << "height : " << height << std::endl;
+    std::cout << "width_in_blocks : " << block_width << std::endl;
+    std::cout << "height_in_blocks : " << block_height << std::endl;
+
+    // predictのYCbCrを取ってくる
+    std::vector<std::vector<int> > predicts;
+    for(int i=0; i < block_num; ++i) {
+      std::vector<int> predict;
+      int start = i*8;
+      for(int row=0; row<8; ++row) {
+        for(int col=0; col<8; ++col) {
+          int pred = ycbcr[start_point + start + width*row + col] >= 0.5 ? 1 : 0;
+          predict.push_back(pred);
+        }
+      }
+      predicts.push_back(predict);
+    }
 
     for(int block_y=0; block_y < block_height; ++block_y) {
       for(int block_x=0; block_x < block_width; ++block_x) {
         coeff_t block[kDCTBlockSize] = { 0 };
         img->component(comp).GetCoeffBlock(block_x, block_y, &block[0]);
+        int block_ix = block_y*block_width + block_x;
 
+        // DCTを掛け合わせる処理
+        for(int dix=0; dix<kBlockSize; ++dix) {
+          block[dix] *= predicts[block_ix][dix];
+        }
+        img->component(comp).SetCoeffBlock(block_x, block_y, block);
+      }
+    }
+    /**
+    for(int block_y=0; block_y < block_height; ++block_y) {
+      for(int block_x=0; block_x < block_width; ++block_x) {
+        // blockの読み込み
+        coeff_t block[kDCTBlockSize] = { 0 };
+        img->component(comp).GetCoeffBlock(block_x, block_y, &block[0]);
+
+        // 推論後のDCT係数
         int predict[kDCTBlockSize] = { 0 };
+        //int start_pos = 8*(block_y*block_width + block_x); // ここ怪しい
         int start_pos = 8*(block_y*block_width + block_x);
         int ix = 0;
         for(int row=0; row<8; ++row) {
           for(int col=0; col<8; ++col) {
-            int pred_coeff = ycbcr[comp*width*height + start_pos + width*row + col] >= 0.5 ? 1 : 0;
+            int pred_coeff = ycbcr[start_point + start_pos + width*row + col] >= 0.5 ? 1 : 0; // 多分ここがおかしい
             predict[ix] = pred_coeff;
             ++ix;
           }
         }
         for(int i=0; i<kDCTBlockSize; ++i) {
-          if(i == 0) {
-            continue;
-          } else {
             block[i] *= predict[i];
-          }
         }
-
         img->component(comp).SetCoeffBlock(block_x, block_y, block);
       }
     }
+     **/
+    // 掛け合わせる
+    start_point += width * height;
   }
-  // std::vector<std::vector<int> > blocks;
-  /**
-  int width_in_blocks =  / 8;
-  int height_in_blocks = input_height / 8;
-  int num_elements = width_in_blocks * height_in_blocks;
-  for(int i=0; i<num_elements; ++i) {
-    int start_pos = i*8;
-    std::vector<int> block;
-    for(int row=0; row<8; ++row) {
-      for(int col=0; col<8; ++col) {
-        int coeff = ycbcr[start_pos + input_w]
-      }
-    }
-  }
-  **/
   std::string encoded_jpg;
   {
     JPEGData jpg_out = jpg_in;

@@ -73,8 +73,9 @@ class Processor {
   void MaybeOutput(const std::string& encoded_jpg);
   void DownsampleImage(OutputImage* img);
   void OutputJpeg(const JPEGData& in, std::string* out);
-  void SetCoeffBlocksWithInference(const JPEGData& jpg_in, const Predictor& pred,
-                                   OutputImage* img);
+  void MultiplyProbabilityWithCoefficients(const JPEGData& jpg_in, 
+                                           OutputImage* img, 
+                                           std::vector<float>& ycbcr);
 
   Params params_;
   Comparator* comparator_;
@@ -792,19 +793,17 @@ bool IsGrayscale(const JPEGData& jpg) {
   return true;
 }
 
-void Processor::SetCoeffBlocksWithInference(const JPEGData& jpg_in, const Predictor& pred,
-                                           OutputImage* img) {
-  // TODO : Add some process
-  // 1. transform coeffcients inference results into YUV420 forms.
-  // 2. Multiply coefficients inference with blocks.
-  // 3. call SetCoeffBlock
-  // 4. call OutputJpeg
+void Processor::MultiplyProbabilityWithCoefficients(const JPEGData& jpg_in, 
+                                                    OutputImage* img,
+                                                    std::vector<float>& ycbcr) {
+  // どうやってブロックごとに切り出して持ってくるのかという問題
   std::string encoded_jpg;
   {
     JPEGData jpg_out = jpg_in;
     img->SaveToJpegData(&jpg_out);
     OutputJpeg(jpg_out, &encoded_jpg);
-  }  
+  }
+  MaybeOutput(encoded_jpg);
 }
 
 bool Processor::ProcessJpegData(const Params& params, const JPEGData& jpg_in,
@@ -889,12 +888,51 @@ bool Processor::ProcessJpegData(const Params& params, const JPEGData& jpg_in,
     // TODO
     // Now Only I support YUV420, and 3dimension(only RGB, not GRAYSCALE, and not RGBA),
     // and only jpg image. I will support them in a few days.
-    /**
-    std::vector<tensorflow::Tensor> outputs(0);
+
+    // MEMO
+    // 1. transform coeffcients inference results into YUV420 forms.
+    // 2. Multiply coefficients inference with blocks.
+    // 3. call SetCoeffBlock
+    // 4. call OutputJpeg
+
+    // Deep Learning Process(Inference)
+    std::vector<tensorflow::Tensor> outputs;
+    const int input_width = jpg.width;
+    const int input_height = jpg.height;
     biscotti::Predictor predictor("test/0.jpg", "pb_model/output_graph.pb", 
-                        jpg.width(), jpg.height(), "input_1", "biscotti_0", &outputs);
-    predictor.Process();
-    **/
+                        input_width, input_height, "input_1", "biscotti_0", outputs);
+    bool dnn_ok = predictor.Process();
+    if(!dnn_ok) {
+      return false;
+    }
+    tensorflow::TTypes<float>::Flat result_flat = outputs[0].flat<float>();
+    std::vector<float> ycbcr;
+    for(int i=0; i<outputs[0].NumElements(); ++i) {
+      if(i < input_width*input_height) {
+        // Y
+        ycbcr.push_back(result_flat(i));
+      } else {
+        // Cb
+        if(i < 2*input_width*input_height) {
+          int index = i - input_width*input_height;
+          int row = index / 512;
+          if(index % 2 == 0 && row % 2 == 0) {
+            ycbcr.push_back(result_flat(i));
+          }
+        } else {
+         // Cr
+         int index = i - 2*input_width*input_height;
+         int row = index / 512;
+         if(index % 2 == 0 && row % 2 == 0) {
+           ycbcr.push_back(result_flat(i));
+         }
+        }
+      }
+    }
+
+    // Upgrade DCT Coefficients
+
+    /**
     if (!downsample) {
       SelectFrequencyMasking(jpg, &img, 7, 1.0, false);
     } else {
@@ -902,6 +940,7 @@ bool Processor::ProcessJpegData(const Params& params, const JPEGData& jpg_in,
       SelectFrequencyMasking(jpg, &img, 1, ymul, false);
       SelectFrequencyMasking(jpg, &img, 6, 1.0, true);
     }
+    **/
   }
 
   return true;

@@ -840,33 +840,6 @@ void Processor::MultiplyProbabilityWithCoefficients(const JPEGData& jpg_in,
         img->component(comp).SetCoeffBlock(block_x, block_y, block);
       }
     }
-    /**
-    for(int block_y=0; block_y < block_height; ++block_y) {
-      for(int block_x=0; block_x < block_width; ++block_x) {
-        // blockの読み込み
-        coeff_t block[kDCTBlockSize] = { 0 };
-        img->component(comp).GetCoeffBlock(block_x, block_y, &block[0]);
-
-        // 推論後のDCT係数
-        int predict[kDCTBlockSize] = { 0 };
-        //int start_pos = 8*(block_y*block_width + block_x); // ここ怪しい
-        int start_pos = 8*(block_y*block_width + block_x);
-        int ix = 0;
-        for(int row=0; row<8; ++row) {
-          for(int col=0; col<8; ++col) {
-            int pred_coeff = ycbcr[start_point + start_pos + width*row + col] >= 0.5 ? 1 : 0; // 多分ここがおかしい
-            predict[ix] = pred_coeff;
-            ++ix;
-          }
-        }
-        for(int i=0; i<kDCTBlockSize; ++i) {
-            block[i] *= predict[i];
-        }
-        img->component(comp).SetCoeffBlock(block_x, block_y, block);
-      }
-    }
-     **/
-    // 掛け合わせる
     start_point += width * height;
   }
   std::string encoded_jpg;

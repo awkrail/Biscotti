@@ -18,6 +18,7 @@
 #include <utility>
 #include <vector>
 #include <cassert>
+#include <opencv2/opencv.hpp>
 
 #include "tensorflow/cc/ops/const_op.h"
 #include "tensorflow/cc/ops/image_ops.h"
@@ -82,7 +83,22 @@ namespace biscotti {
   
     // Read Image
     // TODO : change code in order to get guetzli's rgb
-    std::vector<tensorflow::Tensor> tensors;
+    cv::Mat image;
+    image = cv::imread(static_cast<std::string>(image_path));
+    cv::cvtColor(image, image, CV_BGR2RGB);
+    std::vector<float> image_vector;
+    for(int y=0; y<image.rows; ++y) {
+      for(int x=0; x<image.cols; ++x) {
+        for(int c=0; c<image.channels(); ++c) {
+          float value = image.data[y * image.step + x * image.elemSize() + c];
+          image_vector.push_back(value / 255.0);
+        }
+      }
+    }
+    //std::vector<tensorflow::Tensor> tensors;
+    tensorflow::Tensor tensor(tensorflow::DT_FLOAT, tensorflow::TensorShape({1, 512, 512, 3}));
+    std::copy_n(image_vector.begin(), image_vector.size(), tensor.flat<float>().data());
+    /**
     float input_mean = 0;
     float input_std = 255;
     tensorflow::Status read_tensor_status =
@@ -92,9 +108,10 @@ namespace biscotti {
       LOG(ERROR) << read_tensor_status;
       return false;
     }
+    **/
 
     // run session, and set output tensor to output property
-    const tensorflow::Tensor& tensor = tensors[0];
+    //const tensorflow::Tensor& tensor = tensors[0];
 
     // std::vector<tensorflow::Tensor> results;
     tensorflow::Status run_status = session->Run({{input_layer, tensor}},

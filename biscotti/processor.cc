@@ -75,7 +75,9 @@ class Processor {
   void OutputJpeg(const JPEGData& in, std::string* out);
   void MultiplyProbabilityWithCoefficients(const JPEGData& jpg_in, 
                                            OutputImage* img, 
-                                           std::vector<float>& ycbcr);
+                                           std::vector<int>& y,
+                                           std::vector<int>& cb,
+                                           std::vector<int>& cr);
 
   Params params_;
   Comparator* comparator_;
@@ -795,12 +797,56 @@ bool IsGrayscale(const JPEGData& jpg) {
 
 void Processor::MultiplyProbabilityWithCoefficients(const JPEGData& jpg_in, 
                                                     OutputImage* img,
-                                                    std::vector<float>& ycbcr) {
+                                                    std::vector<int>& y,
+                                                    std::vector<int>& cb,
+                                                    std::vector<int>& cr) {
   // どうやってブロックごとに切り出して持ってくるのかという問題
   // TODO : compの数は可変にすることはできない? 全部3?
   // TODO : ここの関数を書き換える
-  int start_point = 0;
+  //int start_point = 0;
 
+  for(int c=0; c<3; ++c) {
+    const int width = img->component(c).width();
+    const int height = img->component(c).height();
+    const int block_width = img->component(c).width_in_blocks();
+    const int block_height = img->component(c).height_in_blocks();
+    const int block_num = block_width * block_height;
+    std::vector<int> binary_coeffs;
+
+    if(c == 0) {
+      binary_coeffs = y;
+    } else if(c == 1) {
+      binary_coeffs = cb;
+    } else {
+      binary_coeffs = cr;
+    }
+
+    for(int block_y=0; block_y < block_height; ++block_y) {
+      for(int block_x=0; block_x < block_width; ++block_x) {
+        int predict[kDCTBlockSize] = { 0 };
+        int block_ix = block_width * block_y + block_x;
+
+        // predictのデータをvectorから構築する
+        for(int row=0; row<8; ++row) {
+          for(int col=8; col<8; ++col) {
+            predict[row*8 + col] = binary_coeffs[8*block_ix + width*row + col];
+          }
+        }
+        // 元データ
+        coeff_t block[kDCTBlockSize] = { 0 };
+        img->component(c).GetCoeffBlock(block_x, block_y, block);
+        for(int i=0; i<kDCTBlockSize; ++i) {
+          if(i == 0) continue;
+          else {
+            block[i] *= predict[i];
+          }
+        }
+        img->component(c).SetCoeffBlock(block_x, block_y, block);
+      }
+    }
+  }
+
+  /**
   for(int comp=0; comp<3; ++comp) {
 
     const int width = img->component(comp).width() / img->component(comp).factor_x();
@@ -838,6 +884,7 @@ void Processor::MultiplyProbabilityWithCoefficients(const JPEGData& jpg_in,
     }
     start_point += width * height;
   }
+  **/
   std::string encoded_jpg;
   {
     JPEGData jpg_out = jpg_in;
@@ -947,32 +994,28 @@ bool Processor::ProcessJpegData(const Params& params, const JPEGData& jpg_in,
       return false;
     }
     tensorflow::TTypes<float>::Flat result_flat = outputs[0].flat<float>();
-    std::vector<float> ycbcr;
+    std::vector<int> y;
+    std::vector<int> cb;
+    std::vector<int> cr;
     for(int i=0; i<outputs[0].NumElements(); ++i) {
-      if(i < input_width*input_height) {
-        // Y
-        ycbcr.push_back(result_flat(i));
+      int pixel = i / 3;
+      int row = pixel / 512;
+      int value = result_flat(i) >= 0.5 ? 1 : 0;
+      if(i % 3 == 0) {
+        y.push_back(value);
+      } else if(i % 3 == 1) {
+        if(pixel % 2 == 0 && row % 2 == 0) {
+          cr.push_back(value);
+        }
       } else {
-        // Cb
-        if(i < 2*input_width*input_height) {
-          int index = i - input_width*input_height;
-          int row = index / 512;
-          if(index % 2 == 0 && row % 2 == 0) {
-            ycbcr.push_back(result_flat(i));
-          }
-        } else {
-         // Cr
-         int index = i - 2*input_width*input_height;
-         int row = index / 512;
-         if(index % 2 == 0 && row % 2 == 0) {
-           ycbcr.push_back(result_flat(i));
-         }
+        if(pixel % 2 == 0 && row % 2 == 0) {
+          cb.push_back(value);
         }
       }
     }
 
     // Upgrade DCT Coefficients
-    MultiplyProbabilityWithCoefficients(jpg, &img, ycbcr);
+    MultiplyProbabilityWithCoefficients(jpg, &img, y, cb, cr);
     /**
     if (!downsample) {
       SelectFrequencyMasking(jpg, &img, 7, 1.0, false);

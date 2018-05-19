@@ -95,6 +95,7 @@ namespace biscotti {
         }
       }
     }
+
     //std::vector<tensorflow::Tensor> tensors;
     tensorflow::Tensor tensor(tensorflow::DT_FLOAT, tensorflow::TensorShape({1, 512, 512, 3}));
     std::copy_n(image_vector.begin(), image_vector.size(), tensor.flat<float>().data());

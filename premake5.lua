@@ -34,14 +34,14 @@ workspace "biscotti"
     }
     removefiles "biscotti/biscotti.cc"
     filter "action:gmake"
-      linkoptions { "`pkg-config --libs libpng || libpng-config --static --ldflags`", "-L third_party/tensorflow/bazel-bin/tensorflow", "-ltensorflow_cc", "-ltensorflow_framework" }
-      buildoptions { "`pkg-config --cflags libpng || libpng-config --static --cflags`" }
+      linkoptions { "`pkg-config --libs libpng opencv || libpng-config --static --ldflags`", "-L third_party/tensorflow/bazel-bin/tensorflow", "-ltensorflow_cc", "-ltensorflow_framework" }
+      buildoptions { "`pkg-config --cflags libpng opencv || libpng-config --static --cflags`" }
 
   project "biscotti"
     kind "ConsoleApp"
     filter "action:gmake"
-      linkoptions { "`pkg-config --libs libpng || libpng-config --ldflags`", "-L third_party/tensorflow/bazel-bin/tensorflow", "-ltensorflow_cc", "-ltensorflow_framework" }
-      buildoptions { "`pkg-config --cflags libpng || libpng-config --cflags`" }
+      linkoptions { "`pkg-config --libs libpng opencv || libpng-config --ldflags`", "-L third_party/tensorflow/bazel-bin/tensorflow", "-ltensorflow_cc", "-ltensorflow_framework" }
+      buildoptions { "`pkg-config --cflags libpng opencv || libpng-config --cflags`" }
     files {
       "biscotti/*.cc",
       "biscotti/*.h",

@@ -798,6 +798,7 @@ void Processor::MultiplyProbabilityWithCoefficients(const JPEGData& jpg_in,
                                                     std::vector<float>& ycbcr) {
   // どうやってブロックごとに切り出して持ってくるのかという問題
   // TODO : compの数は可変にすることはできない? 全部3?
+  // TODO : ここの関数を書き換える
   int start_point = 0;
 
   for(int comp=0; comp<3; ++comp) {
@@ -807,11 +808,6 @@ void Processor::MultiplyProbabilityWithCoefficients(const JPEGData& jpg_in,
     const int block_width = img->component(comp).width_in_blocks();
     const int block_height = img->component(comp).height_in_blocks();
     const int block_num = block_width * block_height;
-    std::cout << "comp : " << comp << std::endl;
-    std::cout << "width : " << width << std::endl;
-    std::cout << "height : " << height << std::endl;
-    std::cout << "width_in_blocks : " << block_width << std::endl;
-    std::cout << "height_in_blocks : " << block_height << std::endl;
 
     // predictのYCbCrを取ってくる
     std::vector<std::vector<int> > predicts;

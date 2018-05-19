@@ -804,6 +804,7 @@ void Processor::MultiplyProbabilityWithCoefficients(const JPEGData& jpg_in,
   // TODO : compの数は可変にすることはできない? 全部3?
   // TODO : ここの関数を書き換える
   //int start_point = 0;
+  std::vector<std::vector<int> > predicts;
 
   for(int c=0; c<3; ++c) {
     const int width = img->component(c).width();
@@ -823,68 +824,45 @@ void Processor::MultiplyProbabilityWithCoefficients(const JPEGData& jpg_in,
 
     for(int block_y=0; block_y < block_height; ++block_y) {
       for(int block_x=0; block_x < block_width; ++block_x) {
-        int predict[kDCTBlockSize] = { 0 };
+        //int predict[kDCTBlockSize] = { 0 };
+        std::vector<int> predict;
         int block_ix = block_width * block_y + block_x;
 
         // predictのデータをvectorから構築する
-        for(int row=0; row<8; ++row) {
-          for(int col=8; col<8; ++col) {
-            predict[row*8 + col] = binary_coeffs[8*block_ix + width*row + col];
+        for(int row_y=0; row_y<8; ++row_y) {
+          for(int col_x=0; col_x<8; ++col_x) {
+            // ここがおかしいっぽい? => うーん
+            //predict[row_y*8 + col_x] = binary_coeffs[8*block_ix + width*row_y + col_x];
+            predict.push_back(binary_coeffs[8*block_ix + width*row_y + col_x]);
           }
         }
         // 元データ
         coeff_t block[kDCTBlockSize] = { 0 };
         img->component(c).GetCoeffBlock(block_x, block_y, block);
         for(int i=0; i<kDCTBlockSize; ++i) {
-          if(i == 0) continue;
-          else {
             block[i] *= predict[i];
-          }
         }
         img->component(c).SetCoeffBlock(block_x, block_y, block);
+        // debug
+        if(c == 0) {
+          predicts.push_back(predict);
+        }
+        //
       }
     }
   }
 
-  /**
-  for(int comp=0; comp<3; ++comp) {
+  std::ofstream ofs;
+  ofs.open("debug/y_predicts.csv");
 
-    const int width = img->component(comp).width() / img->component(comp).factor_x();
-    const int height = img->component(comp).height() / img->component(comp).factor_y();
-    const int block_width = img->component(comp).width_in_blocks();
-    const int block_height = img->component(comp).height_in_blocks();
-    const int block_num = block_width * block_height;
-
-    // predictのYCbCrを取ってくる
-    std::vector<std::vector<int> > predicts;
-    for(int i=0; i < block_num; ++i) {
-      std::vector<int> predict;
-      int start = i*8;
-      for(int row=0; row<8; ++row) {
-        for(int col=0; col<8; ++col) {
-          int pred = ycbcr[start_point + start + width*row + col] >= 0.5 ? 1 : 0;
-          predict.push_back(pred);
-        }
-      }
-      predicts.push_back(predict);
+  for(int i=0; i<predicts.size(); ++i) {
+    for(int j=0; j<predicts[i].size(); ++j) {
+      ofs << predicts[i][j] << ",";
     }
-
-    for(int block_y=0; block_y < block_height; ++block_y) {
-      for(int block_x=0; block_x < block_width; ++block_x) {
-        coeff_t block[kDCTBlockSize] = { 0 };
-        img->component(comp).GetCoeffBlock(block_x, block_y, &block[0]);
-        int block_ix = block_y*block_width + block_x;
-
-        // DCTを掛け合わせる処理
-        for(int dix=0; dix<kBlockSize; ++dix) {
-          block[dix] *= predicts[block_ix][dix];
-        }
-        img->component(comp).SetCoeffBlock(block_x, block_y, block);
-      }
-    }
-    start_point += width * height;
   }
-  **/
+
+  ofs.close();
+
   std::string encoded_jpg;
   {
     JPEGData jpg_out = jpg_in;

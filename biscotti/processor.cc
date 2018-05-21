@@ -824,44 +824,31 @@ void Processor::MultiplyProbabilityWithCoefficients(const JPEGData& jpg_in,
 
     for(int block_y=0; block_y < block_height; ++block_y) {
       for(int block_x=0; block_x < block_width; ++block_x) {
-        //int predict[kDCTBlockSize] = { 0 };
-        std::vector<int> predict;
+        int predict[kDCTBlockSize] = { 0 };
         int block_ix = block_width * block_y + block_x;
 
         // predictのデータをvectorから構築する
         for(int row_y=0; row_y<8; ++row_y) {
           for(int col_x=0; col_x<8; ++col_x) {
-            // ここがおかしいっぽい? => うーん
-            //predict[row_y*8 + col_x] = binary_coeffs[8*block_ix + width*row_y + col_x];
-            predict.push_back(binary_coeffs[8*block_ix + width*row_y + col_x]);
+            int block_row = block_ix / block_width;
+            int block_col = block_ix % block_width;
+            predict[row_y*8 + col_x] = binary_coeffs[kDCTBlockSize*block_width*block_row + block_col*8 + width*row_y + col_x];
           }
         }
         // 元データ
         coeff_t block[kDCTBlockSize] = { 0 };
         img->component(c).GetCoeffBlock(block_x, block_y, block);
         for(int i=0; i<kDCTBlockSize; ++i) {
+          if(i == 0) continue;
+          else {
             block[i] *= predict[i];
+          }
         }
         img->component(c).SetCoeffBlock(block_x, block_y, block);
-        // debug
-        if(c == 0) {
-          predicts.push_back(predict);
-        }
-        //
       }
     }
   }
 
-  std::ofstream ofs;
-  ofs.open("debug/y_predicts.csv");
-
-  for(int i=0; i<predicts.size(); ++i) {
-    for(int j=0; j<predicts[i].size(); ++j) {
-      ofs << predicts[i][j] << ",";
-    }
-  }
-
-  ofs.close();
 
   std::string encoded_jpg;
   {

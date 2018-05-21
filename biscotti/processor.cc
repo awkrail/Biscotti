@@ -804,6 +804,7 @@ void Processor::MultiplyProbabilityWithCoefficients(const JPEGData& jpg_in,
   // vector, cb, crがどっちがどっちか分からない問題 .. もしかしたら逆かも?
   // TODO : compの数は可変にすることはできない? 全部3?
   // TODO : ここの関数を書き換える
+  // YUV444, PNGデータはここのせいで動いていないっぽい。 まだ対応はできていないのだが...
   std::vector<int> pred_y;
   std::vector<int> pred_cb;
   std::vector<int> pred_cr; 
@@ -965,25 +966,40 @@ bool Processor::ProcessJpegData(const Params& params, const JPEGData& jpg_in,
     std::vector<int> y;
     std::vector<int> cb;
     std::vector<int> cr;
-    for(int i=0; i<outputs[0].NumElements(); ++i) {
-      int pixel = i / 3;
-      int row = pixel / 512;
-      int value = result_flat(i) >= 0.4 ? 1 : 0; // TODO : consider threshold
-      if(i % 3 == 0) {
-        y.push_back(value);
-      } else if(i % 3 == 1) {
-        if(pixel % 2 == 0 && row % 2 == 0) {
-          cr.push_back(value);
+
+    if(input_is_420) {
+      for(int i=0; i<outputs[0].NumElements(); ++i) {
+        int pixel = i / 3;
+        int row = pixel / 512;
+        int value = result_flat(i) >= 0.4 ? 1 : 0; // TODO : consider threshold
+        if(i % 3 == 0) {
+          y.push_back(value);
+        } else if(i % 3 == 1) {
+          if(pixel % 2 == 0 && row % 2 == 0) {
+            cr.push_back(value);
+          }
+        } else {
+          if(pixel % 2 == 0 && row % 2 == 0) {
+            cb.push_back(value);
+          }
         }
-      } else {
-        if(pixel % 2 == 0 && row % 2 == 0) {
+      }
+    } else {
+      for(int i=0; i<outputs[0].NumElements(); ++i) {
+        int pixel = i / 3;
+        int row = pixel / 512;
+        int value = result_flat(i) >= 0.4 ? 1 : 0; // TODO : consider threshold
+        if(i % 3 == 0) {
+          y.push_back(value);
+        } else if(i % 3 == 1) {
+          cr.push_back(value);
+        } else {
           cb.push_back(value);
         }
       }
     }
-
     // Upgrade DCT Coefficients
-    assert(input_is_420);
+    // assert(input_is_420);
     MultiplyProbabilityWithCoefficients(jpg, &img, y, cb, cr);
 
     

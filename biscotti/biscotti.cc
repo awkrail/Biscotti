@@ -268,12 +268,13 @@ int main(int argc, char** argv) {
   }
 
   std::string in_data = ReadFileOrDie(argv[opt_idx]);
+  std::string filename = std::string(argv[opt_idx]);
   std::string out_data;
 
   biscotti::Params params;
   params.butteraugli_target = static_cast<float>(
       biscotti::ButteraugliScoreForQuality(quality));
-
+  params.filename = filename;
   biscotti::ProcessStats stats;
 
   if (verbose) {

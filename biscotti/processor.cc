@@ -955,7 +955,7 @@ bool Processor::ProcessJpegData(const Params& params, const JPEGData& jpg_in,
     std::vector<tensorflow::Tensor> outputs;
     const int input_width = jpg.width;
     const int input_height = jpg.height;
-    biscotti::Predictor predictor("test/0.jpg", "pb_model/output_graph_360.pb", 
+    biscotti::Predictor predictor(params.filename, "pb_model/output_graph_8.pb", 
                         input_width, input_height, "input_1", "biscotti_0", outputs);
     bool dnn_ok = predictor.Process();
     if(!dnn_ok) {
@@ -968,7 +968,7 @@ bool Processor::ProcessJpegData(const Params& params, const JPEGData& jpg_in,
     for(int i=0; i<outputs[0].NumElements(); ++i) {
       int pixel = i / 3;
       int row = pixel / 512;
-      int value = result_flat(i) >= 0.5 ? 1 : 0;
+      int value = result_flat(i) >= 0.4 ? 1 : 0;
       if(i % 3 == 0) {
         y.push_back(value);
       } else if(i % 3 == 1) {
@@ -982,28 +982,6 @@ bool Processor::ProcessJpegData(const Params& params, const JPEGData& jpg_in,
       }
     }
 
-    // debug
-    std::ofstream ofs_y;
-    ofs_y.open("debug/vector_y.csv");
-    for(int i=0; i<y.size(); ++i) {
-      ofs_y << y[i] << ",";
-    }
-    ofs_y.close();
-
-    std::ofstream ofs_cr;
-    ofs_cr.open("debug/vector_cr.csv");
-    for(int j=0; j<cr.size(); ++j) {
-      ofs_cr << cr[j] << ",";
-    }
-    ofs_cr.close();
-
-    std::ofstream ofs_cb;
-    ofs_cb.open("debug/vector_cb.csv");
-    for(int k=0; k<cb.size(); ++k) {
-      ofs_cb << cb[k] << ",";
-    }
-    ofs_cb.close();
-    //
     // Upgrade DCT Coefficients
     MultiplyProbabilityWithCoefficients(jpg, &img, y, cb, cr);
     

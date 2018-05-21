@@ -54,18 +54,10 @@ class Predictor {
               const tensorflow::string input_layer, const tensorflow::string output_layer,
               std::vector<tensorflow::Tensor>& outputs);
     bool Process();
-    int predict_index(const int index) const;
-    static tensorflow::Status ReadEntireFile(tensorflow::Env* env, const tensorflow::string& filename,
-                                             tensorflow::Tensor* output);
 
-
-    
   private:
     tensorflow::Status LoadGraph(const tensorflow::string& graph_path,
                                 std::unique_ptr<tensorflow::Session>* session);
-    tensorflow::Status ReadTensorFromImageFile(const tensorflow::string& file_name, const int input_height,
-                                              const int input_width, const float input_mean, const float input_std,
-                                              std::vector<tensorflow::Tensor>* out_tensors);
     tensorflow::string image_path;
     tensorflow::string graph_path;
     tensorflow::int32 input_width;

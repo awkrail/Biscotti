@@ -36,9 +36,9 @@ bazel build -c opt //tensorflow:libtensorflow_cc.so
 ```
 
 ## Usage
-WIP
+`biscotti [input_image].(jpg|png) [output_image].(jpg|png)`
 
-## Train
+## Training
 ### 1. Make Dataset
 You should set your images(jpg) at `images/`  
 After that, run `./train_bin/script/dump_qopt_images.sh`  

@@ -96,25 +96,8 @@ namespace biscotti {
       }
     }
 
-    //std::vector<tensorflow::Tensor> tensors;
     tensorflow::Tensor tensor(tensorflow::DT_FLOAT, tensorflow::TensorShape({1, 512, 512, 3}));
     std::copy_n(image_vector.begin(), image_vector.size(), tensor.flat<float>().data());
-    /**
-    float input_mean = 0;
-    float input_std = 255;
-    tensorflow::Status read_tensor_status =
-        ReadTensorFromImageFile(image_path, input_height, input_width, input_mean,
-                                input_std, &tensors);
-    if(!read_tensor_status.ok()) {
-      LOG(ERROR) << read_tensor_status;
-      return false;
-    }
-    **/
-
-    // run session, and set output tensor to output property
-    //const tensorflow::Tensor& tensor = tensors[0];
-
-    // std::vector<tensorflow::Tensor> results;
     tensorflow::Status run_status = session->Run({{input_layer, tensor}},
                                                 {output_layer}, {}, &outputs);
     if(!run_status.ok()) {

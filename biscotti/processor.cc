@@ -952,7 +952,7 @@ bool Processor::ProcessJpegData(const Params& params, const JPEGData& jpg_in,
     std::vector<tensorflow::Tensor> outputs;
     const int input_width = jpg.width;
     const int input_height = jpg.height;
-    biscotti::Predictor predictor("test/0.jpg", "pb_model/output_graph.pb", 
+    biscotti::Predictor predictor("test/0.jpg", "pb_model/output_graph_360.pb", 
                         input_width, input_height, "input_1", "biscotti_0", outputs);
     bool dnn_ok = predictor.Process();
     if(!dnn_ok) {

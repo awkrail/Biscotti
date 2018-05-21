@@ -955,7 +955,7 @@ bool Processor::ProcessJpegData(const Params& params, const JPEGData& jpg_in,
     std::vector<tensorflow::Tensor> outputs;
     const int input_width = jpg.width;
     const int input_height = jpg.height;
-    biscotti::Predictor predictor(params.filename, "pb_model/output_graph_8.pb", 
+    biscotti::Predictor predictor(params.filename, "pb_model/output_graph_360.pb", 
                         input_width, input_height, "input_1", "biscotti_0", outputs);
     bool dnn_ok = predictor.Process();
     if(!dnn_ok) {
@@ -968,7 +968,7 @@ bool Processor::ProcessJpegData(const Params& params, const JPEGData& jpg_in,
     for(int i=0; i<outputs[0].NumElements(); ++i) {
       int pixel = i / 3;
       int row = pixel / 512;
-      int value = result_flat(i) >= 0.4 ? 1 : 0;
+      int value = result_flat(i) >= 0.4 ? 1 : 0; // TODO : consider threshold
       if(i % 3 == 0) {
         y.push_back(value);
       } else if(i % 3 == 1) {
@@ -983,7 +983,9 @@ bool Processor::ProcessJpegData(const Params& params, const JPEGData& jpg_in,
     }
 
     // Upgrade DCT Coefficients
+    assert(input_is_420);
     MultiplyProbabilityWithCoefficients(jpg, &img, y, cb, cr);
+
     
     /**
     if (!downsample) {

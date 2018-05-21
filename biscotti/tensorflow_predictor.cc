@@ -62,7 +62,6 @@ namespace biscotti {
   bool Predictor::Process() {
     // TODO List
     // global initialize
-    // tensorflow::port::InitMain <- これないから怪しそう...
     // load and initialize model
     std::unique_ptr<tensorflow::Session> session;
     tensorflow::Status load_graph_status = LoadGraph(graph_path, &session);
@@ -88,6 +87,8 @@ namespace biscotti {
 
     // 画像のサイズに変更すること。
     assert(input_width % 16 == 0 && input_height % 16 == 0);
+
+    // もしかしたら, 本来入ってはならないサイズのものも入っている可能性が..?
     tensorflow::Tensor tensor(tensorflow::DT_FLOAT, tensorflow::TensorShape({1, input_width, input_height, 3}));
     std::copy_n(image_vector.begin(), image_vector.size(), tensor.flat<float>().data());
     tensorflow::Status run_status = session->Run({{input_layer, tensor}},

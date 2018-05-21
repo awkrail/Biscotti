@@ -78,21 +78,21 @@ class DctCsvLoader(object):
 
 
 class Predictor():
-    def __init__(self, target_size, image, threshold, model_path, result_png_path, csv_path, guetzli_csv_path):
-        self.target_size = target_size
+    def __init__(self, image, threshold, model_path, result_png_path, csv_path, guetzli_csv_path):
         self.image = image
         self.threshold = threshold
         self.result_png_path = result_png_path
         self.csv_path = csv_path
         self.model = self.create_generator_3layer()
         self.model.load_weights(model_path)
+        target_size = (self.image.shape[0], self.image.shape[1])
         self.guetzli_dct = DctCsvLoader(guetzli_csv_path, target_size).get_csv()
         self.predict_dct = None
     
     def predict(self):
-        row = self.target_size[0]
-        col = self.target_size[1]
-        dct_predict = self.model.predict(image.reshape(1, row, col, 3)).reshape(row, col, 3)
+        row = self.image.shape[0]
+        col = self.image.shape[1]
+        dct_predict = self.model.predict(self.image.reshape(1, row, col, 3)).reshape(row, col, 3) # このimageは?
         self.predict_dct = dct_predict
 
     def eval(self):
@@ -146,7 +146,7 @@ class Predictor():
         cb_df.to_csv(self.csv_path + "cb.csv", header=None, index=None)
     
     def create_generator_3layer(self):
-        inputs = Input((self.target_size[0], self.target_size[1], 3))
+        inputs = Input((self.image.shape[0], self.image.shape[1], 3))
         conv1 = Conv2D(32, (3, 3), padding='same')(inputs)
         conv1 = LeakyReLU(0.2)(conv1)
 
@@ -183,7 +183,7 @@ class Predictor():
     def create_generator(self):
         # U-Net
         # EncoderSide
-        inputs = Input((self.target_size[0], self.target_size[1], 3))
+        inputs = Input((self.image.shape[0], self.image.shape[1], 3))
 
         conv1 = Conv2D(32, (3, 3), padding='same', data_format="channels_last")(inputs)
         conv1 = LeakyReLU(0.2)(conv1)
@@ -254,7 +254,8 @@ class Predictor():
                 for k in range(2):
                     for u in range(2):
                         canvas4[k][u] = coeffs[j+k][i+u]
-                if np.sum(canvas4.flatten()) >= 2.0:
+                #if np.sum(canvas4.flatten()) >= 2.0:
+                if canvas4[0][0] == 1:
                     foundation[j//2][i//2] = 1
                 else:
                     foundation[j//2][i//2] = 0
@@ -292,8 +293,6 @@ if __name__ == "__main__":
                         required=True, help="load trained model weights")
     parser.add_argument("--imagepath", "-i", type=str, 
                         required=True, help="load Input Image")
-    parser.add_argument("--targetsize", "-t", type=int,
-                        default=224)
     parser.add_argument("--resultpath", "-r", type=str, default="test/heatmap/",
                         help="save output in this result path")
     parser.add_argument("--csvpath", "-c", type=str, default="test/coeffs_csv/",
@@ -307,14 +306,13 @@ if __name__ == "__main__":
     args = parser.parse_args()
 
 
-    target_size = (args.targetsize, args.targetsize) # change to your image size
     # model_path, result_png_path, csv_path, guetzli_csv_path
     image = cv2.imread(args.imagepath)
     if args.colorspace == "rgb":
         image = cv2.cvtColor(image, cv2.COLOR_BGR2RGB) / 255.0
     else:
         image = cv2.cvtColor(image, cv2.COLOR_BGR2YCrCb) / 255.0
-    predictor = Predictor(target_size, image, threshold=args.threshold,
+    predictor = Predictor(image, threshold=args.threshold,
                     model_path=args.modelpath, 
                     result_png_path=args.resultpath,
                     csv_path=args.csvpath,

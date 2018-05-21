@@ -801,14 +801,16 @@ void Processor::MultiplyProbabilityWithCoefficients(const JPEGData& jpg_in,
                                                     std::vector<int>& cb,
                                                     std::vector<int>& cr) {
   // どうやってブロックごとに切り出して持ってくるのかという問題
+  // vector, cb, crがどっちがどっちか分からない問題 .. もしかしたら逆かも?
   // TODO : compの数は可変にすることはできない? 全部3?
   // TODO : ここの関数を書き換える
-  //int start_point = 0;
-  std::vector<std::vector<int> > predicts;
+  std::vector<int> pred_y;
+  std::vector<int> pred_cb;
+  std::vector<int> pred_cr; 
 
   for(int c=0; c<3; ++c) {
-    const int width = img->component(c).width();
-    const int height = img->component(c).height();
+    const int width = img->component(c).width() / img->component(c).factor_x();
+    const int height = img->component(c).height() / img->component(c).factor_y();
     const int block_width = img->component(c).width_in_blocks();
     const int block_height = img->component(c).height_in_blocks();
     const int block_num = block_width * block_height;
@@ -817,24 +819,25 @@ void Processor::MultiplyProbabilityWithCoefficients(const JPEGData& jpg_in,
     if(c == 0) {
       binary_coeffs = y;
     } else if(c == 1) {
-      binary_coeffs = cb;
-    } else {
+      // which?
       binary_coeffs = cr;
+    } else {
+      binary_coeffs = cb;
     }
 
     for(int block_y=0; block_y < block_height; ++block_y) {
       for(int block_x=0; block_x < block_width; ++block_x) {
         int predict[kDCTBlockSize] = { 0 };
         int block_ix = block_width * block_y + block_x;
+        int block_row = block_ix / block_width;
+        int block_col = block_ix % block_width;
 
-        // predictのデータをvectorから構築する
         for(int row_y=0; row_y<8; ++row_y) {
           for(int col_x=0; col_x<8; ++col_x) {
-            int block_row = block_ix / block_width;
-            int block_col = block_ix % block_width;
             predict[row_y*8 + col_x] = binary_coeffs[kDCTBlockSize*block_width*block_row + block_col*8 + width*row_y + col_x];
           }
         }
+
         // 元データ
         coeff_t block[kDCTBlockSize] = { 0 };
         img->component(c).GetCoeffBlock(block_x, block_y, block);
@@ -979,8 +982,31 @@ bool Processor::ProcessJpegData(const Params& params, const JPEGData& jpg_in,
       }
     }
 
+    // debug
+    std::ofstream ofs_y;
+    ofs_y.open("debug/vector_y.csv");
+    for(int i=0; i<y.size(); ++i) {
+      ofs_y << y[i] << ",";
+    }
+    ofs_y.close();
+
+    std::ofstream ofs_cr;
+    ofs_cr.open("debug/vector_cr.csv");
+    for(int j=0; j<cr.size(); ++j) {
+      ofs_cr << cr[j] << ",";
+    }
+    ofs_cr.close();
+
+    std::ofstream ofs_cb;
+    ofs_cb.open("debug/vector_cb.csv");
+    for(int k=0; k<cb.size(); ++k) {
+      ofs_cb << cb[k] << ",";
+    }
+    ofs_cb.close();
+    //
     // Upgrade DCT Coefficients
     MultiplyProbabilityWithCoefficients(jpg, &img, y, cb, cr);
+    
     /**
     if (!downsample) {
       SelectFrequencyMasking(jpg, &img, 7, 1.0, false);

@@ -18,8 +18,8 @@ matplotlib == 2.0.2
 run `pip install requirements.txt`
 
 ## Install
-Biscotti have two dependencies libraries.  
-[butteraugli](https://github.com/google/butteraugli) and [tensorflow](https://github.com/tensorflow/tensorflow)
+Biscotti have three dependent libraries.  
+[butteraugli](https://github.com/google/butteraugli), [tensorflow](https://github.com/tensorflow/tensorflow) and [opencv]()
 ```sh
 cd third_party
 
@@ -79,8 +79,6 @@ There are 8 options.
 - YUV420
 
 ## WIP
-- YUV444
-- png
 - alpha
 - GrayScale
 - now there are some bug unless you input images which can be divided 16.

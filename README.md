@@ -19,7 +19,7 @@ run `pip install requirements.txt`
 
 ## Install
 Biscotti have three dependent libraries.  
-[butteraugli](https://github.com/google/butteraugli), [tensorflow](https://github.com/tensorflow/tensorflow) and [opencv]()
+[butteraugli](https://github.com/google/butteraugli), [tensorflow](https://github.com/tensorflow/tensorflow) and [opencv](https://opencv.org/)
 ```sh
 cd third_party
 

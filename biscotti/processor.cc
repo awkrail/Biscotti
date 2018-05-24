@@ -921,6 +921,13 @@ bool Processor::ProcessJpegData(const Params& params, const JPEGData& jpg_in,
   int try_420 = (input_is_420 || params_.force_420 ||
                  (params_.try_420 && !IsGrayscale(jpg_in))) ? 1 : 0;
   int force_420 = (input_is_420 || params_.force_420) ? 1 : 0;
+
+  // TODO : I will delete this exit when starting to deal with grayscale images.
+  if(IsGrayscale(jpg_in)) {
+    std::cout << "this image is graysclale." << std::endl;
+    return false;
+  }
+
   for (int downsample = force_420; downsample <= try_420; ++downsample) {
     JPEGData jpg = jpg_in;
     RemoveOriginalQuantization(&jpg, q_in);

@@ -2,12 +2,14 @@ import os
 import subprocess
 import argparse
 from datetime import datetime
+import json
 
 def main(validation_dir, save_dir):
   images = os.listdir(validation_dir)
   grayscale = 0
   scores = []
   elapsed = []
+  score_dict = {}
   print(len(images))
   for image in images:
     # TODO : 16で両辺が割り切れないとダメ => それへの対応
@@ -24,6 +26,7 @@ def main(validation_dir, save_dir):
       score = subprocess.check_output(butteraugli)
       score = float(score)
       scores.append(score)
+      score_dict[image] = score
     except:
       grayscale += 1
 
@@ -35,6 +38,16 @@ def main(validation_dir, save_dir):
   print("maximum butteraugli : ", max(scores))
   print("average butteraugli : ", sum(scores) / len(scores)) 
   print("average elapsed time :", sum(elapsed) / len(elapsed))
+  # import ipdb; ipdb.set_trace()
+  if save_dir[-3:] == "512":
+    json_dir = "validations/result512.json"
+  elif save_dir[-3:] == "224":
+    json_dir = "validations/result224.json"
+  else:
+    json_dir = "validations/result1200.json"
+  with open(json_dir, "w") as f:
+    json.dump(score_dict, f)
+
 
 if __name__ == "__main__":
   # 16で割り切れるという条件付き

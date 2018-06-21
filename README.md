@@ -86,10 +86,8 @@ There are 8 options.
 - making command line tool
 
 ## LICENSE
-This repo is under [Apache 2.0 License](https://www.apache.org/licenses/LICENSE-2.0)
-
-## Author
-Taichi Nishimura
+- This repo is under [Apache 2.0 License](https://www.apache.org/licenses/LICENSE-2.0).
+- Biscotti is a fork of [guetzli](https://github.com/google/guetzli). The copyright of the original part is owned by Google, inc.
 
 ## Reference
 - [guetzli](https://github.com/google/guetzli)

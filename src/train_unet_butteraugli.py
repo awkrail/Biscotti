@@ -63,6 +63,21 @@ def load_validation_dataset(dataset_path, test_files):
         y[i] = dct
     return X, y
 
+def butteraugli_loss(y_true, y_pred):
+  # どうやって
+  pass
+
+def generator_loss(y_true, y_pred):
+  """
+  独自の誤差関数の定義
+  1. binary_crossentropy
+  2. butteraugli score
+  """
+  # 1. binary_crossentropy
+  cross_entropy_loss = K.mean(K.binary_crossentropy(y_true, y_pred), axis=-1)
+  # 2. butteraugli
+  butteraugli = butteraugli_loss(y_true, y_pred)
+  return cross_entropy_loss + butteraugli
 
 def train(args):
     # load data
@@ -80,20 +95,26 @@ def train(args):
     # load generator model
     target_size = (224, 224, 3)
     generator_model = nets.get_generator(target_size)
-    generator_model.compile(loss='binary_crossentropy', optimizer=opt_unet, metrics=['accuracy'])
+    # generator_model.compile(loss='binary_crossentropy', optimizer=opt_unet, metrics=['accuracy'])
+    generator_model.compile(loss=generator_loss, optimizer=opt_unet)
 
     # checkpoint
     checkpointer = ModelCheckpoint(filepath=output + "/model_weights_{epoch:02d}.h5", save_best_only=False)
+
+    # generator_model's first weights
+    model_path = output + "/model_weights_initial.h5"
+    generator_model.save(model_path)
 
     # start training...
     for epoch in range(args.epoch):
         perms = np.random.permutation(len(train_files))
         perm_batch = [perms[i:i+batch_size] for i in range(0, len(train_files), batch_size)]
         progbar = generic_utils.Progbar(threshold)
-        for pb in perm_batch:
-            import ipdb; ipdb.set_trace()
+        for i, pb in enumerate(perm_batch):
             X_train, y_train = load_train_data_on_batch(args.datasetpath, pb, train_files, batch_size)
-            loss = generator_model.train_on_batch(X_train, y_train)
+            # TODO : add loss +butteraugli
+            loss = generator_model.train_on_batch(X_train, y_train, model_path)
+            model_path = output + "/model_weights_{}_epoch_{}.h5".format(epoch, i)
             progbar.add(batch_size, values=[("loss", loss[0]), ("accuracy", loss[1])])
 
         score = generator_model.evaluate(X_valid, y_valid)

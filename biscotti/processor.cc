@@ -845,10 +845,13 @@ void Processor::MultiplyProbabilityWithCoefficients(const JPEGData& jpg_in,
         for(int i=0; i<kDCTBlockSize; ++i) {
           if(i == 0) continue;
           else {
+            block[i] *= predict[i];
+            /**
             if(std::abs(block[i]) < 50) { 
               // TODO: 試しに50 <- ここで0にするものをDCTの値の大きさから調整できるようにしてみるといいかも
               block[i] *= predict[i];
             }
+            **/
           }
         }
         img->component(c).SetCoeffBlock(block_x, block_y, block);

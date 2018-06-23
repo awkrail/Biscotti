@@ -64,7 +64,7 @@ def load_validation_dataset(dataset_path, test_files):
     return X, y
 
 def butteraugli_loss(y_true, y_pred):
-  # どうやって
+  # どうやってbutteraugli lossを定義するか?
   pass
 
 def generator_loss(y_true, y_pred):
@@ -94,7 +94,8 @@ def train(args):
 
     # load generator model
     target_size = (224, 224, 3)
-    generator_model = nets.get_generator(target_size)
+    # generator_model = nets.get_generator(target_size)
+    generator_model = nets.generator_butteraugli(target_size, output + "/model_weights_initial.h5")
     # generator_model.compile(loss='binary_crossentropy', optimizer=opt_unet, metrics=['accuracy'])
     generator_model.compile(loss=generator_loss, optimizer=opt_unet)
 
@@ -113,7 +114,7 @@ def train(args):
         for i, pb in enumerate(perm_batch):
             X_train, y_train = load_train_data_on_batch(args.datasetpath, pb, train_files, batch_size)
             # TODO : add loss +butteraugli
-            loss = generator_model.train_on_batch(X_train, y_train, model_path)
+            loss = generator_model.train_on_batch([X_train, model_path], y_train)
             model_path = output + "/model_weights_{}_epoch_{}.h5".format(epoch, i)
             progbar.add(batch_size, values=[("loss", loss[0]), ("accuracy", loss[1])])
 

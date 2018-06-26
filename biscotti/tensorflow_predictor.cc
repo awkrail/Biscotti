@@ -74,7 +74,7 @@ namespace biscotti {
     // TODO : change code in order to get guetzli's rgb
     cv::Mat image;
     image = cv::imread(static_cast<std::string>(image_path));
-    cv::cvtColor(image, image, CV_BGR2RGB);
+    cv::cvtColor(image, image, cv::COLOR_BGR2RGB);
     std::vector<float> image_vector;
     for(int y=0; y<image.rows; ++y) {
       for(int x=0; x<image.cols; ++x) {

@@ -63,9 +63,27 @@ def load_validation_dataset(dataset_path, test_files):
         y[i] = dct
     return X, y
 
-def butteraugli_loss(y_true, y_pred):
-  # どうやってbutteraugli lossを定義するか?
-  pass
+def butteraugli_loss(y_true, model_path):
+  # 元データ
+  import ipdb; ipdb.set_trace()
+  for i, raw_img in enumerate(y_true):
+    cv2.imwrite("train_tmp/raw_images/" + str(i) + ".jpg")
+  
+  # biscottiによってモデルを使ってpredict
+  # どうやってモデルのpathを渡すのか? => outputもリストにして渡す(うまくいくだろうか?)
+  batch_scores = []
+
+  for i in range(y_true.shape[0]):
+    try:
+      # TODO : モデルのpathを選択できるようにC++側を変更
+      biscotti = ["bin/Release/biscotti", "train_tmp/raw_images/" + str(i) + ".jpg", "train_tmp/predict_images/" + str(i) + ".jpg", model_path]
+      subprocess.check_call(biscotti)
+      butteraguli_command = ["train_bin/Release/butteraugli", biscotti[0], biscotti[1]]
+      score = subprocess.check_output(butteraugli)
+      score = float(score)
+      batch_scores.append(score)
+  butteraugli = sum(batch_scores) / len(batch_scores)
+  return 0.0001 * butteraugli
 
 def generator_loss(y_true, y_pred):
   """
@@ -74,9 +92,9 @@ def generator_loss(y_true, y_pred):
   2. butteraugli score
   """
   # 1. binary_crossentropy
-  cross_entropy_loss = K.mean(K.binary_crossentropy(y_true, y_pred), axis=-1)
+  cross_entropy_loss = K.mean(K.binary_crossentropy(y_true, y_pred[0]), axis=-1)
   # 2. butteraugli
-  butteraugli = butteraugli_loss(y_true, y_pred)
+  butteraugli = butteraugli_loss(y_true, y_pred[1])
   return cross_entropy_loss + butteraugli
 
 def train(args):
@@ -95,7 +113,7 @@ def train(args):
     # load generator model
     target_size = (224, 224, 3)
     # generator_model = nets.get_generator(target_size)
-    generator_model = nets.generator_butteraugli(target_size, output + "/model_weights_initial.h5")
+    generator_model = nets.generator_butteraugli(target_size, "train_tmp/models/model_weights_initial.h5")
     # generator_model.compile(loss='binary_crossentropy', optimizer=opt_unet, metrics=['accuracy'])
     generator_model.compile(loss=generator_loss, optimizer=opt_unet)
 
@@ -103,7 +121,7 @@ def train(args):
     checkpointer = ModelCheckpoint(filepath=output + "/model_weights_{epoch:02d}.h5", save_best_only=False)
 
     # generator_model's first weights
-    model_path = output + "/model_weights_initial.h5"
+    model_path = output + "train_tmp/models/model_weights_initial.h5"
     generator_model.save(model_path)
 
     # start training...
@@ -115,7 +133,7 @@ def train(args):
             X_train, y_train = load_train_data_on_batch(args.datasetpath, pb, train_files, batch_size)
             # TODO : add loss +butteraugli
             loss = generator_model.train_on_batch([X_train, model_path], y_train)
-            model_path = output + "/model_weights_{}_epoch_{}.h5".format(epoch, i)
+            model_path = "train_tmp/models/model_weights_{}_epoch_{}.h5".format(epoch, i)
             progbar.add(batch_size, values=[("loss", loss[0]), ("accuracy", loss[1])])
 
         score = generator_model.evaluate(X_valid, y_valid)

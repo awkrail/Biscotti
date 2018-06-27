@@ -124,7 +124,7 @@ def butteraugli_loss(batch_y_pred):
 
   # y_predを利用して, src/predict.pyのようにDCTをCSVでダンプして作成する
   for i, y_pred in enumerate(batch_y_pred):
-    dump_csv(y_pred)
+    dump_csv(y_pred, i)
   
   for i in range(batch_y_pred.shape[0]):
     try:

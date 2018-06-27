@@ -77,7 +77,7 @@ class DctCsvLoader(object):
         return canvas.reshape(height, width, 1)
 
 
-class Predictor():
+class Predictor(object):
     def __init__(self, image, threshold, model_path, result_png_path, csv_path, guetzli_csv_path):
         self.image = image
         self.threshold = threshold

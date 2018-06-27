@@ -170,7 +170,7 @@ def generator_discriminator(generator, discriminator, img_shape, patch_size):
                   name="DCGAN")
     return DCGAN
 
-def generator_butteraugli(input_size, model_path):
+def generator_butteraugli(input_size):
     # EncoderSide
     inputs = Input((input_size[0], input_size[1], 3))
 
@@ -219,7 +219,7 @@ def generator_butteraugli(input_size, model_path):
     conv11 = BatchNormalization(axis=-1)(conv11)
 
     conv12 = Conv2D(3, (1, 1), activation='sigmoid', data_format="channels_last")(conv11)
-    fcn = Model(input=[inputs, model_path], output=[conv12, model_path])
+    fcn = Model(input=inputs, output=conv12)
 
     return fcn
 

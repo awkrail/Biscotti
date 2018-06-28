@@ -9,6 +9,12 @@ from keras.optimizers import Adam
 from keras.utils import generic_utils
 from keras.callbacks import ModelCheckpoint
 
+# For new model considering butteraguli
+from keras.layers.core import Flatten, Dense, Activation, Lambda
+from keras.models import Model
+from keras.layers.convolutional import Conv2D, Deconv2D, ZeroPadding2D, UpSampling2D
+from keras.layers import Input, Concatenate, concatenate, LeakyReLU, BatchNormalization
+
 import tensorflow as tf
 import nets
 
@@ -66,18 +72,73 @@ def load_validation_dataset(dataset_path, test_files):
     return X, y
 
 
-def generator_loss(y_true, y_pred):
-  """
-  独自の誤差関数の定義
-  1. binary_crossentropy
-  2. butteraugli score
-  """
-  # 1. binary_crossentropy
-  cross_entropy_loss = K.mean(K.binary_crossentropy(y_true, y_pred), axis=-1)
-  # 2. butteraugli
-  # DCT係数 => src/predictのようにguetzliに当てはまるようにcsvで保存 => guetzli_setter => butteraugliを計算する, は可能
-  return cross_entropy_loss
+class ButteruagliModel(Model):
+  butteraugli = None
 
+  def setup(self):
+    return self
+  
+  @property
+  def losses(self):
+    losses = super(self.__class__, self).losses
+    if self.butteraguli is None:
+      return losses
+    else:
+      return losses + self.butteraugli
+
+class GeneratorModel():
+  model = None
+
+  def __init__(self, input_shape):
+    self.input_shape = input_shape
+    self.butteraugli = None
+  
+  def build(self):
+    inputs = Input((self.input_shape[0], self.input_shape[1], 3))
+    outputs = self.unet(inputs)
+    return ButteruagliModel(inputs, outputs).setup()
+
+  def unet(self, inputs):
+    conv1 = Conv2D(32, (3, 3), padding='same')(inputs)
+    conv1 = LeakyReLU(0.2)(conv1)
+
+    conv2 = Conv2D(64, (3, 3), strides=(2, 2), padding='same')(conv1)
+    conv2 = LeakyReLU(0.2)(conv2)
+    conv2 = BatchNormalization(axis=-1)(conv2)
+
+    conv3 = Conv2D(128, (3, 3), strides=(2, 2), padding='same')(conv2)
+    conv3 = LeakyReLU(0.2)(conv3)
+    conv3 = BatchNormalization(axis=-1)(conv3)
+
+    conv4 = Conv2D(256, (3, 3), strides=(2, 2), padding='same')(conv3)
+    conv4 = Conv2D(256, (3, 3), padding="same")(conv4)
+    conv4 = Activation('relu')(conv4)
+
+    # Decoder Side
+    up1 = concatenate([UpSampling2D(size=(2, 2), data_format="channels_last")(conv4), conv3], axis=3)
+    conv5 = Conv2D(128, (3, 3), activation='relu', padding='same')(up1)
+    conv5 = BatchNormalization(axis=-1)(conv5)
+
+    up2 = concatenate([UpSampling2D(size=(2, 2), data_format="channels_last")(conv5), conv2], axis=3)
+    conv6 = Conv2D(64, (3, 3), activation='relu', padding='same')(up2)
+    conv6 = BatchNormalization(axis=-1)(conv6)
+    
+    up3 = concatenate([UpSampling2D(size=(2, 2), data_format="channels_last")(conv6), conv1], axis=3)
+    conv7 = Conv2D(32, (3, 3), activation='relu', padding='same')(up3)
+    conv7 = BatchNormalization(axis=-1)(conv7)
+
+    conv8 = Conv2D(3, (1, 1), activation='sigmoid', data_format="channels_last")(conv7)
+    fcn = Model(input=inputs, output=conv8)
+    return fcn
+
+
+def get_butteraugli_loss(x_train, model_path):
+  """
+  1. X_train => 保存, train_tmp/raw_images以下に保存
+  2. model_pathを受け取ってそれらをbiscotti
+  3. butteraugliを train_tmp/raw_images/とtrain_tmp/predict_images/で比較する
+  """
+  pass
 def train(args):
     # load data
     data_files = sorted(os.listdir(args.datasetpath))
@@ -93,8 +154,8 @@ def train(args):
 
     # load generator model
     target_size = (224, 224, 3)
-    # generator_model = nets.get_generator(target_size)
-    generator_model = nets.generator_butteraugli(target_size)
+    # generator_model = nets.generator_butteraugli(target_size)
+    generator_model = GeneratorModel(target_size).build()
     # generator_model.compile(loss='binary_crossentropy', optimizer=opt_unet, metrics=['accuracy'])
     generator_model.compile(loss=generator_loss, optimizer=opt_unet)
 
@@ -113,11 +174,10 @@ def train(args):
         for i, pb in enumerate(perm_batch):
             X_train, y_train = load_train_data_on_batch(args.datasetpath, pb, train_files, batch_size)
             # TODO : add loss +butteraugli
-            """
-            1. X_train => 保存, train_tmp/raw_images以下に保存
-            2. model_pathを受け取ってそれらをbiscotti
-            3. butteraugliを train_tmp/raw_images/とtrain_tmp/predict_images/で比較する
-            """
+            generator_model.trainable = False
+            butteraugli_loss = get_butteraugli_loss(X_train, model_path)
+            generator_model.butteraugli = butteraugli_loss
+            generator_model.trainable = True
             loss = generator_model.train_on_batch(X_train, y_train)
             model_path = np.array("train_tmp/models/model_weights_{}_epoch_{}.h5".format(epoch, i))
             generator_model.save(model_path)

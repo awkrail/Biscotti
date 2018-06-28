@@ -73,30 +73,26 @@ def load_validation_dataset(dataset_path, test_files):
 
 
 class ButteruagliModel(Model):
-  butteraugli = None
-
-  def setup(self):
-    return self
+  def __init__(self, sub_inputs, sub_outputs, butteraugli):
+    super().__init__(inputs=sub_inputs, outputs=sub_outputs)
+    self.butteraugli = [butteraugli]
   
   @property
   def losses(self):
     losses = super(self.__class__, self).losses
-    if self.butteraguli is None:
-      return losses
-    else:
-      return losses + self.butteraugli
+    return losses + self.butteraugli
+
 
 class GeneratorModel():
   model = None
 
   def __init__(self, input_shape):
     self.input_shape = input_shape
-    self.butteraugli = None
   
   def build(self):
     inputs = Input((self.input_shape[0], self.input_shape[1], 3))
     outputs = self.unet(inputs)
-    return ButteruagliModel(inputs, outputs).setup()
+    return ButteruagliModel(sub_inputs=[inputs], sub_outputs=[outputs], butteraugli=-1)
 
   def unet(self, inputs):
     conv1 = Conv2D(32, (3, 3), padding='same')(inputs)
@@ -128,9 +124,8 @@ class GeneratorModel():
     conv7 = BatchNormalization(axis=-1)(conv7)
 
     conv8 = Conv2D(3, (1, 1), activation='sigmoid', data_format="channels_last")(conv7)
-    fcn = Model(input=inputs, output=conv8)
-    return fcn
-
+    # fcn = Model(input=inputs, output=conv8)
+    return conv8
 
 def get_butteraugli_loss(x_train, model_path):
   """
@@ -139,6 +134,8 @@ def get_butteraugli_loss(x_train, model_path):
   3. butteraugliを train_tmp/raw_images/とtrain_tmp/predict_images/で比較する
   """
   pass
+
+
 def train(args):
     # load data
     data_files = sorted(os.listdir(args.datasetpath))
@@ -157,13 +154,13 @@ def train(args):
     # generator_model = nets.generator_butteraugli(target_size)
     generator_model = GeneratorModel(target_size).build()
     # generator_model.compile(loss='binary_crossentropy', optimizer=opt_unet, metrics=['accuracy'])
-    generator_model.compile(loss=generator_loss, optimizer=opt_unet)
-
+    generator_model.compile(loss='binary_crossentropy', optimizer=opt_unet)
+    import ipdb; ipdb.set_trace()
     # checkpoint
     checkpointer = ModelCheckpoint(filepath=output + "/model_weights_{epoch:02d}.h5", save_best_only=False)
 
     # generator_model's first weights
-    model_path = output + "train_tmp/models/model_weights_initial.h5"
+    model_path = "train_tmp/models/model_weights_initial.h5"
     generator_model.save(model_path)
 
     # start training...

@@ -170,21 +170,16 @@ def convert_hdf5_to_pb(model_path):
   num_out = 1
 
   K.set_learning_phase(0)
-  import ipdb; ipdb.set_trace()
-  with CustomObjectScope({'ButteraugliModel' : ButteruagliModel}):
-    net_model = load_model(model_path)
-
-  net_model = load_model(model_path)
+  net_model = load_model(model_path, custom_objects={'ButteruagliModel' : ButteruagliModel})
 
   pred = [None]*num_out
   pred_node_names = [None]*num_out
   for i in range(num_out):
-    pred_node_names[i] = "biscotti_" + str(i)
+    pred_node_names[i] = "biscotti_" + str(i) # 名前変えないとダメ
     pred[i] = tf.identity(net_model.output[i], name=pred_node_names[i])
   sess = K.get_session()
   constant_graph = graph_util.convert_variables_to_constants(sess, sess.graph.as_graph_def(), pred_node_names)
   graph_io.write_graph(constant_graph, out_dir, model_name, as_text=False)
-
   return model_name
 
 def train(args):
@@ -213,7 +208,6 @@ def train(args):
     # generator_model's first weights
     model_path = "train_tmp/models/model_weights_initial.h5"
     generator_model.save(model_path)
-    import ipdb; ipdb.set_trace()
 
     # start training...
     for epoch in range(args.epoch):
@@ -225,6 +219,7 @@ def train(args):
             # TODO : add loss +butteraugli
             generator_model.trainable = False
             converted_model_name = convert_hdf5_to_pb(model_path)
+            import ipdb; ipdb.set_trace()
             butteraugli_loss = get_butteraugli_loss(X_train, converted_model_name)
             butteraugli_loss = 0.0001 * butteraugli_loss
             generator_model.butteraugli = butteraugli_loss

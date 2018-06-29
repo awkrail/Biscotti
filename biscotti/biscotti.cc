@@ -263,18 +263,20 @@ int main(int argc, char** argv) {
     }
   }
 
-  if (argc - opt_idx != 2) {
+  if (argc - opt_idx != 3) { // for selecting model. I will fix later
     Usage();
   }
 
   std::string in_data = ReadFileOrDie(argv[opt_idx]);
   std::string filename = std::string(argv[opt_idx]);
+  std::string model_path = std::string(argv[opt_idx + 2]);
   std::string out_data;
 
   biscotti::Params params;
   params.butteraugli_target = static_cast<float>(
       biscotti::ButteraugliScoreForQuality(quality));
   params.filename = filename;
+  params.model_path = model_path;
   biscotti::ProcessStats stats;
 
   if (verbose) {

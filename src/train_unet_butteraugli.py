@@ -17,6 +17,9 @@ from keras.layers.convolutional import Conv2D, Deconv2D, ZeroPadding2D, UpSampli
 from keras.layers import Input, Concatenate, concatenate, LeakyReLU, BatchNormalization
 
 import tensorflow as tf
+from tensorflow.python.framework import graph_util
+from tensorflow.python.framework import graph_io
+
 import nets
 
 
@@ -154,6 +157,11 @@ def get_butteraugli_loss(x_train, model_path):
   butteraugli = sum(scores) / len(scores)
   return butteraugli
 
+def convert_hdf5_to_pb(model_path):
+  # convert hdf5 to pb for biscotti
+  pass
+
+
 def train(args):
     # load data
     data_files = sorted(os.listdir(args.datasetpath))
@@ -189,6 +197,7 @@ def train(args):
             X_train, y_train = load_train_data_on_batch(args.datasetpath, pb, train_files, batch_size)
             # TODO : add loss +butteraugli
             generator_model.trainable = False
+            convert_hdf5_to_pb(model_path)
             butteraugli_loss = get_butteraugli_loss(X_train, model_path)
             butteraugli_loss = 0.0001 * butteraugli_loss
             generator_model.butteraugli = butteraugli_loss

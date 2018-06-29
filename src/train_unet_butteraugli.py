@@ -7,7 +7,7 @@ import cv2
 
 import keras.backend as K
 from keras.optimizers import Adam
-from keras.utils import generic_utils
+from keras.utils import generic_utils, CustomObjectScope
 from keras.callbacks import ModelCheckpoint
 
 # For new model considering butteraguli
@@ -77,9 +77,11 @@ def load_validation_dataset(dataset_path, test_files):
 
 
 class ButteruagliModel(Model):
-  def __init__(self, sub_inputs, sub_outputs, butteraugli):
-    super().__init__(inputs=sub_inputs, outputs=sub_outputs)
-    self.butteraugli = [butteraugli]
+  butteraugli = -1
+
+  def __init__(self, inputs, outputs, **kwargs):
+    super().__init__(inputs=inputs, outputs=outputs)
+    self.butteraugli = [self.butteraugli]
   
   @property
   def losses(self):
@@ -96,7 +98,7 @@ class GeneratorModel():
   def build(self):
     inputs = Input((self.input_shape[0], self.input_shape[1], 3))
     outputs = self.unet(inputs)
-    return ButteruagliModel(sub_inputs=[inputs], sub_outputs=[outputs], butteraugli=-1)
+    return ButteruagliModel(inputs=[inputs], outputs=[outputs])
 
   def unet(self, inputs):
     conv1 = Conv2D(32, (3, 3), padding='same')(inputs)
@@ -128,7 +130,6 @@ class GeneratorModel():
     conv7 = BatchNormalization(axis=-1)(conv7)
 
     conv8 = Conv2D(3, (1, 1), activation='sigmoid', data_format="channels_last")(conv7)
-    # fcn = Model(input=inputs, output=conv8)
     return conv8
 
 def get_butteraugli_loss(x_train, converted_model_name):
@@ -163,13 +164,16 @@ def get_butteraugli_loss(x_train, converted_model_name):
 
 def convert_hdf5_to_pb(model_path):
   # convert hdf5 to pb for biscotti
-  import ipdb; ipdb.set_trace()
   model_name = model_path.split('/')[-1]
   model_name = model_name.split('.')[0] + ".pb"
   out_dir = "train_tmp/models/model_pb/"
   num_out = 1
 
   K.set_learning_phase(0)
+  import ipdb; ipdb.set_trace()
+  with CustomObjectScope({'ButteraugliModel' : ButteruagliModel}):
+    net_model = load_model(model_path)
+
   net_model = load_model(model_path)
 
   pred = [None]*num_out
@@ -200,6 +204,7 @@ def train(args):
     target_size = (224, 224, 3)
     # generator_model = nets.generator_butteraugli(target_size)
     generator_model = GeneratorModel(target_size).build()
+    generator_model.summary()
     # generator_model.compile(loss='binary_crossentropy', optimizer=opt_unet, metrics=['accuracy'])
     generator_model.compile(loss='binary_crossentropy', optimizer=opt_unet)
     # checkpoint
@@ -208,6 +213,7 @@ def train(args):
     # generator_model's first weights
     model_path = "train_tmp/models/model_weights_initial.h5"
     generator_model.save(model_path)
+    import ipdb; ipdb.set_trace()
 
     # start training...
     for epoch in range(args.epoch):

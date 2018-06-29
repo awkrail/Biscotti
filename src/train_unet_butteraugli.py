@@ -12,7 +12,7 @@ from keras.callbacks import ModelCheckpoint
 
 # For new model considering butteraguli
 from keras.layers.core import Flatten, Dense, Activation, Lambda
-from keras.models import Model
+from keras.models import Model, load_model
 from keras.layers.convolutional import Conv2D, Deconv2D, ZeroPadding2D, UpSampling2D
 from keras.layers import Input, Concatenate, concatenate, LeakyReLU, BatchNormalization
 
@@ -131,7 +131,7 @@ class GeneratorModel():
     # fcn = Model(input=inputs, output=conv8)
     return conv8
 
-def get_butteraugli_loss(x_train, model_path):
+def get_butteraugli_loss(x_train, converted_model_name):
   """
   1. X_train => 保存, train_tmp/raw_images以下に保存
   2. model_pathを受け取ってそれらをbiscotti
@@ -142,10 +142,14 @@ def get_butteraugli_loss(x_train, model_path):
     cv2.imwrite("train_tmp/raw_images/" + str(i) + ".jpg", x)
   
   scores = []
+  import ipdb; ipdb.set_trace()
   # 2. biscotti, 3. compare
   for i in range(x_train.shape[0]):
     try:
-      biscotti = ["bin/Release/biscotti", "train_tmp/raw_images/" + str(i) + ".jpg", "train_tmp/predict_images/" + str(i) + ".jpg", model_path]
+      biscotti = ["bin/Release/biscotti", 
+                  "train_tmp/raw_images/" + str(i) + ".jpg", 
+                  "train_tmp/predict_images/" + str(i) + ".jpg", 
+                  "train_tmp/models/model_pb/" + converted_model_name]
       subprocess.check_call(biscotti) # only YUV420
       butteraugli = ["train_bin/Release/butteraugli", biscotti[1], biscotti[2]]
       score = subprocess.check_output(butteraugli)
@@ -159,8 +163,25 @@ def get_butteraugli_loss(x_train, model_path):
 
 def convert_hdf5_to_pb(model_path):
   # convert hdf5 to pb for biscotti
-  pass
+  import ipdb; ipdb.set_trace()
+  model_name = model_path.split('/')[-1]
+  model_name = model_name.split('.')[0] + ".pb"
+  out_dir = "train_tmp/models/model_pb/"
+  num_out = 1
 
+  K.set_learning_phase(0)
+  net_model = load_model(model_path)
+
+  pred = [None]*num_out
+  pred_node_names = [None]*num_out
+  for i in range(num_out):
+    pred_node_names[i] = "biscotti_" + str(i)
+    pred[i] = tf.identity(net_model.output[i], name=pred_node_names[i])
+  sess = K.get_session()
+  constant_graph = graph_util.convert_variables_to_constants(sess, sess.graph.as_graph_def(), pred_node_names)
+  graph_io.write_graph(constant_graph, out_dir, model_name, as_text=False)
+
+  return model_name
 
 def train(args):
     # load data
@@ -197,11 +218,12 @@ def train(args):
             X_train, y_train = load_train_data_on_batch(args.datasetpath, pb, train_files, batch_size)
             # TODO : add loss +butteraugli
             generator_model.trainable = False
-            convert_hdf5_to_pb(model_path)
-            butteraugli_loss = get_butteraugli_loss(X_train, model_path)
+            converted_model_name = convert_hdf5_to_pb(model_path)
+            butteraugli_loss = get_butteraugli_loss(X_train, converted_model_name)
             butteraugli_loss = 0.0001 * butteraugli_loss
             generator_model.butteraugli = butteraugli_loss
             generator_model.trainable = True
+            K.set_learning_phase(1)
             loss = generator_model.train_on_batch(X_train, y_train)
             model_path = "train_tmp/models/model_weights_{}_epoch_{}.h5".format(epoch, i)
             generator_model.save(model_path)

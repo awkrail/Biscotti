@@ -3,6 +3,7 @@ import os
 import numpy as np
 import pandas as pd
 import subprocess
+import cv2
 
 import keras.backend as K
 from keras.optimizers import Adam
@@ -133,8 +134,25 @@ def get_butteraugli_loss(x_train, model_path):
   2. model_pathを受け取ってそれらをbiscotti
   3. butteraugliを train_tmp/raw_images/とtrain_tmp/predict_images/で比較する
   """
-  pass
+  for i, x in enumerate(x_train):
+    x *= 255
+    cv2.imwrite("train_tmp/raw_images/" + str(i) + ".jpg", x)
+  
+  scores = []
+  # 2. biscotti, 3. compare
+  for i in range(x_train.shape[0]):
+    try:
+      biscotti = ["bin/Release/biscotti", "train_tmp/raw_images/" + str(i) + ".jpg", "train_tmp/predict_images/" + str(i) + ".jpg", model_path]
+      subprocess.check_call(biscotti) # only YUV420
+      butteraugli = ["train_bin/Release/butteraugli", biscotti[1], biscotti[2]]
+      score = subprocess.check_output(butteraugli)
+      score = float(score)
+      scores.append(score)
+    except:
+      pass
 
+  butteraugli = sum(scores) / len(scores)
+  return butteraugli
 
 def train(args):
     # load data
@@ -155,7 +173,6 @@ def train(args):
     generator_model = GeneratorModel(target_size).build()
     # generator_model.compile(loss='binary_crossentropy', optimizer=opt_unet, metrics=['accuracy'])
     generator_model.compile(loss='binary_crossentropy', optimizer=opt_unet)
-    import ipdb; ipdb.set_trace()
     # checkpoint
     checkpointer = ModelCheckpoint(filepath=output + "/model_weights_{epoch:02d}.h5", save_best_only=False)
 
@@ -173,10 +190,11 @@ def train(args):
             # TODO : add loss +butteraugli
             generator_model.trainable = False
             butteraugli_loss = get_butteraugli_loss(X_train, model_path)
+            butteraugli_loss = 0.0001 * butteraugli_loss
             generator_model.butteraugli = butteraugli_loss
             generator_model.trainable = True
             loss = generator_model.train_on_batch(X_train, y_train)
-            model_path = np.array("train_tmp/models/model_weights_{}_epoch_{}.h5".format(epoch, i))
+            model_path = "train_tmp/models/model_weights_{}_epoch_{}.h5".format(epoch, i)
             generator_model.save(model_path)
             progbar.add(batch_size, values=[("loss", loss[0]), ("accuracy", loss[1])])
 

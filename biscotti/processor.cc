@@ -73,6 +73,10 @@ class Processor {
   void MaybeOutput(const std::string& encoded_jpg);
   void DownsampleImage(OutputImage* img);
   void OutputJpeg(const JPEGData& in, std::string* out);
+  void GetCSFPointFromBlock(const coeff_t block[kBlockSize], 
+                            const coeff_t orig_block[kBlockSize],
+                            const int comp,
+                            std::vector<std::pair<int, float> >* input_order);
   void MultiplyProbabilityWithCoefficients(const JPEGData& jpg_in, 
                                            OutputImage* img, 
                                            std::vector<int>& y,
@@ -386,7 +390,7 @@ void Processor::ComputeBlockZeroingOrder(
 #include "biscotti/order.inc"
   std::vector<std::pair<int, float> > input_order;
   for (int c = 0; c < 3; ++c) {
-    if (!(comp_mask & (1 << c))) continue;
+    if (!(comp_mask & (1 << c))) continue; // YUV420のときは何も起こさず, YUV444の時は 6 : 0110, 1 : 0001, で一つずつ実行する
     for (int k = 1; k < kDCTBlockSize; ++k) {
       int idx = c * kDCTBlockSize + k;
       if (block[idx] != 0) {
@@ -795,7 +799,37 @@ bool IsGrayscale(const JPEGData& jpg) {
   return true;
 }
 
-void Processor::MultiplyProbabilityWithCoefficients(const JPEGData& jpg_in, 
+void Processor::GetCSFPointFromBlock(
+  const coeff_t block[kBlockSize], const coeff_t orig_block[kBlockSize],
+  const int comp, std::vector<std::pair<int, float> >* input_order) {
+  static const uint8_t oldCsf[kDCTBlockSize] = {
+      10, 10, 20, 40, 60, 70, 80, 90,
+      10, 20, 30, 60, 70, 80, 90, 90,
+      20, 30, 60, 70, 80, 90, 90, 90,
+      40, 60, 70, 80, 90, 90, 90, 90,
+      60, 70, 80, 90, 90, 90, 90, 90,
+      70, 80, 90, 90, 90, 90, 90, 90,
+      80, 90, 90, 90, 90, 90, 90, 90,
+      90, 90, 90, 90, 90, 90, 90, 90,
+  };
+  static const double kWeight[3] = { 1.0, 0.22, 0.20 };
+  #include "biscotti/order.inc"
+  for(int k=1; k < kDCTBlockSize; ++k) {
+    int idx = comp * kDCTBlockSize + k;
+    if(block[idx] != 0) {
+      float score;
+      if(params_.new_zeroing_model) {
+        score = std::abs(orig_block[idx]) * csf[idx] + bias[idx]; // 値が大きいほど歪みが大きくなりそう
+      } else {
+        score = static_cast<float>((std::abs(orig_block[idx]) - kJPEGZigZagOrder[k] / 64.0) *
+                kWeight[comp] / oldCsf[k]);
+      }
+      input_order->push_back(std::make_pair(idx, score));
+    }
+  }
+}
+
+void Processor::MultiplyProbabilityWithCoefficients(const JPEGData& jpg, 
                                                     OutputImage* img,
                                                     std::vector<int>& y,
                                                     std::vector<int>& cb,
@@ -838,20 +872,34 @@ void Processor::MultiplyProbabilityWithCoefficients(const JPEGData& jpg_in,
             predict[row_y*8 + col_x] = binary_coeffs[kDCTBlockSize*block_width*block_row + block_col*8 + width*row_y + col_x];
           }
         }
-
-        // 元データ
+        // 元データ : csfからの評価値を算出して利用してみる
         coeff_t block[kDCTBlockSize] = { 0 };
+        coeff_t orig_block[kDCTBlockSize] = { 0 };
         img->component(c).GetCoeffBlock(block_x, block_y, block);
+        std::vector<std::pair<int, float> > input_order;
+        const JPEGComponent& comp = jpg.components[c];
+        memcpy(&orig_block[0],
+              &comp.coeffs[block_ix * kDCTBlockSize],
+              kDCTBlockSize * sizeof(orig_block[0]));
+        GetCSFPointFromBlock(block, orig_block, c, &input_order); // CSFの値を計算する
+
+        /**
         for(int i=0; i<kDCTBlockSize; ++i) {
           if(i == 0) continue;
           else {
             block[i] *= predict[i];
-            /**
             if(std::abs(block[i]) < 50) { 
               // TODO: 試しに50 <- ここで0にするものをDCTの値の大きさから調整できるようにしてみるといいかも
               block[i] *= predict[i];
             }
-            **/
+          }
+        }
+        **/
+        for(int i=0; i<input_order.size(); ++i) {
+          float score = input_order[i].second;
+          if(score < 10) {
+            int idx = input_order[i].first;
+            block[idx] *= predict[idx];
           }
         }
         img->component(c).SetCoeffBlock(block_x, block_y, block);
@@ -862,7 +910,7 @@ void Processor::MultiplyProbabilityWithCoefficients(const JPEGData& jpg_in,
 
   std::string encoded_jpg;
   {
-    JPEGData jpg_out = jpg_in;
+    JPEGData jpg_out = jpg;
     img->SaveToJpegData(&jpg_out);
     OutputJpeg(jpg_out, &encoded_jpg);
   }
@@ -970,7 +1018,7 @@ bool Processor::ProcessJpegData(const Params& params, const JPEGData& jpg_in,
     const int input_width = jpg.width;
     const int input_height = jpg.height;
     biscotti::Predictor predictor(params.filename, params.model_path, 
-                        input_width, input_height, "input_1_1", "biscotti_0", outputs); // input_1_1 => input_1
+                        input_width, input_height, "input_1", "biscotti_0", outputs); // input_1_1 => input_1
     bool dnn_ok = predictor.Process();
     if(!dnn_ok) {
       return false;

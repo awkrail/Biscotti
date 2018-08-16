@@ -883,18 +883,6 @@ void Processor::MultiplyProbabilityWithCoefficients(const JPEGData& jpg,
               kDCTBlockSize * sizeof(orig_block[0]));
         GetCSFPointFromBlock(block, orig_block, c, &input_order); // CSFの値を計算する
 
-        /**
-        for(int i=0; i<kDCTBlockSize; ++i) {
-          if(i == 0) continue;
-          else {
-            block[i] *= predict[i];
-            if(std::abs(block[i]) < 50) { 
-              // TODO: 試しに50 <- ここで0にするものをDCTの値の大きさから調整できるようにしてみるといいかも
-              block[i] *= predict[i];
-            }
-          }
-        }
-        **/
         for(int i=0; i<input_order.size(); ++i) {
           float score = input_order[i].second;
           if(score < 10) {

@@ -970,7 +970,7 @@ bool Processor::ProcessJpegData(const Params& params, const JPEGData& jpg_in,
     const int input_width = jpg.width;
     const int input_height = jpg.height;
     biscotti::Predictor predictor(params.filename, params.model_path, 
-                        input_width, input_height, "input_1_1", "biscotti_0", outputs); // layerの名前が違う?
+                        input_width, input_height, "input_1_1", "biscotti_0", outputs); // input_1_1 => input_1
     bool dnn_ok = predictor.Process();
     if(!dnn_ok) {
       return false;

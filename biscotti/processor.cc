@@ -982,6 +982,11 @@ bool Processor::ProcessJpegData(const Params& params, const JPEGData& jpg_in,
     return false;
   }
 
+  if(!input_is_420) {
+    std::cout << "this image is not YUV420" << std::endl;
+    return false;
+  }
+
   for (int downsample = force_420; downsample <= try_420; ++downsample) {
     JPEGData jpg = jpg_in;
     RemoveOriginalQuantization(&jpg, q_in);

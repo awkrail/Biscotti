@@ -19,7 +19,7 @@ def main(validation_dir, save_dir, is_guetzli):
     # TODO : 16で両辺が割り切れないとダメ => それへの対応
     # TODO : 1000枚に実行するので遅い。夜に実行する
     # replace image
-    biscotti = [command, validation_dir + "/" + image, save_dir + "/" + image]
+    biscotti = [command, validation_dir + "/" + image, save_dir + "/" + image, "pb_model/output_graph_360.pb"]
     try:
       start = datetime.now()
       subprocess.check_call(biscotti)
@@ -29,6 +29,7 @@ def main(validation_dir, save_dir, is_guetzli):
       butteraugli = ["train_bin/Release/butteraugli", biscotti[1], biscotti[2]]
       score = subprocess.check_output(butteraugli)
       score = float(score)
+      print(score)
       scores.append(score)
       score_dict[image] = score
     except:

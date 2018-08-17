@@ -81,7 +81,7 @@ namespace biscotti {
     // Read Image
     // TODO : change code in order to get guetzli's rgb
     cv::Mat image;
-    image = cv::imread(static_cast<std::string>(image_path));
+    image = cv::imread(static_cast<std::string>(image_path), cv::IMREAD_COLOR);
 
     // 画像のサイズの変更
     const int pad_row_16 = image.rows % 16 == 0 ? 0 : 16 - image.rows % 16;

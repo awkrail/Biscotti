@@ -820,7 +820,7 @@ void Processor::GetCSFPointFromBlock(
     if(block[idx] != 0) {
       float score;
       if(params_.new_zeroing_model) {
-        score = std::abs(orig_block[idx]) * csf[idx] + bias[idx]; // 値が大きいほど歪みが大きくなりそう
+        score = std::abs(orig_block[idx]) * csf[idx] + bias[idx];
       } else {
         score = static_cast<float>((std::abs(orig_block[idx]) - kJPEGZigZagOrder[k] / 64.0) *
                 kWeight[comp] / oldCsf[k]);
@@ -836,11 +836,7 @@ void Processor::MultiplyProbabilityWithCoefficients(const JPEGData& jpg,
                                                     std::vector<int>& y,
                                                     std::vector<int>& cb,
                                                     std::vector<int>& cr) {
-  // どうやってブロックごとに切り出して持ってくるのかという問題
-  // vector, cb, crがどっちがどっちか分からない問題 .. もしかしたら逆かも?
-  // TODO : compの数は可変にすることはできない? 全部3?
-  // TODO : ここの関数を書き換える
-  // YUV444, PNGデータはここのせいで動いていないっぽい。 まだ対応はできていないのだが...
+  // YUV444, PNGデータは未対応
   int debug_count = 0; // debug
   std::vector<int> pred_y;
   std::vector<int> pred_cb;
@@ -967,11 +963,7 @@ bool Processor::ProcessJpegData(const Params& params, const JPEGData& jpg_in,
     comparator_->Compare(img);
   }
   MaybeOutput(encoded_jpg);
-  int try_420 = (input_is_420 || params_.force_420 ||
-                 (params_.try_420 && !IsGrayscale(jpg_in))) ? 1 : 0;
-  int force_420 = (input_is_420 || params_.force_420) ? 1 : 0;
 
-  // TODO : I will delete this exit when starting to deal with grayscale images.
   if(IsGrayscale(jpg_in)) {
     std::cout << "this image is graysclale." << std::endl;
   }

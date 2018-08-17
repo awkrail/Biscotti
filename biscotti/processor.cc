@@ -847,7 +847,7 @@ void Processor::MultiplyProbabilityWithCoefficients(const JPEGData& jpg,
   std::vector<int> pred_cr; 
 
   for(int c=0; c<3; ++c) {
-    if(comp_mask & (1 << c)) {
+    if((comp_mask & (1 << c)) == 1) {
       const int width = img->component(c).width() / img->component(c).factor_x();
       const int height = img->component(c).height() / img->component(c).factor_y();
       const int block_width = img->component(c).width_in_blocks();

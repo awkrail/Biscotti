@@ -981,114 +981,97 @@ bool Processor::ProcessJpegData(const Params& params, const JPEGData& jpg_in,
     return false;
   }
 
-  for (int downsample = force_420; downsample <= try_420; ++downsample) {
-    JPEGData jpg = jpg_in;
-    RemoveOriginalQuantization(&jpg, q_in);
-    OutputImage img(jpg.width, jpg.height);
-    img.CopyFromJpegData(jpg);
-    if (downsample) {
-      DownsampleImage(&img);
-      img.SaveToJpegData(&jpg);
+  JPEGData jpg = jpg_in;
+  RemoveOriginalQuantization(&jpg, q_in);
+  OutputImage img(jpg.width, jpg.height);
+  img.CopyFromJpegData(jpg);
+  int best_q[3][kDCTBlockSize];
+  memcpy(best_q, q_in, sizeof(best_q));
+
+  for(int c=0; c<3; ++c) {
+    for(int i=0; i<kDCTBlockSize; ++i) {
+      best_q[c][i] = 1;
     }
-    int best_q[3][kDCTBlockSize];
-    memcpy(best_q, q_in, sizeof(best_q));
-    if (!SelectQuantMatrix(jpg, downsample != 0, best_q, &img)) {
-      for (int c = 0; c < 3; ++c) {
-        for (int i = 0; i < kDCTBlockSize; ++i) {
-          best_q[c][i] = 1;
-        }
-      }
-    }
-    img.CopyFromJpegData(jpg);
-    img.ApplyGlobalQuantization(best_q);
+  }
+  img.CopyFromJpegData(jpg);
+  img.ApplyGlobalQuantization(best_q);
 
-    // TODO
-    // Now Only I support YUV420, and 3dimension(only RGB, not GRAYSCALE, and not RGBA),
-    // and only jpg image. I will support them in a few days.
+  // TODO
+  // Now Only I support YUV420, and 3dimension(only RGB, not GRAYSCALE, and not RGBA),
+  // and only jpg image. I will support them in a few days.
 
-    // MEMO
-    // 1. transform coeffcients inference results into YUV420 forms.
-    // 2. Multiply coefficients inference with blocks.
-    // 3. call SetCoeffBlock
-    // 4. call OutputJpeg
+  // MEMO
+  // 1. transform coeffcients inference results into YUV420 forms.
+  // 2. Multiply coefficients inference with blocks.
+  // 3. call SetCoeffBlock
+  // 4. call OutputJpeg
 
-    // Deep Learning Process(Inference)
-    std::vector<tensorflow::Tensor> outputs;
-    int input_width = jpg.width;
-    int input_height = jpg.height;
+  // Deep Learning Process(Inference)
+  std::vector<tensorflow::Tensor> outputs;
+  int input_width = jpg.width;
+  int input_height = jpg.height;
 
-    // for debug
-    std::cout << "before input_width : " << input_width << std::endl;
-    std::cout << "after input_height : " << input_height << std::endl;
+  // for debug
+  std::cout << "before input_width : " << input_width << std::endl;
+  std::cout << "after input_height : " << input_height << std::endl;
 
-    biscotti::Predictor predictor(params.filename, params.model_path, 
-                        input_width, input_height, "input_1", "biscotti_0", outputs); // input_1_1 => input_1
-    bool dnn_ok = predictor.Process();
+  biscotti::Predictor predictor(params.filename, params.model_path, 
+                      input_width, input_height, "input_1", "biscotti_0", outputs); // input_1_1 => input_1
+  bool dnn_ok = predictor.Process();
 
-    // 変更後の画像サイズの反映
-    input_width = predictor.GetWidth();
-    input_height = predictor.GetHeight();
+  // 変更後の画像サイズの反映
+  input_width = predictor.GetWidth();
+  input_height = predictor.GetHeight();
 
-    // for debug
-    std::cout << "before input_width : " << input_width << std::endl;
-    std::cout << "after input_height : " << input_height << std::endl;
+  // for debug
+  std::cout << "before input_width : " << input_width << std::endl;
+  std::cout << "after input_height : " << input_height << std::endl;
 
-    if(!dnn_ok) {
-      return false;
-    }
-    tensorflow::TTypes<float>::Flat result_flat = outputs[0].flat<float>();
-    std::vector<int> y;
-    std::vector<int> cb;
-    std::vector<int> cr;
+  if(!dnn_ok) {
+    return false;
+  }
+  
+  tensorflow::TTypes<float>::Flat result_flat = outputs[0].flat<float>();
+  std::vector<int> y;
+  std::vector<int> cb;
+  std::vector<int> cr;
 
-    if(input_is_420) {
-      for(int i=0; i<outputs[0].NumElements(); ++i) {
-        int pixel = i / 3;
-        int row = pixel / input_width;
-        int value = result_flat(i) >= 0.4 ? 1 : 0; // TODO : consider threshold
-        if(i % 3 == 0) {
-          y.push_back(value);
-        } else if(i % 3 == 1) {
-          if(pixel % 2 == 0 && row % 2 == 0) {
-            cr.push_back(value);
-          }
-        } else {
-          if(pixel % 2 == 0 && row % 2 == 0) {
-            cb.push_back(value);
-          }
-        }
-      }
-    } else {
-      for(int i=0; i<outputs[0].NumElements(); ++i) {
-        int pixel = i / 3;
-        int row = pixel / input_width;
-        int value = result_flat(i) >= 0.4 ? 1 : 0; // TODO : consider threshold
-        if(i % 3 == 0) {
-          y.push_back(value);
-        } else if(i % 3 == 1) {
+  if(input_is_420) {
+    for(int i=0; i<outputs[0].NumElements(); ++i) {
+      int pixel = i / 3;
+      int row = pixel / input_width;
+      int value = result_flat(i) >= 0.4 ? 1 : 0; // TODO : consider threshold
+      if(i % 3 == 0) {
+        y.push_back(value);
+      } else if(i % 3 == 1) {
+        if(pixel % 2 == 0 && row % 2 == 0) {
           cr.push_back(value);
-        } else {
+        }
+      } else {
+        if(pixel % 2 == 0 && row % 2 == 0) {
           cb.push_back(value);
         }
       }
     }
-    // Upgrade DCT Coefficients
-    // assert(input_is_420);
-    // ここでグレースケールの時でエスケープしてあげるしかない => 同じ関数にするためにはビット演算でやるという手がある
-    if(IsGrayscale(jpg)) {
-      MultiplyProbabilityWithCoefficients(jpg, &img, 1, y, cb, cr);
-    } else {
-      MultiplyProbabilityWithCoefficients(jpg, &img, 7, y, cb, cr);
+  } else {
+    for(int i=0; i<outputs[0].NumElements(); ++i) {
+      int pixel = i / 3;
+      int row = pixel / input_width;
+      int value = result_flat(i) >= 0.4 ? 1 : 0; // TODO : consider threshold
+      if(i % 3 == 0) {
+        y.push_back(value);
+      } else if(i % 3 == 1) {
+        cr.push_back(value);
+      } else {
+        cb.push_back(value);
+      }
     }
-    /**
-    if (!downsample) {
-      SelectFrequencyMasking(jpg, &img, 7, 1.0, false);
-    } else {
-      const float ymul = jpg.components.size() == 1 ? 1.0f : 0.97f;
-      SelectFrequencyMasking(jpg, &img, 1, ymul, false);
-      SelectFrequencyMasking(jpg, &img, 6, 1.0, true);
-    }
-    **/
+  }
+
+  if(IsGrayscale(jpg)) {
+    MultiplyProbabilityWithCoefficients(jpg, &img, 1, y, cb, cr);
+  } else {
+    MultiplyProbabilityWithCoefficients(jpg, &img, 7, y, cb, cr);
   }
 
   return true;

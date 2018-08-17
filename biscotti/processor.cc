@@ -839,6 +839,7 @@ void Processor::MultiplyProbabilityWithCoefficients(const JPEGData& jpg,
   // TODO : compの数は可変にすることはできない? 全部3?
   // TODO : ここの関数を書き換える
   // YUV444, PNGデータはここのせいで動いていないっぽい。 まだ対応はできていないのだが...
+  int debug_count = 0; // debug
   std::vector<int> pred_y;
   std::vector<int> pred_cb;
   std::vector<int> pred_cr; 
@@ -885,7 +886,8 @@ void Processor::MultiplyProbabilityWithCoefficients(const JPEGData& jpg,
 
         for(int i=0; i<input_order.size(); ++i) {
           float score = input_order[i].second;
-          if(score < 10) {
+          if(score < 5) { // thresholdは考えもの
+            debug_count++;
             int idx = input_order[i].first;
             block[idx] *= predict[idx];
           }
@@ -903,6 +905,7 @@ void Processor::MultiplyProbabilityWithCoefficients(const JPEGData& jpg,
     OutputJpeg(jpg_out, &encoded_jpg);
   }
   MaybeOutput(encoded_jpg);
+  std::cout << "debug_count : " << debug_count << std::endl;
 }
 
 bool Processor::ProcessJpegData(const Params& params, const JPEGData& jpg_in,
@@ -1010,6 +1013,11 @@ bool Processor::ProcessJpegData(const Params& params, const JPEGData& jpg_in,
     std::vector<tensorflow::Tensor> outputs;
     int input_width = jpg.width;
     int input_height = jpg.height;
+
+    // for debug
+    std::cout << "before input_width : " << input_width << std::endl;
+    std::cout << "after input_height : " << input_height << std::endl;
+
     biscotti::Predictor predictor(params.filename, params.model_path, 
                         input_width, input_height, "input_1", "biscotti_0", outputs); // input_1_1 => input_1
     bool dnn_ok = predictor.Process();
@@ -1017,6 +1025,10 @@ bool Processor::ProcessJpegData(const Params& params, const JPEGData& jpg_in,
     // 変更後の画像サイズの反映
     input_width = predictor.GetWidth();
     input_height = predictor.GetHeight();
+
+    // for debug
+    std::cout << "before input_width : " << input_width << std::endl;
+    std::cout << "after input_height : " << input_height << std::endl;
 
     if(!dnn_ok) {
       return false;

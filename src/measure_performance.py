@@ -45,11 +45,11 @@ def main(validation_dir, save_dir, is_guetzli):
   print("average elapsed time :", sum(elapsed) / len(elapsed))
   # import ipdb; ipdb.set_trace()
   if save_dir[-3:] == "512":
-    json_dir = "validations/result512.json"
+    json_dir = "validations/biscotti_result512.json"
   elif save_dir[-3:] == "224":
-    json_dir = "validations/result224.json"
+    json_dir = "validations/biscotti_result224.json"
   else:
-    json_dir = "validations/result1200.json"
+    json_dir = "validations/biscotti_result1200.json"
   with open(json_dir, "w") as f:
     json.dump(score_dict, f)
 

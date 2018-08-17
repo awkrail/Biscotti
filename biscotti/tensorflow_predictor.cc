@@ -44,7 +44,7 @@
 namespace biscotti {
 
   Predictor::Predictor(const tensorflow::string image_path,  const tensorflow::string graph_path,
-                       const tensorflow::int32 input_width,  const tensorflow::int32 input_height,
+                       tensorflow::int32 input_width,  tensorflow::int32 input_height,
                        const tensorflow::string input_layer, const tensorflow::string output_layer,
                        std::vector<tensorflow::Tensor>& outputs)
                       : image_path(image_path),
@@ -54,7 +54,15 @@ namespace biscotti {
                         input_layer(input_layer),
                         output_layer(output_layer),
                         outputs(outputs) {}
-  
+
+  int Predictor::GetWidth() const {
+    return input_width;
+  }
+
+  int Predictor::GetHeight() const {
+    return input_height;
+  }
+
   // this method is used for processing all units.
   // load graph, load image(but loading image is duplicated with guetzli process, so I will delete it),
   // and run session.
@@ -74,7 +82,17 @@ namespace biscotti {
     // TODO : change code in order to get guetzli's rgb
     cv::Mat image;
     image = cv::imread(static_cast<std::string>(image_path));
+
+    // 画像のサイズの変更
+    const int pad_row_16 = image.rows % 16 == 0 ? 0 : 16 - image.rows % 16;
+    const int pad_col_16 = image.cols % 16 == 0 ? 0 : 16 - image.cols % 16;
+    cv::copyMakeBorder(image, image, 0, pad_row_16, 0, pad_col_16, cv::BORDER_REPLICATE);
     cv::cvtColor(image, image, cv::COLOR_BGR2RGB);
+
+    // サイズをinput_width, input_heightに反映する
+    input_width = image.cols;
+    input_height = image.rows;
+
     std::vector<float> image_vector;
     for(int y=0; y<image.rows; ++y) {
       for(int x=0; x<image.cols; ++x) {
@@ -85,10 +103,8 @@ namespace biscotti {
       }
     }
 
-    // 画像のサイズに変更すること。
-    assert(input_width % 16 == 0 && input_height % 16 == 0);
-
     // もしかしたら, 本来入ってはならないサイズのものも入っている可能性が..?
+    // input_width -> image.cols, input_height -> image.rows
     tensorflow::Tensor tensor(tensorflow::DT_FLOAT, tensorflow::TensorShape({1, input_width, input_height, 3}));
     std::copy_n(image_vector.begin(), image_vector.size(), tensor.flat<float>().data());
     tensorflow::Status run_status = session->Run({{input_layer, tensor}},

@@ -50,10 +50,12 @@ namespace biscotti {
 class Predictor {
   public:
     Predictor(const tensorflow::string image_path, const tensorflow::string graph_path,
-              const tensorflow::int32 input_width, const tensorflow::int32 input_height,
+              tensorflow::int32 input_width, tensorflow::int32 input_height,
               const tensorflow::string input_layer, const tensorflow::string output_layer,
               std::vector<tensorflow::Tensor>& outputs);
     bool Process();
+    int GetWidth() const;
+    int GetHeight() const;
 
   private:
     tensorflow::Status LoadGraph(const tensorflow::string& graph_path,

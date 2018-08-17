@@ -839,6 +839,7 @@ void Processor::MultiplyProbabilityWithCoefficients(const JPEGData& jpg,
   // TODO : compの数は可変にすることはできない? 全部3?
   // TODO : ここの関数を書き換える
   // YUV444, PNGデータはここのせいで動いていないっぽい。 まだ対応はできていないのだが...
+  int debug_count = 0; // debug
   std::vector<int> pred_y;
   std::vector<int> pred_cb;
   std::vector<int> pred_cr; 
@@ -885,7 +886,8 @@ void Processor::MultiplyProbabilityWithCoefficients(const JPEGData& jpg,
 
         for(int i=0; i<input_order.size(); ++i) {
           float score = input_order[i].second;
-          if(score < 10) {
+          if(score < 5) { // thresholdは考えもの
+            debug_count++;
             int idx = input_order[i].first;
             block[idx] *= predict[idx];
           }
@@ -903,6 +905,7 @@ void Processor::MultiplyProbabilityWithCoefficients(const JPEGData& jpg,
     OutputJpeg(jpg_out, &encoded_jpg);
   }
   MaybeOutput(encoded_jpg);
+  std::cout << "debug_count : " << debug_count << std::endl;
 }
 
 bool Processor::ProcessJpegData(const Params& params, const JPEGData& jpg_in,
@@ -1008,11 +1011,25 @@ bool Processor::ProcessJpegData(const Params& params, const JPEGData& jpg_in,
 
     // Deep Learning Process(Inference)
     std::vector<tensorflow::Tensor> outputs;
-    const int input_width = jpg.width;
-    const int input_height = jpg.height;
+    int input_width = jpg.width;
+    int input_height = jpg.height;
+
+    // for debug
+    std::cout << "before input_width : " << input_width << std::endl;
+    std::cout << "after input_height : " << input_height << std::endl;
+
     biscotti::Predictor predictor(params.filename, params.model_path, 
                         input_width, input_height, "input_1", "biscotti_0", outputs); // input_1_1 => input_1
     bool dnn_ok = predictor.Process();
+
+    // 変更後の画像サイズの反映
+    input_width = predictor.GetWidth();
+    input_height = predictor.GetHeight();
+
+    // for debug
+    std::cout << "before input_width : " << input_width << std::endl;
+    std::cout << "after input_height : " << input_height << std::endl;
+
     if(!dnn_ok) {
       return false;
     }
@@ -1021,10 +1038,11 @@ bool Processor::ProcessJpegData(const Params& params, const JPEGData& jpg_in,
     std::vector<int> cb;
     std::vector<int> cr;
 
+    // 全体的におかしい気がするが...
     if(input_is_420) {
       for(int i=0; i<outputs[0].NumElements(); ++i) {
         int pixel = i / 3;
-        int row = pixel / 512;
+        int row = pixel / input_width; // なにこれ?
         int value = result_flat(i) >= 0.4 ? 1 : 0; // TODO : consider threshold
         if(i % 3 == 0) {
           y.push_back(value);
@@ -1041,7 +1059,7 @@ bool Processor::ProcessJpegData(const Params& params, const JPEGData& jpg_in,
     } else {
       for(int i=0; i<outputs[0].NumElements(); ++i) {
         int pixel = i / 3;
-        int row = pixel / 512;
+        int row = pixel / input_width;
         int value = result_flat(i) >= 0.4 ? 1 : 0; // TODO : consider threshold
         if(i % 3 == 0) {
           y.push_back(value);

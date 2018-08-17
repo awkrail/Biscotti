@@ -836,11 +836,8 @@ void Processor::MultiplyProbabilityWithCoefficients(const JPEGData& jpg,
                                                     std::vector<int>& y,
                                                     std::vector<int>& cb,
                                                     std::vector<int>& cr) {
-  // どうやってブロックごとに切り出して持ってくるのかという問題
   // vector, cb, crがどっちがどっちか分からない問題 .. もしかしたら逆かも?
-  // TODO : compの数は可変にすることはできない? 全部3?
-  // TODO : ここの関数を書き換える
-  // YUV444, PNGデータはここのせいで動いていないっぽい。 まだ対応はできていないのだが...
+  // YUV444, PNG未対応
   int debug_count = 0; // debug
   std::vector<int> pred_y;
   std::vector<int> pred_cb;
@@ -876,7 +873,6 @@ void Processor::MultiplyProbabilityWithCoefficients(const JPEGData& jpg,
               predict[row_y*8 + col_x] = binary_coeffs[kDCTBlockSize*block_width*block_row + block_col*8 + width*row_y + col_x];
             }
           }
-          // 元データ : csfからの評価値を算出して利用してみる
           coeff_t block[kDCTBlockSize] = { 0 };
           coeff_t orig_block[kDCTBlockSize] = { 0 };
           img->component(c).GetCoeffBlock(block_x, block_y, block);
@@ -970,11 +966,6 @@ bool Processor::ProcessJpegData(const Params& params, const JPEGData& jpg_in,
   int try_420 = (input_is_420 || params_.force_420 ||
                  (params_.try_420 && !IsGrayscale(jpg_in))) ? 1 : 0;
   int force_420 = (input_is_420 || params_.force_420) ? 1 : 0;
-
-  // TODO : I will delete this exit when starting to deal with grayscale images.
-  if(IsGrayscale(jpg_in)) {
-    std::cout << "this image is graysclale." << std::endl;
-  }
 
   if(!input_is_420) {
     std::cout << "this image is not YUV420" << std::endl;
@@ -1072,9 +1063,8 @@ bool Processor::ProcessJpegData(const Params& params, const JPEGData& jpg_in,
         }
       }
     }
-    // Upgrade DCT Coefficients
-    // assert(input_is_420);
-    // ここでグレースケールの時でエスケープしてあげるしかない => 同じ関数にするためにはビット演算でやるという手がある
+
+    // MEMO : 1 => 0001, 7 => 0111, and compare with (1 << c), and mask it
     if(IsGrayscale(jpg)) {
       MultiplyProbabilityWithCoefficients(jpg, &img, 1, y, cb, cr);
     } else {

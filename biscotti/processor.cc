@@ -79,6 +79,7 @@ class Processor {
                             std::vector<std::pair<int, float> >* input_order);
   void MultiplyProbabilityWithCoefficients(const JPEGData& jpg_in, 
                                            OutputImage* img, 
+                                           const uint8_t comp_mask,
                                            std::vector<int>& y,
                                            std::vector<int>& cb,
                                            std::vector<int>& cr);
@@ -831,6 +832,7 @@ void Processor::GetCSFPointFromBlock(
 
 void Processor::MultiplyProbabilityWithCoefficients(const JPEGData& jpg, 
                                                     OutputImage* img,
+                                                    const uint8_t comp_mask,
                                                     std::vector<int>& y,
                                                     std::vector<int>& cb,
                                                     std::vector<int>& cr) {
@@ -845,54 +847,56 @@ void Processor::MultiplyProbabilityWithCoefficients(const JPEGData& jpg,
   std::vector<int> pred_cr; 
 
   for(int c=0; c<3; ++c) {
-    const int width = img->component(c).width() / img->component(c).factor_x();
-    const int height = img->component(c).height() / img->component(c).factor_y();
-    const int block_width = img->component(c).width_in_blocks();
-    const int block_height = img->component(c).height_in_blocks();
-    const int block_num = block_width * block_height;
-    std::vector<int> binary_coeffs;
+    if(comp_mask & (1 << c)) {
+      const int width = img->component(c).width() / img->component(c).factor_x();
+      const int height = img->component(c).height() / img->component(c).factor_y();
+      const int block_width = img->component(c).width_in_blocks();
+      const int block_height = img->component(c).height_in_blocks();
+      const int block_num = block_width * block_height;
+      std::vector<int> binary_coeffs;
 
-    if(c == 0) {
-      binary_coeffs = y;
-    } else if(c == 1) {
-      // which?
-      binary_coeffs = cr;
-    } else {
-      binary_coeffs = cb;
-    }
+      if(c == 0) {
+        binary_coeffs = y;
+      } else if(c == 1) {
+        // which?
+        binary_coeffs = cr;
+      } else {
+        binary_coeffs = cb;
+      }
 
-    for(int block_y=0; block_y < block_height; ++block_y) {
-      for(int block_x=0; block_x < block_width; ++block_x) {
-        int predict[kDCTBlockSize] = { 0 };
-        int block_ix = block_width * block_y + block_x;
-        int block_row = block_ix / block_width;
-        int block_col = block_ix % block_width;
+      for(int block_y=0; block_y < block_height; ++block_y) {
+        for(int block_x=0; block_x < block_width; ++block_x) {
+          int predict[kDCTBlockSize] = { 0 };
+          int block_ix = block_width * block_y + block_x;
+          int block_row = block_ix / block_width;
+          int block_col = block_ix % block_width;
 
-        for(int row_y=0; row_y<8; ++row_y) {
-          for(int col_x=0; col_x<8; ++col_x) {
-            predict[row_y*8 + col_x] = binary_coeffs[kDCTBlockSize*block_width*block_row + block_col*8 + width*row_y + col_x];
+          for(int row_y=0; row_y<8; ++row_y) {
+            for(int col_x=0; col_x<8; ++col_x) {
+              predict[row_y*8 + col_x] = binary_coeffs[kDCTBlockSize*block_width*block_row + block_col*8 + width*row_y + col_x];
+            }
           }
-        }
-        // 元データ : csfからの評価値を算出して利用してみる
-        coeff_t block[kDCTBlockSize] = { 0 };
-        coeff_t orig_block[kDCTBlockSize] = { 0 };
-        img->component(c).GetCoeffBlock(block_x, block_y, block);
-        std::vector<std::pair<int, float> > input_order;
-        const JPEGComponent& comp = jpg.components[c];
-        memcpy(&orig_block[0],
-              &comp.coeffs[block_ix * kDCTBlockSize],
-              kDCTBlockSize * sizeof(orig_block[0]));
-        GetCSFPointFromBlock(block, orig_block, c, &input_order); // CSFの値を計算する
+          // 元データ : csfからの評価値を算出して利用してみる
+          coeff_t block[kDCTBlockSize] = { 0 };
+          coeff_t orig_block[kDCTBlockSize] = { 0 };
+          img->component(c).GetCoeffBlock(block_x, block_y, block);
+          std::vector<std::pair<int, float> > input_order;
+          const JPEGComponent& comp = jpg.components[c];
+          memcpy(&orig_block[0],
+                &comp.coeffs[block_ix * kDCTBlockSize],
+                kDCTBlockSize * sizeof(orig_block[0]));
+          GetCSFPointFromBlock(block, orig_block, c, &input_order); // CSFの値を計算する
 
-        for(int i=0; i<input_order.size(); ++i) {
-          float score = input_order[i].second;
-          if(score < 5) { // thresholdは考えもの
-            debug_count++;
-            int idx = input_order[i].first;
-            block[idx] *= predict[idx];
+          for(int i=0; i<input_order.size(); ++i) {
+            float score = input_order[i].second;
+            if(score < 5) { // thresholdは考えもの
+              debug_count++;
+              int idx = input_order[i].first;
+              block[idx] *= predict[idx];
+            }
           }
+          img->component(c).SetCoeffBlock(block_x, block_y, block);
         }
-        img->component(c).SetCoeffBlock(block_x, block_y, block);
       }
     }
   }
@@ -970,7 +974,6 @@ bool Processor::ProcessJpegData(const Params& params, const JPEGData& jpg_in,
   // TODO : I will delete this exit when starting to deal with grayscale images.
   if(IsGrayscale(jpg_in)) {
     std::cout << "this image is graysclale." << std::endl;
-    return false;
   }
 
   if(!input_is_420) {
@@ -1038,11 +1041,10 @@ bool Processor::ProcessJpegData(const Params& params, const JPEGData& jpg_in,
     std::vector<int> cb;
     std::vector<int> cr;
 
-    // 全体的におかしい気がするが...
     if(input_is_420) {
       for(int i=0; i<outputs[0].NumElements(); ++i) {
         int pixel = i / 3;
-        int row = pixel / input_width; // なにこれ?
+        int row = pixel / input_width;
         int value = result_flat(i) >= 0.4 ? 1 : 0; // TODO : consider threshold
         if(i % 3 == 0) {
           y.push_back(value);
@@ -1072,9 +1074,12 @@ bool Processor::ProcessJpegData(const Params& params, const JPEGData& jpg_in,
     }
     // Upgrade DCT Coefficients
     // assert(input_is_420);
-    MultiplyProbabilityWithCoefficients(jpg, &img, y, cb, cr);
-
-    
+    // ここでグレースケールの時でエスケープしてあげるしかない => 同じ関数にするためにはビット演算でやるという手がある
+    if(IsGrayscale(jpg)) {
+      MultiplyProbabilityWithCoefficients(jpg, &img, 1, y, cb, cr);
+    } else {
+      MultiplyProbabilityWithCoefficients(jpg, &img, 7, y, cb, cr);
+    }
     /**
     if (!downsample) {
       SelectFrequencyMasking(jpg, &img, 7, 1.0, false);

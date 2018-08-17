@@ -1008,11 +1008,16 @@ bool Processor::ProcessJpegData(const Params& params, const JPEGData& jpg_in,
 
     // Deep Learning Process(Inference)
     std::vector<tensorflow::Tensor> outputs;
-    const int input_width = jpg.width;
-    const int input_height = jpg.height;
+    int input_width = jpg.width;
+    int input_height = jpg.height;
     biscotti::Predictor predictor(params.filename, params.model_path, 
                         input_width, input_height, "input_1", "biscotti_0", outputs); // input_1_1 => input_1
     bool dnn_ok = predictor.Process();
+
+    // 変更後の画像サイズの反映
+    input_width = predictor.GetWidth();
+    input_height = predictor.GetHeight();
+
     if(!dnn_ok) {
       return false;
     }
@@ -1021,10 +1026,11 @@ bool Processor::ProcessJpegData(const Params& params, const JPEGData& jpg_in,
     std::vector<int> cb;
     std::vector<int> cr;
 
+    // 全体的におかしい気がするが...
     if(input_is_420) {
       for(int i=0; i<outputs[0].NumElements(); ++i) {
         int pixel = i / 3;
-        int row = pixel / 512;
+        int row = pixel / input_width; // なにこれ?
         int value = result_flat(i) >= 0.4 ? 1 : 0; // TODO : consider threshold
         if(i % 3 == 0) {
           y.push_back(value);
@@ -1041,7 +1047,7 @@ bool Processor::ProcessJpegData(const Params& params, const JPEGData& jpg_in,
     } else {
       for(int i=0; i<outputs[0].NumElements(); ++i) {
         int pixel = i / 3;
-        int row = pixel / 512;
+        int row = pixel / input_width;
         int value = result_flat(i) >= 0.4 ? 1 : 0; // TODO : consider threshold
         if(i % 3 == 0) {
           y.push_back(value);

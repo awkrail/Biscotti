@@ -966,11 +966,13 @@ bool Processor::ProcessJpegData(const Params& params, const JPEGData& jpg_in,
   int try_420 = (input_is_420 || params_.force_420 ||
                  (params_.try_420 && !IsGrayscale(jpg_in))) ? 1 : 0;
   int force_420 = (input_is_420 || params_.force_420) ? 1 : 0;
-
+  
+  /**
   if(!input_is_420) {
     std::cout << "this image is not YUV420" << std::endl;
     return false;
   }
+  **/
 
   for (int downsample = force_420; downsample <= try_420; ++downsample) {
     JPEGData jpg = jpg_in;
@@ -1070,15 +1072,6 @@ bool Processor::ProcessJpegData(const Params& params, const JPEGData& jpg_in,
     } else {
       MultiplyProbabilityWithCoefficients(jpg, &img, 7, y, cb, cr);
     }
-    /**
-    if (!downsample) {
-      SelectFrequencyMasking(jpg, &img, 7, 1.0, false);
-    } else {
-      const float ymul = jpg.components.size() == 1 ? 1.0f : 0.97f;
-      SelectFrequencyMasking(jpg, &img, 1, ymul, false);
-      SelectFrequencyMasking(jpg, &img, 6, 1.0, true);
-    }
-    **/
   }
 
   return true;

@@ -4,9 +4,19 @@ import argparse
 from datetime import datetime
 import json
 
+def check_file_size(validation_dir):
+  if validation_dir.find("224") > 0:
+    return 224
+  elif validation_dir.find("512") > 0:
+    return 512
+  elif validation_dir.find("1200") > 0:
+    return 1200
+  else:
+    return -1
+
 def main(validation_dir, save_dir, is_guetzli):
   images = os.listdir(validation_dir)
-  grayscale = 0
+  yuv444 = 0
   scores = []
   elapsed = []
   score_dict = {}
@@ -16,11 +26,13 @@ def main(validation_dir, save_dir, is_guetzli):
   else:
     command = "bin/Release/biscotti"
   for image in images:
-    # TODO : 16で両辺が割り切れないとダメ => それへの対応
-    # TODO : 1000枚に実行するので遅い。夜に実行する
-    # replace image
     biscotti = [command, validation_dir + "/" + image, save_dir + "/" + image, "pb_model/output_graph_360.pb"]
     try:
+      result_dict = {
+        "butteraugli" : -1,
+        "file_size" : [],
+        "elapsed_time" : -1
+      }
       start = datetime.now()
       subprocess.check_call(biscotti)
       end = datetime.now()
@@ -31,32 +43,42 @@ def main(validation_dir, save_dir, is_guetzli):
       score = float(score)
       print(score)
       scores.append(score)
-      score_dict[image] = score
+      result_dict["butteraugli"] = score
+      result_dict["elapsed_time"] = delta.total_seconds()
+      before_size = os.path.getsize(biscotti[1]) / 1000
+      after_size = os.path.getsize(biscotti[2]) / 1000
+      result_dict["file_size"].append(before_size)
+      result_dict["file_size"].append(after_size)
+      score_dict[image] = result_dict
     except:
-      grayscale += 1
+      yuv444 += 1
 
   print(" --- stats --- ")
   print("the number of images : ", len(images))
   print("except for grayscale : ", len(scores))
-  print("grayscale : ", grayscale)
+  print("yuv444 : ", yuv444)
   print("minimum butteraugli : ", min(scores))
   print("maximum butteraugli : ", max(scores))
   print("average butteraugli : ", sum(scores) / len(scores)) 
   print("average elapsed time :", sum(elapsed) / len(elapsed))
-  # import ipdb; ipdb.set_trace()
-  if save_dir[-3:] == "512":
-    json_dir = "validations/biscotti_result512.json"
-  elif save_dir[-3:] == "224":
+
+  filesize = check_file_size(validation_dir)
+  if filesize == 224:
     json_dir = "validations/biscotti_result224.json"
-  else:
+  elif filesize == 512:
+    json_dir = "validations/biscotti_result512.json"
+  elif filesize == 1200:
     json_dir = "validations/biscotti_result1200.json"
+  else:
+    print("[Error] : file size must be 224, 512, or 1200")
+    exit(1)
+
   with open(json_dir, "w") as f:
-    json.dump(score_dict, f)
+    data = json.dumps(score_dict, f)
+    f.write(data)
 
 
 if __name__ == "__main__":
-  # 16で割り切れるという条件付き
-  # TODO : この条件も本体で実装できたら消す
   parser = argparse.ArgumentParser(description="resize images and measure performance biscotti or guetzli")
   parser.add_argument("--valid_dir", "-v", type=str,
                       default="validations/images/", help="validation directory")

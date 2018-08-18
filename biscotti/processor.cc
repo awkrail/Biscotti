@@ -837,7 +837,7 @@ void Processor::MultiplyProbabilityWithCoefficients(const JPEGData& jpg,
                                                     std::vector<int>& cb,
                                                     std::vector<int>& cr) {
   // YUV444, PNGデータは未対応
-  int debug_count = 0; // debug
+  // int debug_count = 0; // debug
   std::vector<int> pred_y;
   std::vector<int> pred_cb;
   std::vector<int> pred_cr; 
@@ -885,8 +885,8 @@ void Processor::MultiplyProbabilityWithCoefficients(const JPEGData& jpg,
 
           for(int i=0; i<input_order.size(); ++i) {
             float score = input_order[i].second;
-            if(score < 5) { // thresholdは考えもの
-              debug_count++;
+            if(score < 10) { // thresholdは考えもの => 5は小さすぎかも
+              // debug_count++;
               int idx = input_order[i].first;
               block[idx] *= predict[idx];
             }
@@ -905,7 +905,7 @@ void Processor::MultiplyProbabilityWithCoefficients(const JPEGData& jpg,
     OutputJpeg(jpg_out, &encoded_jpg);
   }
   MaybeOutput(encoded_jpg);
-  std::cout << "debug_count : " << debug_count << std::endl;
+  // std::cout << "debug_count : " << debug_count << std::endl;
 }
 
 bool Processor::ProcessJpegData(const Params& params, const JPEGData& jpg_in,
@@ -964,10 +964,6 @@ bool Processor::ProcessJpegData(const Params& params, const JPEGData& jpg_in,
   }
   MaybeOutput(encoded_jpg);
 
-  if(IsGrayscale(jpg_in)) {
-    std::cout << "this image is graysclale." << std::endl;
-  }
-
   if(!input_is_420) {
     std::cout << "this image is not YUV420" << std::endl;
     return false;
@@ -978,13 +974,14 @@ bool Processor::ProcessJpegData(const Params& params, const JPEGData& jpg_in,
   OutputImage img(jpg.width, jpg.height);
   img.CopyFromJpegData(jpg);
   int best_q[3][kDCTBlockSize];
-  memcpy(best_q, q_in, sizeof(best_q));
+  //memcpy(best_q, q_in, sizeof(best_q)); : 量子化テーブルを最適化する場合のみ
 
   for(int c=0; c<3; ++c) {
     for(int i=0; i<kDCTBlockSize; ++i) {
-      best_q[c][i] = 1;
+      best_q[c][i] = 3;
     }
   }
+  best_q[0][0] = 1;
   img.CopyFromJpegData(jpg);
   img.ApplyGlobalQuantization(best_q);
 
@@ -1003,10 +1000,6 @@ bool Processor::ProcessJpegData(const Params& params, const JPEGData& jpg_in,
   int input_width = jpg.width;
   int input_height = jpg.height;
 
-  // for debug
-  std::cout << "before input_width : " << input_width << std::endl;
-  std::cout << "after input_height : " << input_height << std::endl;
-
   biscotti::Predictor predictor(params.filename, params.model_path, 
                       input_width, input_height, "input_1", "biscotti_0", outputs); // input_1_1 => input_1
   bool dnn_ok = predictor.Process();
@@ -1014,10 +1007,6 @@ bool Processor::ProcessJpegData(const Params& params, const JPEGData& jpg_in,
   // 変更後の画像サイズの反映
   input_width = predictor.GetWidth();
   input_height = predictor.GetHeight();
-
-  // for debug
-  std::cout << "before input_width : " << input_width << std::endl;
-  std::cout << "after input_height : " << input_height << std::endl;
 
   if(!dnn_ok) {
     return false;

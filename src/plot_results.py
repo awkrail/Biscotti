@@ -72,17 +72,17 @@ def main():
         if butteraugli > 10:
           butteraugli = 11
         if size == 224:
-          histo224.append(round(butteraugli))
+          histo224.append(int(butteraugli))
           butteraugli224.append(butteraugli)
           size224.append([before_size, after_size])
           elapsed_time_224.append(elapsed_time)
         elif size == 512:
-          histo512.append(round(butteraugli))
+          histo512.append(int(butteraugli))
           butteraugli512.append(butteraugli)
           size512.append([before_size, after_size])
           elapsed_time_512.append(elapsed_time)
         elif size == 1200:
-          histo1200.append(round(butteraugli))
+          histo1200.append(int(butteraugli))
           butteraugli1200.append(butteraugli)
           size1200.append([before_size, after_size])
           elapsed_time_1200.append(elapsed_time)
@@ -95,7 +95,9 @@ def main():
   plt.title("butteraugliのスコアの枚数")
   plt.ylabel("枚数")
   plt.xlabel("butteraugli")
-  plt.hist([histos[0], histos[1], histos[2]], bins=11, color=['red', 'blue', 'green'], label=['224', '512', '1200'])
+  plt.xticks(np.arange(0, 10.0, 1.0))
+  plt.hist([histos[0], histos[1], histos[2]], bins=11, align='mid',
+    color=['red', 'blue', 'green'], label=['224', '512', '1200'], range=(0, 10))
   plt.legend(loc="upper right")
   plt.savefig("results/biscotti_histogram.png")
 

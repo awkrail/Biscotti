@@ -836,8 +836,7 @@ void Processor::MultiplyProbabilityWithCoefficients(const JPEGData& jpg,
                                                     std::vector<int>& y,
                                                     std::vector<int>& cb,
                                                     std::vector<int>& cr) {
-  // YUV444, PNGデータは未対応
-  // int debug_count = 0; // debug
+  // TODO: YUV444, PNGデータへ対応
   std::vector<int> pred_y;
   std::vector<int> pred_cb;
   std::vector<int> pred_cr; 
@@ -886,7 +885,6 @@ void Processor::MultiplyProbabilityWithCoefficients(const JPEGData& jpg,
           for(int i=0; i<input_order.size(); ++i) {
             float score = input_order[i].second;
             if(score < 10) { // thresholdは考えもの => 5は小さすぎかも
-              // debug_count++;
               int idx = input_order[i].first;
               block[idx] *= predict[idx];
             }
@@ -905,7 +903,6 @@ void Processor::MultiplyProbabilityWithCoefficients(const JPEGData& jpg,
     OutputJpeg(jpg_out, &encoded_jpg);
   }
   MaybeOutput(encoded_jpg);
-  // std::cout << "debug_count : " << debug_count << std::endl;
 }
 
 bool Processor::ProcessJpegData(const Params& params, const JPEGData& jpg_in,

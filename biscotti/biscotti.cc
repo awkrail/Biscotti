@@ -215,7 +215,7 @@ void TerminateHandler() {
 void Usage() {
   fprintf(stderr,
       "Guetzli JPEG compressor. Usage: \n"
-      "guetzli [flags] input_filename output_filename\n"
+      "guetzli [flags] input_filename output_filename model_path\n"
       "\n"
       "Flags:\n"
       "  --verbose    - Print a verbose trace of all attempts to standard output.\n"

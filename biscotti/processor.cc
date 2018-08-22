@@ -57,7 +57,7 @@ class Processor {
  private:
   void MaybeOutput(const std::string& encoded_jpg);
   void OutputJpeg(const JPEGData& in, std::string* out);
-  void GetCSFPointFromBlock(const coeff_t block[kBlockSize], 
+  void CalculateCSFScoreFromBlock(const coeff_t block[kBlockSize], 
                             const coeff_t orig_block[kBlockSize],
                             const int comp,
                             std::vector<std::pair<int, float> >* input_order);
@@ -257,7 +257,7 @@ bool IsGrayscale(const JPEGData& jpg) {
   return true;
 }
 
-void Processor::GetCSFPointFromBlock(
+void Processor::CalculateCSFScoreFromBlock(
   const coeff_t block[kBlockSize], const coeff_t orig_block[kBlockSize],
   const int comp, std::vector<std::pair<int, float> >* input_order) {
   static const uint8_t oldCsf[kDCTBlockSize] = {
@@ -337,7 +337,7 @@ void Processor::MultiplyProbabilityWithCoefficients(const JPEGData& jpg,
           memcpy(&orig_block[0],
                 &comp.coeffs[block_ix * kDCTBlockSize],
                 kDCTBlockSize * sizeof(orig_block[0]));
-          GetCSFPointFromBlock(block, orig_block, c, &input_order); // CSFの値を計算する
+          CalculateCSFScoreFromBlock(block, orig_block, c, &input_order); // CSFの値を計算する
 
           for(int i=0; i<input_order.size(); ++i) {
             float score = input_order[i].second;

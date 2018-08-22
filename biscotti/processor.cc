@@ -39,15 +39,6 @@ namespace {
 
 static const size_t kBlockSize = 3 * kDCTBlockSize;
 
-struct CoeffData {
-  int idx;
-  float block_err;
-};
-struct QuantData {
-  int q[3][kDCTBlockSize];
-  size_t jpg_size;
-  bool dist_ok;
-};
 class Processor {
  public:
   bool ProcessJpegData(const Params& params, const JPEGData& jpg_in,

@@ -61,7 +61,7 @@ if yo want to train pix2pix, it is added patch_size option.(I adopt PatchGAN(htt
 ```
 
 ### 3. evaluation
-Please run `train_bin/Release/BISCOTTI_dumper`.  
+Please run `train_bin/Release/biscotti_dumper`.  
 It will dump image coefficient after guetzli, and save csv/  
 After that, run `python src/predict.py`
 
@@ -72,8 +72,29 @@ There are 8 options.
 3. targetsize .. image size you want to evaluate.(default 224) 
 4. resultpath .. path which save results
 5. csvpath .. path which save result csv
-6. BISCOTTI_csv_path .. path which 
+6. guetzli_csv_path
 ```
+
+## Results
+I evaluate biscotti with 1000 illust images. I prepare for different 3 sizes, 224, 512 and 1200.
+I measure 3 indicator, average speed, change of filesize, and butteraugli score.
+
+### average elapsed time(speed)
+| filesize | guetzli | biscotti | libjpeg |
+|:-----------|------------:|:------------:|:------------:|
+| 224 | 6.49 | 1.07 | N/A |
+| 512 | 25.24 | 3.23 | N/A |
+| 1200 | 180 | 27.09 | N/A |
+
+
+### change of filesize
+purple line is `y=x`, and cyan line is `y=(1/2)x`  
+biscotti can reduce 20% filesize  
+![filesize.png](results/change_file_size.png)
+
+### Butteraugli score
+butteraugli score is rounded.  
+![butteraugli.png](results/biscotti_histogram.png)
 
 ## Support
 - YUV420

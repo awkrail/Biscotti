@@ -80,10 +80,8 @@ There are 8 options.
 
 ## WIP
 - alpha
-- GrayScale
-- now there are some bug unless you input images which can be divided 16.
 - I will change method to evaluate. This method is not good.
-- making command line tool
+- support YUV444, PNG(I have to train YUV444(convert jpg -> png, and make data))
 
 ## LICENSE
 - This repo is under [Apache 2.0 License](https://www.apache.org/licenses/LICENSE-2.0).

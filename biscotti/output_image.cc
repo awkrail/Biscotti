@@ -27,7 +27,6 @@
 #include "biscotti/color_transform.h"
 #include "biscotti/dct_double.h"
 #include "biscotti/gamma_correct.h"
-#include "biscotti/preprocess_downsample.h"
 #include "biscotti/quantize.h"
 
 namespace biscotti {
@@ -260,85 +259,6 @@ void OutputImage::CopyFromJpegData(const JPEGData& jpg) {
   }
 }
 
-namespace {
-
-void SetDownsampledCoefficients(const std::vector<float>& pixels,
-                                int factor_x, int factor_y,
-                                OutputImageComponent* comp) {
-  assert(pixels.size() == comp->width() * comp->height());
-  comp->Reset(factor_x, factor_y);
-  for (int block_y = 0; block_y < comp->height_in_blocks(); ++block_y) {
-    for (int block_x = 0; block_x < comp->width_in_blocks(); ++block_x) {
-      double blockd[kDCTBlockSize];
-      int x0 = 8 * block_x * factor_x;
-      int y0 = 8 * block_y * factor_y;
-      assert(x0 < comp->width());
-      assert(y0 < comp->height());
-      for (int iy = 0; iy < 8; ++iy) {
-        for (int ix = 0; ix < 8; ++ix) {
-          float avg = 0.0;
-          for (int j = 0; j < factor_y; ++j) {
-            for (int i = 0; i < factor_x; ++i) {
-              int x = std::min(x0 + ix * factor_x + i, comp->width() - 1);
-              int y = std::min(y0 + iy * factor_y + j, comp->height() - 1);
-              avg += pixels[y * comp->width() + x];
-            }
-          }
-          avg /= factor_x * factor_y;
-          blockd[iy * 8 + ix] = avg;
-        }
-      }
-      ComputeBlockDCTDouble(blockd);
-      blockd[0] -= 1024.0;
-      coeff_t block[kDCTBlockSize];
-      for (int k = 0; k < kDCTBlockSize; ++k) {
-        block[k] = static_cast<coeff_t>(std::round(blockd[k]));
-      }
-      comp->SetCoeffBlock(block_x, block_y, block);
-    }
-  }
-}
-
-}  // namespace
-
-void OutputImage::Downsample(const DownsampleConfig& cfg) {
-  if (components_[1].IsAllZero() && components_[2].IsAllZero()) {
-    // If the image is already grayscale, nothing to do.
-    return;
-  }
-  if (cfg.use_silver_screen &&
-      cfg.u_factor_x == 2 && cfg.u_factor_y == 2 &&
-      cfg.v_factor_x == 2 && cfg.v_factor_y == 2) {
-    std::vector<uint8_t> rgb = ToSRGB();
-    std::vector<std::vector<float> > yuv = RGBToYUV420(rgb, width_, height_);
-    SetDownsampledCoefficients(yuv[0], 1, 1, &components_[0]);
-    SetDownsampledCoefficients(yuv[1], 2, 2, &components_[1]);
-    SetDownsampledCoefficients(yuv[2], 2, 2, &components_[2]);
-    return;
-  }
-  // Get the floating-point precision YUV array represented by the set of
-  // DCT coefficients.
-  std::vector<std::vector<float> > yuv(3, std::vector<float>(width_ * height_));
-  for (int c = 0; c < 3; ++c) {
-    components_[c].ToFloatPixels(&yuv[c][0], 1);
-  }
-
-  yuv = PreProcessChannel(width_, height_, 2, 1.3f, 0.5f,
-                          cfg.u_sharpen, cfg.u_blur, yuv);
-  yuv = PreProcessChannel(width_, height_, 1, 1.3f, 0.5f,
-                          cfg.v_sharpen, cfg.v_blur, yuv);
-
-  // Do the actual downsampling (averaging) and forward-DCT.
-  if (cfg.u_factor_x != 1 || cfg.u_factor_y != 1) {
-    SetDownsampledCoefficients(yuv[1], cfg.u_factor_x, cfg.u_factor_y,
-                               &components_[1]);
-  }
-  if (cfg.v_factor_x != 1 || cfg.v_factor_y != 1) {
-    SetDownsampledCoefficients(yuv[2], cfg.v_factor_x, cfg.v_factor_y,
-                               &components_[2]);
-  }
-}
-
 void OutputImage::ApplyGlobalQuantization(const int q[3][kDCTBlockSize]) {
   for (int c = 0; c < 3; ++c) {
     components_[c].ApplyGlobalQuantization(&q[c][0]);
@@ -422,21 +342,6 @@ std::vector<uint8_t> OutputImage::ToSRGB(int xmin, int ymin,
 
 std::vector<uint8_t> OutputImage::ToSRGB() const {
   return ToSRGB(0, 0, width_, height_);
-}
-
-void OutputImage::ToLinearRGB(int xmin, int ymin, int xsize, int ysize,
-                              std::vector<std::vector<float> >* rgb) const {
-  const double* lut = Srgb8ToLinearTable();
-  std::vector<uint8_t> rgb_pixels = ToSRGB(xmin, ymin, xsize, ysize);
-  for (int p = 0; p < xsize * ysize; ++p) {
-    for (int i = 0; i < 3; ++i) {
-      (*rgb)[i][p] = static_cast<float>(lut[rgb_pixels[3 * p + i]]);
-    }
-  }
-}
-
-void OutputImage::ToLinearRGB(std::vector<std::vector<float> >* rgb) const {
-  ToLinearRGB(0, 0, width_, height_, rgb);
 }
 
 std::string OutputImage::FrameTypeStr() const {

@@ -2,7 +2,7 @@ workspace "biscotti"
   configurations { "Release", "Debug" }
   language "C++"
   flags { "C++11" }
-  includedirs { ".", "third_party/butteraugli", "third_party/tensorflow",
+  includedirs { ".", "third_party/tensorflow",
                 "third_party/tensorflow/bazel-tensorflow/external/eigen_archive",
                 "third_party/tensorflow/bazel-tensorflow/external/protobuf/src",
                 "third_party/tensorflow/bazel-genfiles",
@@ -29,8 +29,6 @@ workspace "biscotti"
     files {
       "biscotti/*.cc",
       "biscotti/*.h",
-      "third_party/butteraugli/butteraugli/butteraugli.cc",
-      "third_party/butteraugli/butteraugli/butteraugli.h"
     }
     removefiles "biscotti/biscotti.cc"
     filter "action:gmake"
@@ -45,6 +43,4 @@ workspace "biscotti"
     files {
       "biscotti/*.cc",
       "biscotti/*.h",
-      "third_party/butteraugli/butteraugli/butteraugli.cc",
-      "third_party/butteraugli/butteraugli/butteraugli.h"
     }

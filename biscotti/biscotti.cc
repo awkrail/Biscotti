@@ -26,7 +26,6 @@
 #include "biscotti/jpeg_data.h"
 #include "biscotti/jpeg_data_reader.h"
 #include "biscotti/processor.h"
-#include "biscotti/quality.h"
 #include "biscotti/stats.h"
 
 namespace {
@@ -215,7 +214,7 @@ void TerminateHandler() {
 void Usage() {
   fprintf(stderr,
       "Guetzli JPEG compressor. Usage: \n"
-      "guetzli [flags] input_filename output_filename\n"
+      "guetzli [flags] input_filename output_filename model_path\n"
       "\n"
       "Flags:\n"
       "  --verbose    - Print a verbose trace of all attempts to standard output.\n"
@@ -236,6 +235,7 @@ int main(int argc, char** argv) {
   int quality = kDefaultJPEGQuality;
   int memlimit_mb = kDefaultMemlimitMB;
 
+  // ここも消せそう
   int opt_idx = 1;
   for(;opt_idx < argc;opt_idx++) {
     if (strnlen(argv[opt_idx], 2) < 2 || argv[opt_idx][0] != '-' || argv[opt_idx][1] != '-')
@@ -263,7 +263,7 @@ int main(int argc, char** argv) {
     }
   }
 
-  if (argc - opt_idx != 3) { // for selecting model. I will fix later
+  if (argc - opt_idx != 3) {
     Usage();
   }
 
@@ -273,8 +273,6 @@ int main(int argc, char** argv) {
   std::string out_data;
 
   biscotti::Params params;
-  params.butteraugli_target = static_cast<float>(
-      biscotti::ButteraugliScoreForQuality(quality));
   params.filename = filename;
   params.model_path = model_path;
   biscotti::ProcessStats stats;

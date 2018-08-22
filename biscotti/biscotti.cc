@@ -236,6 +236,7 @@ int main(int argc, char** argv) {
   int quality = kDefaultJPEGQuality;
   int memlimit_mb = kDefaultMemlimitMB;
 
+  // ここも消せそう
   int opt_idx = 1;
   for(;opt_idx < argc;opt_idx++) {
     if (strnlen(argv[opt_idx], 2) < 2 || argv[opt_idx][0] != '-' || argv[opt_idx][1] != '-')
@@ -263,7 +264,7 @@ int main(int argc, char** argv) {
     }
   }
 
-  if (argc - opt_idx != 3) { // for selecting model. I will fix later
+  if (argc - opt_idx != 3) {
     Usage();
   }
 
@@ -274,7 +275,7 @@ int main(int argc, char** argv) {
 
   biscotti::Params params;
   params.butteraugli_target = static_cast<float>(
-      biscotti::ButteraugliScoreForQuality(quality));
+      biscotti::ButteraugliScoreForQuality(quality)); // => 消せそう
   params.filename = filename;
   params.model_path = model_path;
   biscotti::ProcessStats stats;

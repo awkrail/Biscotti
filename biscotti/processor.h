@@ -20,7 +20,7 @@
 #include <string>
 #include <vector>
 
-#include "biscotti/comparator.h"
+// #include "biscotti/comparator.h"
 #include "biscotti/jpeg_data.h"
 #include "biscotti/stats.h"
 
@@ -48,8 +48,7 @@ struct GuetzliOutput {
 };
 
 bool ProcessJpegData(const Params& params, const JPEGData& jpg_in,
-                     Comparator* comparator, GuetzliOutput* out,
-                     ProcessStats* stats);
+                     GuetzliOutput* out, ProcessStats* stats);
 
 // Sets *out to a jpeg encoded string that will decode to an image that is
 // visually indistinguishable from the input rgb image.

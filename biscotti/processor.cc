@@ -21,8 +21,6 @@
 #include <string.h>
 #include <vector>
 
-#include "biscotti/butteraugli_comparator.h"
-#include "biscotti/comparator.h"
 #include "biscotti/debug_print.h"
 #include "biscotti/fast_log.h"
 #include "biscotti/jpeg_data_decoder.h"
@@ -42,8 +40,7 @@ static const size_t kBlockSize = 3 * kDCTBlockSize;
 class Processor {
  public:
   bool ProcessJpegData(const Params& params, const JPEGData& jpg_in,
-                       Comparator* comparator, GuetzliOutput* out,
-                       ProcessStats* stats);
+                       GuetzliOutput* out, ProcessStats* stats);
 
  private:
   void MaybeOutput(const std::string& encoded_jpg);
@@ -60,7 +57,6 @@ class Processor {
                                            std::vector<int>& cr);
 
   Params params_;
-  Comparator* comparator_;
   GuetzliOutput* final_output_;
   ProcessStats* stats_;
 };
@@ -114,13 +110,7 @@ void Processor::OutputJpeg(const JPEGData& jpg,
 }
 
 void Processor::MaybeOutput(const std::string& encoded_jpg) {
-  double score = comparator_->ScoreOutputSize(encoded_jpg.size());
-  BISCOTTI_LOG(stats_, " Score[%.4f]", score);
-  if (score < final_output_->score || final_output_->score < 0) {
-    final_output_->jpeg_data = encoded_jpg;
-    final_output_->score = score;
-    BISCOTTI_LOG(stats_, " (*)");
-  }
+  final_output_->jpeg_data = encoded_jpg;
   BISCOTTI_LOG(stats_, "\n");
 }
 
@@ -239,10 +229,8 @@ void Processor::MultiplyProbabilityWithCoefficients(const JPEGData& jpg,
 }
 
 bool Processor::ProcessJpegData(const Params& params, const JPEGData& jpg_in,
-                                Comparator* comparator, GuetzliOutput* out,
-                                ProcessStats* stats) {
+                                GuetzliOutput* out, ProcessStats* stats) {
   params_ = params;
-  comparator_ = comparator;
   final_output_ = out;
   stats_ = stats;
 
@@ -272,25 +260,15 @@ bool Processor::ProcessJpegData(const Params& params, const JPEGData& jpg_in,
     return false;
   }
   int q_in[3][kDCTBlockSize];
-  // Output the original image, in case we do not manage to create anything
-  // with a good enough quality.
   std::string encoded_jpg;
   OutputJpeg(jpg_in, &encoded_jpg);
   final_output_->score = -1;
   BISCOTTI_LOG(stats, "Original Out[%7zd]", encoded_jpg.size());
-  if (comparator_ == nullptr) {
-    BISCOTTI_LOG(stats, " <image too small for Butteraugli>\n");
-    final_output_->jpeg_data = encoded_jpg;
-    final_output_->score = encoded_jpg.size();
-    // Butteraugli doesn't work with images this small.
-    return true;
-  }
   {
     JPEGData jpg = jpg_in;
     RemoveOriginalQuantization(&jpg, q_in);
     OutputImage img(jpg.width, jpg.height);
     img.CopyFromJpegData(jpg);
-    comparator_->Compare(img);
   }
   MaybeOutput(encoded_jpg);
 
@@ -304,7 +282,6 @@ bool Processor::ProcessJpegData(const Params& params, const JPEGData& jpg_in,
   OutputImage img(jpg.width, jpg.height);
   img.CopyFromJpegData(jpg);
   int best_q[3][kDCTBlockSize];
-  //memcpy(best_q, q_in, sizeof(best_q)); : 量子化テーブルを最適化する場合のみ
 
   for(int c=0; c<3; ++c) {
     for(int i=0; i<kDCTBlockSize; ++i) {
@@ -389,10 +366,9 @@ bool Processor::ProcessJpegData(const Params& params, const JPEGData& jpg_in,
 }
 
 bool ProcessJpegData(const Params& params, const JPEGData& jpg_in,
-                     Comparator* comparator, GuetzliOutput* out,
-                     ProcessStats* stats) {
+                     GuetzliOutput* out, ProcessStats* stats) {
   Processor processor;
-  return processor.ProcessJpegData(params, jpg_in, comparator, out, stats);
+  return processor.ProcessJpegData(params, jpg_in, out, stats);
 }
 
 bool Process(const Params& params, ProcessStats* stats,
@@ -420,13 +396,7 @@ bool Process(const Params& params, ProcessStats* stats,
   if (stats == nullptr) {
     stats = &dummy_stats;
   }
-  std::unique_ptr<ButteraugliComparator> comparator;
-  if (jpg.width >= 32 && jpg.height >= 32) {
-    comparator.reset(
-        new ButteraugliComparator(jpg.width, jpg.height, &rgb,
-                                  params.butteraugli_target, stats));
-  }
-  bool ok = ProcessJpegData(params, jpg, comparator.get(), &out, stats);
+  bool ok = ProcessJpegData(params, jpg, &out, stats);
   *jpg_out = out.jpeg_data;
   return ok;
 }
@@ -444,13 +414,7 @@ bool Process(const Params& params, ProcessStats* stats,
   if (stats == nullptr) {
     stats = &dummy_stats;
   }
-  std::unique_ptr<ButteraugliComparator> comparator;
-  if (jpg.width >= 32 && jpg.height >= 32) {
-    comparator.reset(
-        new ButteraugliComparator(jpg.width, jpg.height, &rgb,
-                                  params.butteraugli_target, stats));
-  }
-  bool ok = ProcessJpegData(params, jpg, comparator.get(), &out, stats);
+  bool ok = ProcessJpegData(params, jpg, &out, stats);
   *jpg_out = out.jpeg_data;
   return ok;
 }

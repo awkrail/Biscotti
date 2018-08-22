@@ -22,7 +22,7 @@ TODO: this script doesn't accept gray scale.
 
 
 class Image2ImageDataset(object):
-    def __init__(self, qopt_images_path, train_path, csv_path, sampling_factor):
+    def __init__(self, qopt_images_path, train_path, csv_path):
         self.qopt_path = qopt_images_path
         self.train_path = train_path
         self.csv_path = csv_path

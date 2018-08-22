@@ -63,13 +63,6 @@ class Processor {
       const int block_x, const int block_y, const int factor_x,
       const int factor_y, const uint8_t comp_mask, OutputImage* img,
       std::vector<CoeffData>* output_order);
-  bool SelectQuantMatrix(const JPEGData& jpg_in, const bool downsample,
-                         int best_q[3][kDCTBlockSize],
-                         OutputImage* img);
-  QuantData TryQuantMatrix(const JPEGData& jpg_in,
-                           const float target_mul,
-                           int q[3][kDCTBlockSize],
-                           OutputImage* img);
   void MaybeOutput(const std::string& encoded_jpg);
   void DownsampleImage(OutputImage* img);
   void OutputJpeg(const JPEGData& in, std::string* out);
@@ -305,71 +298,6 @@ class QuantMatrixGenerator {
 
   ProcessStats* stats_;
 };
-
-QuantData Processor::TryQuantMatrix(const JPEGData& jpg_in,
-                                    const float target_mul,
-                                    int q[3][kDCTBlockSize],
-                                    OutputImage* img) {
-  QuantData data;
-  memcpy(data.q, q, sizeof(data.q));
-  img->CopyFromJpegData(jpg_in);
-  img->ApplyGlobalQuantization(data.q);
-  std::string encoded_jpg;
-  {
-    JPEGData jpg_out = jpg_in;
-    img->SaveToJpegData(&jpg_out);
-    OutputJpeg(jpg_out, &encoded_jpg);
-  }
-  BISCOTTI_LOG(stats_, "Iter %2d: %s quantization matrix:\n",
-              stats_->counters[kNumItersCnt] + 1,
-              img->FrameTypeStr().c_str());
-  BISCOTTI_LOG_QUANT(stats_, q);
-  BISCOTTI_LOG(stats_, "Iter %2d: %s GQ[%5.2f] Out[%7zd]",
-              stats_->counters[kNumItersCnt] + 1,
-              img->FrameTypeStr().c_str(),
-              QuantMatrixHeuristicScore(q), encoded_jpg.size());
-  ++stats_->counters[kNumItersCnt];
-  comparator_->Compare(*img);
-  data.dist_ok = comparator_->DistanceOK(target_mul);
-  data.jpg_size = encoded_jpg.size();
-  MaybeOutput(encoded_jpg);
-  return data;
-}
-
-bool Processor::SelectQuantMatrix(const JPEGData& jpg_in, const bool downsample,
-                                  int best_q[3][kDCTBlockSize],
-                                  OutputImage* img) {
-  QuantMatrixGenerator qgen(downsample, stats_);
-  // Don't try to go up to exactly the target distance when selecting a
-  // quantization matrix, since we will need some slack to do the frequency
-  // masking later.
-  const float target_mul_high = 0.97f;
-  const float target_mul_low = 0.95f;
-
-  QuantData best = TryQuantMatrix(jpg_in, target_mul_high, best_q, img);
-  for (;;) {
-    int q_next[3][kDCTBlockSize];
-    if (!qgen.GetNext(q_next)) {
-      break;
-    }
-
-    QuantData data = TryQuantMatrix(jpg_in, target_mul_high, q_next, img);
-    qgen.Add(data);
-    if (CompareQuantData(data, best)) {
-      best = data;
-      if (data.dist_ok && !comparator_->DistanceOK(target_mul_low)) {
-        break;
-      }
-    }
-  }
-
-  memcpy(&best_q[0][0], &best.q[0][0], kBlockSize * sizeof(best_q[0][0]));
-  BISCOTTI_LOG(stats_, "\n%s selected quantization matrix:\n",
-              downsample ? "YUV420" : "YUV444");
-  BISCOTTI_LOG_QUANT(stats_, best_q);
-  return best.dist_ok;
-}
-
 
 // REQUIRES: block[c*64...(c*64+63)] is all zero if (comp_mask & (1<<c)) == 0.
 void Processor::ComputeBlockZeroingOrder(

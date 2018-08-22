@@ -10,10 +10,11 @@ def main(args):
 
   for i_path in os.listdir(input_dir):
     if sampling_factor == 420:
-      command = ["convert", input_dir + "/" + i_path, '-sampling-factor "2x2,1x1,1x1"', output_dir + "/" + i_path]
+      # command = ["convert", input_dir + i_path, '-sampling-factor "2x2,1x1,1x1"', output_dir + i_path]
+      command = "convert " + input_dir + i_path + " -sampling-factor 4:2:0 " + output_dir + i_path
     else:
-      command = ["convert", input_dir + "/" + i_path, '-sampling-factor "1x1,1x1,1x1"', output_dir + "/" + i_path]
-    subprocess.check_call(command)
+      command = "convert " + input_dir + i_path + " -sampling-factor 4:4:4 " + output_dir + i_path
+    subprocess.call(command)
     print(i_path + " done!")
 
 if __name__ == "__main__":

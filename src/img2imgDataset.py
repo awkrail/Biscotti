@@ -16,7 +16,6 @@ labels/ => read csv(DCT coeffs), and if each coeff is not 0, set a value 1. if e
 
 
 WATCH: After guetzli, images is transformed into YUV420 or YUV444, so you can think label data Y:Cb:Cr = 4:1:1
-TODO: this script doesn't accept YUV444 images.
 TODO: this script doesn't accept gray scale.
 """
 

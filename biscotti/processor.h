@@ -20,17 +20,13 @@
 #include <string>
 #include <vector>
 
-// #include "biscotti/comparator.h"
 #include "biscotti/jpeg_data.h"
 #include "biscotti/stats.h"
 
 namespace biscotti {
 
 struct Params {
-  float butteraugli_target = 1.0;
   bool clear_metadata = true;
-  bool try_420 = false;
-  bool force_420 = false;
   bool use_silver_screen = false;
   int zeroing_greedy_lookahead = 3;
   bool new_zeroing_model = true;

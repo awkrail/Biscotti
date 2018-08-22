@@ -26,7 +26,6 @@
 #include "biscotti/jpeg_data.h"
 #include "biscotti/jpeg_data_reader.h"
 #include "biscotti/processor.h"
-#include "biscotti/quality.h"
 #include "biscotti/stats.h"
 
 namespace {
@@ -274,8 +273,6 @@ int main(int argc, char** argv) {
   std::string out_data;
 
   biscotti::Params params;
-  params.butteraugli_target = static_cast<float>(
-      biscotti::ButteraugliScoreForQuality(quality)); // => 消せそう
   params.filename = filename;
   params.model_path = model_path;
   biscotti::ProcessStats stats;

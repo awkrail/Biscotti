@@ -22,7 +22,7 @@ TODO: this script doesn't accept gray scale.
 
 
 class Image2ImageDataset(object):
-    def __init__(self, qopt_images_path, train_path, csv_path):
+    def __init__(self, qopt_images_path, train_path, csv_path, sampling_factor):
         self.qopt_path = qopt_images_path
         self.train_path = train_path
         self.csv_path = csv_path
@@ -64,29 +64,36 @@ class Image2ImageDataset(object):
             filename = qopt_files[i].replace(".jpg", "").replace(".jpeg", "").replace(".png", "")
             print(filename)
 
-            if self.check_grayscale(img, label):
+            if self.check_grayscale(img, label): # grayscaleではじくのいらん気がする
                 print("this image is on gray scale data!")
                 continue
-
-            if self.check_chroma_subsampling(img, label):
-                print("this image is YUV444")
-                continue
-            
             img = cv2.cvtColor(img, cv2.COLOR_BGR2YCrCb) / 255.0
             height = img.shape[0]
             width = img.shape[1]
-            height_blocks = int(height / 8)
-            width_blocks = int(width / 8)
-            seq = int(label.shape[0] * (2/3))
-
-            coeff_y, coeff_cbcr = label[:seq], label[seq:]
-            coeff_y = self.resize_coeff_to_img_matrix(coeff_y, width, height)
-            coeff_cb = self.resize420to444(coeff_cbcr[:int(seq/4)], width, height)
-            coeff_cr = self.resize420to444(coeff_cbcr[int(seq/4):], width, height)
-            coeff3d = np.concatenate((coeff_y, coeff_cr, coeff_cb), axis=2)
-            result = np.concatenate((img, coeff3d), axis=2)
-            np.save(self.train_path + filename + ".npy", result)
-            print(filename, "has done!")
+            if self.check_chroma_subsampling(img, label):
+                # YUV444
+                seq = int(label.shape[0] * (1/3))
+                coeff_y, coeff_cb, coeff_cr = label[:seq], label[seq:2*seq], label[2*seq:] # 勘で書いてるのでチェックする
+                coeff_y = self.resize_coeff_to_img_matrix(coeff_y, width, height)
+                coeff_cb = self.resize_coeff_to_img_matrix(coeff_cb, width, height)
+                coeff_cr = self.resize_coeff_to_img_matrix(coeff_cb, width, height)
+                coeff3d = np.concatenate((coeff_y, coeff_cr, coeff_cb), axis=2)
+                result = np.concatenate((img, coeff3d), axis=2)
+                np.save(self.train_path + filename + ".npy", result)
+                print(filename, "has done!")
+            else:
+                # YUV420
+                height = img.shape[0]
+                width = img.shape[1]
+                seq = int(label.shape[0] * (2/3))
+                coeff_y, coeff_cbcr = label[:seq], label[seq:]
+                coeff_y = self.resize_coeff_to_img_matrix(coeff_y, width, height)
+                coeff_cb = self.resize420to444(coeff_cbcr[:int(seq/4)], width, height)
+                coeff_cr = self.resize420to444(coeff_cbcr[int(seq/4):], width, height)
+                coeff3d = np.concatenate((coeff_y, coeff_cr, coeff_cb), axis=2)
+                result = np.concatenate((img, coeff3d), axis=2)
+                np.save(self.train_path + filename + ".npy", result)
+                print(filename, "has done!")
 
     @staticmethod
     def resize_coeff_to_img_matrix(coeff, width, height):

@@ -56,7 +56,6 @@ class Processor {
 
  private:
   void MaybeOutput(const std::string& encoded_jpg);
-  void DownsampleImage(OutputImage* img);
   void OutputJpeg(const JPEGData& in, std::string* out);
   void GetCSFPointFromBlock(const coeff_t block[kBlockSize], 
                             const coeff_t orig_block[kBlockSize],
@@ -352,7 +351,6 @@ void Processor::MultiplyProbabilityWithCoefficients(const JPEGData& jpg,
       }
     }
   }
-
 
   std::string encoded_jpg;
   {

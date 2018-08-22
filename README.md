@@ -17,6 +17,8 @@ matplotlib == 2.0.2
 
 run `pip install requirements.txt`
 
+To make training dataset, you have to install [ImageMagick](https://www.imagemagick.org/script/index.php).
+
 ## Install
 Biscotti have three dependent libraries.  
 [butteraugli](https://github.com/google/butteraugli), [tensorflow](https://github.com/tensorflow/tensorflow) and [opencv](https://opencv.org/)

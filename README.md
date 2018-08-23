@@ -56,10 +56,6 @@ There are 5 options.
 2. outputfile .. keras output model. I recommend checkpoints/ directory.
 3. batch_size .. batchsize is the number of training examples utilised in one iteration.(default 32)
 4. epoch .. one pass of the full training set.(default 400)
-
-if yo want to train pix2pix, it is added patch_size option.(I adopt PatchGAN(https://arxiv.org/pdf/1611.07004.pdf))
-
-5. patch_size .. how many divided patches(default 112 because I adopt 224*224 size images when training)
 ```
 
 ### 3. evaluation

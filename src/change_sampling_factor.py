@@ -14,7 +14,7 @@ def main(args):
       command = "convert " + input_dir + i_path + " -sampling-factor 4:2:0 " + output_dir + i_path
     else:
       command = "convert " + input_dir + i_path + " -sampling-factor 4:4:4 " + output_dir + i_path
-    subprocess.call(command)
+    subprocess.call(command, shell=True)
     print(i_path + " done!")
 
 if __name__ == "__main__":

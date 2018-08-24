@@ -4,7 +4,6 @@ jobs:
     docker:
       - image: debian:stretch
     steps:
-      - checkout
       - run:
         name: add bazel
         command:
@@ -22,34 +21,37 @@ jobs:
           git checkout r1.7
           bazel build -c opt --config=monolithic //tensorflow:libtensorflow_cc.so
   build_biscotti:
-    - run:
-      name: build biscotti
-      command:
-        make
-    - run:
-      name: test biscotti 0.jpg(size 1200)
-      command:
-        bin/Release/biscotti tests/0.jpg tests/o0.jpg pb_model/output_graph_360.pb
-    - run:
-      name: test biscotti 1.jpg(check biscotti can process any file size)
-      command:
-        bin/Release/biscotti tests/1.jpg tests/o1.jpg pb_model/output_graph_360.pb
-    - run:
-      name: test biscotti 2.png(check biscotti can process png file)
-      command:
-        bin/Release/biscotti tests/2.png tests/o2.png pb_model/output_graph_360.pb
-    - run:
-      name: test biscotti can convert png to jpg
-      command:
-        bin/Release/biscotti tests/2.png tests/o2.jpg pb_model/output_graph_360.pb
-    - run:
-      name: test biscotti can convert jpg to png
-      command:
-        bin/Release/biscotti tests/1.jpg tests/1.png pb_model/output_graph_360.pb
-    - run:
-      name: test grayscale
-      command:
-        bin/Release/biscotti tests/4.jpg tests/o4.jpg pb_model/output_graph_360.pb
+    steps:
+      - run:
+        name: build biscotti
+        command:
+          make
+  test_biscotti:
+    steps: 
+      - run:
+        name: test biscotti 0.jpg(size 1200)
+        command:
+          bin/Release/biscotti tests/0.jpg tests/o0.jpg pb_model/output_graph_360.pb
+      - run:
+        name: test biscotti 1.jpg(check biscotti can process any file size)
+        command:
+          bin/Release/biscotti tests/1.jpg tests/o1.jpg pb_model/output_graph_360.pb
+      - run:
+        name: test biscotti 2.png(check biscotti can process png file)
+        command:
+          bin/Release/biscotti tests/2.png tests/o2.png pb_model/output_graph_360.pb
+      - run:
+        name: test biscotti can convert png to jpg
+        command:
+          bin/Release/biscotti tests/2.png tests/o2.jpg pb_model/output_graph_360.pb
+      - run:
+        name: test biscotti can convert jpg to png
+        command:
+          bin/Release/biscotti tests/1.jpg tests/1.png pb_model/output_graph_360.pb
+      - run:
+        name: test grayscale
+        command:
+          bin/Release/biscotti tests/4.jpg tests/o4.jpg pb_model/output_graph_360.pb
 
 workflows:
   version: 2
@@ -57,3 +59,8 @@ workflows:
     jobs:
       - build
       - build_biscotti
+        requires:
+          - build
+      - test_biscotti
+        requires:
+          - build_biscotti

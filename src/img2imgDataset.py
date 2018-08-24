@@ -55,7 +55,7 @@ class Image2ImageDataset(object):
             print("Please check your qopt_images/ and csv/ are same.")
             exit()
 
-        images = [cv2.imread(self.qopt_path + "/" + q_file) for q_file in qopt_files if not q_file.startswith(".")]
+        images = [cv2.imread(self.qopt_path + "/" + q_file, cv2.IMREAD_COLOR) for q_file in qopt_files if not q_file.startswith(".")]
         labels = self.dct_csv2numpy_probability(csv_files)
         for i in range(len(qopt_files)):
             img = images[i]
@@ -63,16 +63,18 @@ class Image2ImageDataset(object):
             filename = qopt_files[i].replace(".jpg", "").replace(".jpeg", "").replace(".png", "")
             print(filename)
 
-            if self.check_grayscale(img, label): # grayscaleではじくのいらん気がする
+            if self.check_grayscale(img, label):
                 print("this image is on gray scale data!")
                 continue
+
             img = cv2.cvtColor(img, cv2.COLOR_BGR2YCrCb) / 255.0
             height = img.shape[0]
             width = img.shape[1]
+
             if self.check_chroma_subsampling(img, label):
                 # YUV444
                 seq = int(label.shape[0] * (1/3))
-                coeff_y, coeff_cb, coeff_cr = label[:seq], label[seq:2*seq], label[2*seq:] # 勘で書いてるのでチェックする
+                coeff_y, coeff_cb, coeff_cr = label[:seq], label[seq:2*seq], label[2*seq:]
                 coeff_y = self.resize_coeff_to_img_matrix(coeff_y, width, height)
                 coeff_cb = self.resize_coeff_to_img_matrix(coeff_cb, width, height)
                 coeff_cr = self.resize_coeff_to_img_matrix(coeff_cb, width, height)

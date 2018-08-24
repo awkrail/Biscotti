@@ -59,7 +59,6 @@ jobs:
         name: test grayscale
         command:
           bin/Release/biscotti tests/4.jpg tests/o4.jpg pb_model/output_graph_360.pb
-
 workflows:
   version: 2
   build_and_test:

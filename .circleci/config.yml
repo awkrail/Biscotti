@@ -1,6 +1,7 @@
 version: 2
 jobs:
   build:
+    working_directory: ~/workspace
     docker:
       - image: debian:stretch
     steps:
@@ -21,6 +22,7 @@ jobs:
           git checkout r1.7
           bazel build -c opt --config=monolithic //tensorflow:libtensorflow_cc.so
   build_biscotti:
+    working_directory: ~/workspace
     docker:
       - image: debian:stretch
     steps:
@@ -29,6 +31,7 @@ jobs:
         command:
           make
   test_biscotti:
+    working_directory: ~/workspace
     docker:
       - image: debian:stretch
     steps: 

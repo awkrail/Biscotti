@@ -5,9 +5,51 @@ jobs:
       - image: debian:stretch
     steps:
       - checkout
+      dependencies:
+        pre:
+          - sudo apt-get install pkg-config zip g++ zlib1g-dev unzip python
+          - wget https://github.com/bazelbuild/bazel/releases/download/0.11.1/bazel-0.11.1-installer-linux-x86_64.sh
+          - chmod +x bazel-0.11.1-installer-linux-x86_64.sh
+          - ./bazel-0.11.1-installer-linux-x86_64.sh
+          - echo 'export PATH="$PATH:$HOME/bin"' >> ~/.bashrc
+          - source ~/.bashrc
       - run:
-          name: Greeting
-          command: echo Hello, world.
+        name: add tensorflow
+        command:
+          cd third_party
+          git clone https://github.com/tensorflow/tensorflow
+          git checkout r1.7
+          bazel build -c opt --config=monolithic //tensorflow:libtensorflow_cc.so
       - run:
-          name: Print the Current Time
-          command: date
+        name: build biscotti
+        command:
+          make
+      - run:
+        name: test biscotti 0.jpg(size 1200)
+        command:
+          bin/Release/biscotti tests/0.jpg tests/o0.jpg pb_model/output_graph_360.pb
+      - run:
+        name: test biscotti 1.jpg(check biscotti can process any file size)
+        command:
+          bin/Release/biscotti tests/1.jpg tests/o1.jpg pb_model/output_graph_360.pb
+      - run:
+        name: test biscotti 2.png(check biscotti can process png file)
+        command:
+          bin/Release/biscotti tests/2.png tests/o2.png pb_model/output_graph_360.pb
+      - run:
+        name: test biscotti can convert png to jpg
+        command:
+          bin/Release/biscotti tests/2.png tests/o2.jpg pb_model/output_graph_360.pb
+      - run:
+        name: test biscotti can convert jpg to png
+        command:
+          bin/Release/biscotti tests/1.jpg tests/1.png pb_model/output_graph_360.pb
+      - run:
+        name: test grayscale
+        command:
+          bin/Release/biscotti tests/4.jpg tests/o4.jpg pb_model/output_graph_360.pb
+      
+
+
+
+

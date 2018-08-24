@@ -65,9 +65,9 @@ workflows:
   build_and_test:
     jobs:
       - build
-      - build_biscotti
+      - build_biscotti:
         requires:
           - build
-      - test_biscotti
+      - test_biscotti:
         requires:
           - build_biscotti

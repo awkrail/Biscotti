@@ -26,7 +26,6 @@ Biscotti have three dependent libraries.
 cd third_party
 
 # clone
-git clone https://github.com/google/butteraugli
 git clone https://github.com/tensorflow/tensorflow
 
 # checkout
@@ -34,7 +33,7 @@ cd third_party/tensorflow
 git checkout r1.7
 
 # build tensorflow
-bazel build -c opt //tensorflow:libtensorflow_cc.so
+bazel build -c opt --config=monolithic //tensorflow:libtensorflow_cc.so
 ```
 
 ## Usage

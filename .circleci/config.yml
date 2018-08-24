@@ -5,8 +5,9 @@ jobs:
       - image: debian:stretch
     steps:
       - checkout
-      dependencies:
-        pre:
+      - run:
+        name: add bazel
+        command:
           - sudo apt-get install pkg-config zip g++ zlib1g-dev unzip python
           - wget https://github.com/bazelbuild/bazel/releases/download/0.11.1/bazel-0.11.1-installer-linux-x86_64.sh
           - chmod +x bazel-0.11.1-installer-linux-x86_64.sh

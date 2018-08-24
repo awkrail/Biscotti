@@ -7,13 +7,13 @@ jobs:
     steps:
       - run:
         name: add bazel
-        command:
-          - sudo apt-get install pkg-config zip g++ zlib1g-dev unzip python
-          - wget https://github.com/bazelbuild/bazel/releases/download/0.11.1/bazel-0.11.1-installer-linux-x86_64.sh
-          - chmod +x bazel-0.11.1-installer-linux-x86_64.sh
-          - ./bazel-0.11.1-installer-linux-x86_64.sh
-          - echo 'export PATH="$PATH:$HOME/bin"' >> ~/.bashrc
-          - source ~/.bashrc
+        command: |
+          sudo apt-get install pkg-config zip g++ zlib1g-dev unzip python
+          wget https://github.com/bazelbuild/bazel/releases/download/0.11.1/bazel-0.11.1-installer-linux-x86_64.sh
+          chmod +x bazel-0.11.1-installer-linux-x86_64.sh
+          ./bazel-0.11.1-installer-linux-x86_64.sh
+          echo 'export PATH="$PATH:$HOME/bin"' >> ~/.bashrc
+          source ~/.bashrc
       - run:
         name: add tensorflow
         command:

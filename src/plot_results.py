@@ -96,8 +96,8 @@ def main():
   plt.ylabel("枚数")
   plt.xlabel("butteraugli")
   plt.xticks(np.arange(0, 10.0, 1.0))
-  plt.hist([histos[0], histos[1], histos[2]], bins=11, align='mid', rwidth=0.8,
-    color=['red', 'blue', 'green'], label=['224', '512', '1200'], range=(0, 10))
+  plt.hist([histos[0], histos[1], histos[2]], bins=8, align='mid', rwidth=0.8,
+    color=['red', 'blue', 'green'], label=['224', '512', '1200'], range=(0, 7))
   plt.legend(loc="upper right")
   plt.savefig("results/biscotti_histogram.png")
 

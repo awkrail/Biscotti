@@ -30,15 +30,6 @@
 
 namespace {
 
-constexpr int kDefaultJPEGQuality = 95;
-
-// An upper estimate of memory usage of Guetzli. The bound is
-// max(kLowerMemusaeMB * 1<<20, pixel_count * kBytesPerPixel)
-constexpr int kBytesPerPixel = 350;
-constexpr int kLowestMemusageMB = 100; // in MB
-
-constexpr int kDefaultMemlimitMB = 6000; // in MB
-
 inline uint8_t BlendOnBlack(const uint8_t val, const uint8_t alpha) {
   return (static_cast<int>(val) * static_cast<int>(alpha) + 128) / 255;
 }
@@ -206,23 +197,15 @@ void WriteFileOrDie(const char* filename, const std::string& contents) {
 }
 
 void TerminateHandler() {
-  fprintf(stderr, "Unhandled exception. Most likely insufficient memory available.\n"
-          "Make sure that there is 300MB/MPix of memory available.\n");
+  fprintf(stderr, "Unhandled exception. Most likely insufficient memory available.\n");
   exit(1);
 }
 
 void Usage() {
   fprintf(stderr,
-      "Guetzli JPEG compressor. Usage: \n"
-      "guetzli [flags] input_filename output_filename model_path\n"
-      "\n"
-      "Flags:\n"
-      "  --verbose    - Print a verbose trace of all attempts to standard output.\n"
-      "  --quality Q  - Visual quality to aim for, expressed as a JPEG quality value.\n"
-      "                 Default value is %d.\n"
-      "  --memlimit M - Memory limit in MB. Guetzli will fail if unable to stay under\n"
-      "                 the limit. Default limit is %d MB.\n"
-      "  --nomemlimit - Do not limit memory usage.\n", kDefaultJPEGQuality, kDefaultMemlimitMB);
+      "Biscotti JPEG compressor. Usage: \n"
+      "biscotti [flags] input_filename[.jpg/.png] output_filename[.jpg/.png] model_path\n"
+      "\n");
   exit(1);
 }
 
@@ -232,44 +215,14 @@ int main(int argc, char** argv) {
   std::set_terminate(TerminateHandler);
 
   int verbose = 0;
-  int quality = kDefaultJPEGQuality;
-  int memlimit_mb = kDefaultMemlimitMB;
 
-  // ここも消せそう
-  int opt_idx = 1;
-  for(;opt_idx < argc;opt_idx++) {
-    if (strnlen(argv[opt_idx], 2) < 2 || argv[opt_idx][0] != '-' || argv[opt_idx][1] != '-')
-      break;
-    if (!strcmp(argv[opt_idx], "--verbose")) {
-      verbose = 1;
-    } else if (!strcmp(argv[opt_idx], "--quality")) {
-      opt_idx++;
-      if (opt_idx >= argc)
-        Usage();
-      quality = atoi(argv[opt_idx]);
-    } else if (!strcmp(argv[opt_idx], "--memlimit")) {
-      opt_idx++;
-      if (opt_idx >= argc)
-        Usage();
-      memlimit_mb = atoi(argv[opt_idx]);
-    } else if (!strcmp(argv[opt_idx], "--nomemlimit")) {
-      memlimit_mb = -1;
-    } else if (!strcmp(argv[opt_idx], "--")) {
-      opt_idx++;
-      break;
-    } else {
-      fprintf(stderr, "Unknown commandline flag: %s\n", argv[opt_idx]);
-      Usage();
-    }
-  }
-
-  if (argc - opt_idx != 3) {
+  if (argc != 4) {
     Usage();
   }
 
-  std::string in_data = ReadFileOrDie(argv[opt_idx]);
-  std::string filename = std::string(argv[opt_idx]);
-  std::string model_path = std::string(argv[opt_idx + 2]);
+  std::string in_data = ReadFileOrDie(argv[1]);
+  std::string filename = std::string(argv[1]);
+  std::string model_path = std::string(argv[3]);
   std::string out_data;
 
   biscotti::Params params;
@@ -284,6 +237,7 @@ int main(int argc, char** argv) {
   static const unsigned char kPNGMagicBytes[] = {
       0x89, 'P', 'N', 'G', '\r', '\n', 0x1a, '\n',
   };
+  
   if (in_data.size() >= 8 &&
       memcmp(in_data.data(), kPNGMagicBytes, sizeof(kPNGMagicBytes)) == 0) {
     int xsize, ysize;
@@ -292,15 +246,8 @@ int main(int argc, char** argv) {
       fprintf(stderr, "Error reading PNG data from input file\n");
       return 1;
     }
-    double pixels = static_cast<double>(xsize) * ysize;
-    if (memlimit_mb != -1
-        && (pixels * kBytesPerPixel / (1 << 20) > memlimit_mb
-            || memlimit_mb < kLowestMemusageMB)) {
-      fprintf(stderr, "Memory limit would be exceeded. Failing.\n");
-      return 1;
-    }
     if (!biscotti::Process(params, &stats, rgb, xsize, ysize, &out_data)) {
-      fprintf(stderr, "Guetzli processing failed\n");
+      fprintf(stderr, "Biscotti processing failed\n");
       return 1;
     }
   } else {
@@ -309,19 +256,12 @@ int main(int argc, char** argv) {
       fprintf(stderr, "Error reading JPG data from input file\n");
       return 1;
     }
-    double pixels = static_cast<double>(jpg_header.width) * jpg_header.height;
-    if (memlimit_mb != -1
-        && (pixels * kBytesPerPixel / (1 << 20) > memlimit_mb
-            || memlimit_mb < kLowestMemusageMB)) {
-      fprintf(stderr, "Memory limit would be exceeded. Failing.\n");
-      return 1;
-    }
     if (!biscotti::Process(params, &stats, in_data, &out_data)) {
-      fprintf(stderr, "Guetzli processing failed\n");
+      fprintf(stderr, "Biscotti processing failed\n");
       return 1;
     }
   }
 
-  WriteFileOrDie(argv[opt_idx + 1], out_data);
+  WriteFileOrDie(argv[2], out_data);
   return 0;
 }

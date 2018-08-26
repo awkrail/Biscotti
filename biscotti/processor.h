@@ -38,13 +38,13 @@ bool Process(const Params& params, ProcessStats* stats,
              const std::string& in_data,
              std::string* out_data);
 
-struct GuetzliOutput {
+struct BiscottiOutput {
   std::string jpeg_data;
   double score;
 };
 
 bool ProcessJpegData(const Params& params, const JPEGData& jpg_in,
-                     GuetzliOutput* out, ProcessStats* stats);
+                     BiscottiOutput* out, ProcessStats* stats);
 
 // Sets *out to a jpeg encoded string that will decode to an image that is
 // visually indistinguishable from the input rgb image.

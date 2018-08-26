@@ -40,10 +40,10 @@ static const size_t kBlockSize = 3 * kDCTBlockSize;
 class Processor {
  public:
   bool ProcessJpegData(const Params& params, const JPEGData& jpg_in,
-                       GuetzliOutput* out, ProcessStats* stats);
+                       BiscottiOutput* out, ProcessStats* stats);
 
  private:
-  void MaybeOutput(const std::string& encoded_jpg);
+  void OutputResult(const std::string& encoded_jpg);
   void OutputJpeg(const JPEGData& in, std::string* out);
   void CalculateCSFScoreFromBlock(const coeff_t block[kBlockSize], 
                             const coeff_t orig_block[kBlockSize],
@@ -57,7 +57,7 @@ class Processor {
                                            std::vector<int>& cr);
 
   Params params_;
-  GuetzliOutput* final_output_;
+  BiscottiOutput* final_output_;
   ProcessStats* stats_;
 };
 
@@ -109,7 +109,7 @@ void Processor::OutputJpeg(const JPEGData& jpg,
   }
 }
 
-void Processor::MaybeOutput(const std::string& encoded_jpg) {
+void Processor::OutputResult(const std::string& encoded_jpg) {
   final_output_->jpeg_data = encoded_jpg;
   BISCOTTI_LOG(stats_, "\n");
 }
@@ -225,11 +225,11 @@ void Processor::MultiplyProbabilityWithCoefficients(const JPEGData& jpg,
     img->SaveToJpegData(&jpg_out);
     OutputJpeg(jpg_out, &encoded_jpg);
   }
-  MaybeOutput(encoded_jpg);
+  OutputResult(encoded_jpg);
 }
 
 bool Processor::ProcessJpegData(const Params& params, const JPEGData& jpg_in,
-                                GuetzliOutput* out, ProcessStats* stats) {
+                                BiscottiOutput* out, ProcessStats* stats) {
   params_ = params;
   final_output_ = out;
   stats_ = stats;
@@ -263,7 +263,7 @@ bool Processor::ProcessJpegData(const Params& params, const JPEGData& jpg_in,
     OutputImage img(jpg.width, jpg.height);
     img.CopyFromJpegData(jpg);
   }
-  MaybeOutput(encoded_jpg);
+  OutputResult(encoded_jpg);
 
   if(!input_is_420) {
     std::cout << "this image is not YUV420" << std::endl;
@@ -359,7 +359,7 @@ bool Processor::ProcessJpegData(const Params& params, const JPEGData& jpg_in,
 }
 
 bool ProcessJpegData(const Params& params, const JPEGData& jpg_in,
-                     GuetzliOutput* out, ProcessStats* stats) {
+                     BiscottiOutput* out, ProcessStats* stats) {
   Processor processor;
   return processor.ProcessJpegData(params, jpg_in, out, stats);
 }
@@ -384,7 +384,7 @@ bool Process(const Params& params, ProcessStats* stats,
             "a PNG file.\n");
     return false;
   }
-  GuetzliOutput out;
+  BiscottiOutput out;
   ProcessStats dummy_stats;
   if (stats == nullptr) {
     stats = &dummy_stats;
@@ -402,7 +402,7 @@ bool Process(const Params& params, ProcessStats* stats,
     fprintf(stderr, "Could not create jpg data from rgb pixels\n");
     return false;
   }
-  GuetzliOutput out;
+  BiscottiOutput out;
   ProcessStats dummy_stats;
   if (stats == nullptr) {
     stats = &dummy_stats;

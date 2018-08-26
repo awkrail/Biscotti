@@ -21,7 +21,6 @@
 #include <string.h>
 #include <vector>
 
-#include "biscotti/debug_print.h"
 #include "biscotti/fast_log.h"
 #include "biscotti/jpeg_data_decoder.h"
 #include "biscotti/jpeg_data_encoder.h"
@@ -111,7 +110,6 @@ void Processor::OutputJpeg(const JPEGData& jpg,
 
 void Processor::OutputResult(const std::string& encoded_jpg) {
   final_output_->jpeg_data = encoded_jpg;
-  BISCOTTI_LOG(stats_, "\n");
 }
 
 bool IsGrayscale(const JPEGData& jpg) {
@@ -256,7 +254,6 @@ bool Processor::ProcessJpegData(const Params& params, const JPEGData& jpg_in,
   std::string encoded_jpg;
   OutputJpeg(jpg_in, &encoded_jpg);
   final_output_->score = -1;
-  BISCOTTI_LOG(stats, "Original Out[%7zd]", encoded_jpg.size());
   {
     JPEGData jpg = jpg_in;
     RemoveOriginalQuantization(&jpg, q_in);

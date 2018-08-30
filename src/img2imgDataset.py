@@ -77,7 +77,7 @@ class Image2ImageDataset(object):
                 coeff_y, coeff_cb, coeff_cr = label[:seq], label[seq:2*seq], label[2*seq:]
                 coeff_y = self.resize_coeff_to_img_matrix(coeff_y, width, height)
                 coeff_cb = self.resize_coeff_to_img_matrix(coeff_cb, width, height)
-                coeff_cr = self.resize_coeff_to_img_matrix(coeff_cb, width, height)
+                coeff_cr = self.resize_coeff_to_img_matrix(coeff_cr, width, height)
                 coeff3d = np.concatenate((coeff_y, coeff_cr, coeff_cb), axis=2)
                 result = np.concatenate((img, coeff3d), axis=2)
                 np.save(self.train_path + filename + ".npy", result)

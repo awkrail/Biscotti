@@ -262,9 +262,12 @@ bool Processor::ProcessJpegData(const Params& params, const JPEGData& jpg_in,
   }
   OutputResult(encoded_jpg);
 
+  std::string model_path;
   if(!input_is_420) {
     std::cout << "this image is not YUV420" << std::endl;
-    return false;
+    model_path = params_.model_path_444;
+  } else {
+    model_path = params_.model_path_420;
   }
 
   JPEGData jpg = jpg_in;
@@ -297,7 +300,7 @@ bool Processor::ProcessJpegData(const Params& params, const JPEGData& jpg_in,
   int input_width = jpg.width;
   int input_height = jpg.height;
 
-  biscotti::Predictor predictor(params.filename, params.model_path, 
+  biscotti::Predictor predictor(params.filename, model_path,  
                       input_width, input_height, "input_1", "biscotti_0", outputs); // input_1_1 => input_1
   bool dnn_ok = predictor.Process();
 

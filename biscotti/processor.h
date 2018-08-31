@@ -31,7 +31,8 @@ struct Params {
   int zeroing_greedy_lookahead = 3;
   bool new_zeroing_model = true;
   std::string filename;
-  std::string model_path;
+  std::string model_path_420;
+  std::string model_path_444;
 };
 
 bool Process(const Params& params, ProcessStats* stats,

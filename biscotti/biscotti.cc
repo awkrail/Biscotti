@@ -216,18 +216,20 @@ int main(int argc, char** argv) {
 
   int verbose = 0;
 
-  if (argc != 4) {
+  if (argc != 5) {
     Usage();
   }
-
+  
   std::string in_data = ReadFileOrDie(argv[1]);
   std::string filename = std::string(argv[1]);
-  std::string model_path = std::string(argv[3]);
+  std::string model_path_420 = std::string(argv[3]);
+  std::string model_path_444 = std::string(argv[4]);
   std::string out_data;
 
   biscotti::Params params;
   params.filename = filename;
-  params.model_path = model_path;
+  params.model_path_420 = model_path_420;
+  params.model_path_444 = model_path_444;
   biscotti::ProcessStats stats;
 
   if (verbose) {
@@ -237,7 +239,7 @@ int main(int argc, char** argv) {
   static const unsigned char kPNGMagicBytes[] = {
       0x89, 'P', 'N', 'G', '\r', '\n', 0x1a, '\n',
   };
-  
+
   if (in_data.size() >= 8 &&
       memcmp(in_data.data(), kPNGMagicBytes, sizeof(kPNGMagicBytes)) == 0) {
     int xsize, ysize;

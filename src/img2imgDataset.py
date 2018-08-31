@@ -13,10 +13,6 @@ except for load_dataset() method, other method is used for making dataset.
 csv/ => dumped DCT coeffs.
 qopt_images/ => images made by guetzli, and this image is only optimized quantization table, but not DCT coeffs.
 labels/ => read csv(DCT coeffs), and if each coeff is not 0, set a value 1. if each coeff is 0, set a value 0.
-
-
-WATCH: After guetzli, images is transformed into YUV420 or YUV444, so you can think label data Y:Cb:Cr = 4:1:1
-TODO: this script doesn't accept gray scale.
 """
 
 

@@ -313,6 +313,7 @@ bool Processor::ProcessJpegData(const Params& params, const JPEGData& jpg_in,
   }
   
   tensorflow::TTypes<float>::Flat result_flat = outputs[0].flat<float>();
+  // C++ : std::arrayで書き直した方が高速化できる
   std::vector<int> y;
   std::vector<int> cb;
   std::vector<int> cr;

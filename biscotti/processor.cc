@@ -20,6 +20,7 @@
 #include <set>
 #include <string.h>
 #include <vector>
+#include <array>
 
 #include "biscotti/fast_log.h"
 #include "biscotti/jpeg_data_decoder.h"
@@ -304,48 +305,73 @@ bool Processor::ProcessJpegData(const Params& params, const JPEGData& jpg_in,
                       input_width, input_height, "input_1", "biscotti_0", outputs); // input_1_1 => input_1
   bool dnn_ok = predictor.Process();
 
-  // 変更後の画像サイズの反映
-  input_width = predictor.GetWidth();
-  input_height = predictor.GetHeight();
-
   if(!dnn_ok) {
     return false;
   }
+
+  // 変更後の画像サイズの反映
+  input_width = predictor.GetWidth();
+  input_height = predictor.GetHeight();
+  int coeff_num = input_width * input_height;
   
   tensorflow::TTypes<float>::Flat result_flat = outputs[0].flat<float>();
-  // C++ : std::arrayで書き直した方が高速化できる
+  // C++ : reserveで最初から容量を確保する
   std::vector<int> y;
   std::vector<int> cb;
   std::vector<int> cr;
 
   if(input_is_420) {
+
+    y.resize(coeff_num);
+    cb.resize(coeff_num / 4);
+    cr.resize(coeff_num / 4);
+
+    int y_index = 0;
+    int cb_index = 0;
+    int cr_index = 0;
+
     for(int i=0; i<outputs[0].NumElements(); ++i) {
       int pixel = i / 3;
       int row = pixel / input_width;
       int value = result_flat(i) >= 0.4 ? 1 : 0; // TODO : consider threshold
       if(i % 3 == 0) {
-        y.push_back(value);
+        y[y_index] = value;
+        ++y_index;
       } else if(i % 3 == 1) {
         if(pixel % 2 == 0 && row % 2 == 0) {
-          cr.push_back(value);
+          cr[cr_index] = value;
+          ++cr_index;
         }
       } else {
         if(pixel % 2 == 0 && row % 2 == 0) {
-          cb.push_back(value);
+          cb[cb_index] = value;
+          ++cb_index;
         }
       }
     }
   } else {
+
+    y.resize(coeff_num);
+    cb.resize(coeff_num);
+    cr.resize(coeff_num);
+
+    int y_index = 0;
+    int cb_index = 0;
+    int cr_index = 0;
+
     for(int i=0; i<outputs[0].NumElements(); ++i) {
       int pixel = i / 3;
       int row = pixel / input_width;
       int value = result_flat(i) >= 0.4 ? 1 : 0; // TODO : consider threshold
       if(i % 3 == 0) {
-        y.push_back(value);
+        y[y_index] = value;
+        ++y_index;
       } else if(i % 3 == 1) {
-        cr.push_back(value);
+        cr[cr_index] = value;
+        ++cr_index;
       } else {
-        cb.push_back(value);
+        cb[cb_index] = value;
+        ++cb_index;
       }
     }
   }

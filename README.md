@@ -20,8 +20,8 @@ run `pip install requirements.txt`
 To make training dataset, you have to install [ImageMagick](https://www.imagemagick.org/script/index.php).
 
 ## Install
-Biscotti have three dependent libraries.  
-[butteraugli](https://github.com/google/butteraugli), [tensorflow](https://github.com/tensorflow/tensorflow) and [opencv](https://opencv.org/)
+Biscotti have two dependent libraries.  
+[tensorflow](https://github.com/tensorflow/tensorflow) and [opencv](https://opencv.org/)
 ```sh
 cd third_party
 
@@ -31,9 +31,15 @@ git clone https://github.com/tensorflow/tensorflow
 # checkout
 cd third_party/tensorflow
 git checkout r1.7
+./configure
 
 # build tensorflow
-bazel build -c opt --config=monolithic //tensorflow:libtensorflow_cc.so
+bazel build -c opt --copt=-mavx --copt=-msse4.1 --copt=-msse4.2 --config=monolithic //tensorflow:libtensorflow_cc.so
+
+# build Biscotti
+cd Biscotti/
+premake5 gmake # generating Makefile
+make
 ```
 
 ## Usage

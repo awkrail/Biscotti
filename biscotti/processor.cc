@@ -160,9 +160,6 @@ void Processor::MultiplyProbabilityWithCoefficients(const JPEGData& jpg,
                                                     std::vector<int>& cb,
                                                     std::vector<int>& cr) {
   // TODO: YUV444, PNGデータへ対応
-  std::vector<int> pred_y;
-  std::vector<int> pred_cb;
-  std::vector<int> pred_cr; 
 
   for(int c=0; c<3; ++c) {
     if((comp_mask & (1 << c)) == 1) {
@@ -176,7 +173,6 @@ void Processor::MultiplyProbabilityWithCoefficients(const JPEGData& jpg,
       if(c == 0) {
         binary_coeffs = y;
       } else if(c == 1) {
-        // which?
         binary_coeffs = cr;
       } else {
         binary_coeffs = cb;

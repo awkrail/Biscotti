@@ -14,6 +14,11 @@ from keras.optimizers import Adam
 from keras.preprocessing.image import list_pictures, array_to_img
 import matplotlib.pyplot as plt
 
+"""
+TODO:
+    1. predictのサイズを可変にする : 16で割切れるようにする
+    2. YUV444への対応
+"""
 
 class DctCsvLoader(object):
     def __init__(self, guetzli_csv_path, target_size):

@@ -14,7 +14,7 @@ def check_file_size(validation_dir):
   else:
     return -1
 
-def main(validation_dir, save_dir, is_guetzli):
+def main(validation_dir, save_dir, is_guetzli, sampling):
   images = os.listdir(validation_dir)
   yuv444 = 0
   scores = []
@@ -26,7 +26,8 @@ def main(validation_dir, save_dir, is_guetzli):
   else:
     command = "bin/Release/biscotti"
   for image in images:
-    biscotti = [command, validation_dir + "/" + image, save_dir + "/" + image, "pb_model/output_graph_360.pb"]
+    biscotti = [command, validation_dir + "/" + image, save_dir + "/" + image, 
+                "pb_model/output_graph_360.pb", "pb_model/output_model_444.pb"]
     try:
       result_dict = {
         "butteraugli" : -1,
@@ -51,7 +52,7 @@ def main(validation_dir, save_dir, is_guetzli):
       result_dict["file_size"].append(after_size)
       score_dict[image] = result_dict
     except:
-      yuv444 += 1
+      print("error")
 
   print(" --- stats --- ")
   print("the number of images : ", len(images))
@@ -63,12 +64,18 @@ def main(validation_dir, save_dir, is_guetzli):
   print("average elapsed time :", sum(elapsed) / len(elapsed))
 
   filesize = check_file_size(validation_dir)
+  
+  if sampling == 420:
+    sampling_dir = "results420"
+  else:
+    sampling_dir = "results444"
+
   if filesize == 224:
-    json_dir = "validations/biscotti_result224.json"
+    json_dir = "validations/" + sampling_dir + "/biscotti_result224.json"
   elif filesize == 512:
-    json_dir = "validations/biscotti_result512.json"
+    json_dir = "validations/" + sampling_dir + "/biscotti_result512.json"
   elif filesize == 1200:
-    json_dir = "validations/biscotti_result1200.json"
+    json_dir = "validations/" + sampling_dir + "/biscotti_result1200.json"
   else:
     print("[Error] : file size must be 224, 512, or 1200")
     exit(1)
@@ -86,5 +93,7 @@ if __name__ == "__main__":
                       required=True, help="save dir")
   parser.add_argument("--guetzli", "-g", type=bool,
                       default=False, help="measure performance guetzli or biscotti. if you want to compress images with guetzli, please add -g True")
+  parser.add_argument("--sampling", "-samp", type=int,
+                      default=420, help="chroma sub sampling, 420 or 444")
   args = parser.parse_args()
-  main(args.valid_dir, args.save_dir, args.guetzli)
+  main(args.valid_dir, args.save_dir, args.guetzli, args.sampling)

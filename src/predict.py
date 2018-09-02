@@ -21,23 +21,32 @@ TODO:
 """
 
 class DctCsvLoader(object):
-    def __init__(self, guetzli_csv_path, target_size):
+    def __init__(self, guetzli_csv_path, target_size, sampling):
         self.csv_path = guetzli_csv_path
         self.dct = pd.read_csv(guetzli_csv_path, header=None).get_values()
         self.target_size = target_size
+        self.sampling = sampling
     
     def get_csv(self):
         label = self.dct_csv2numpy_probability()
-        seq = int(label.shape[0] * (2/3))
         # TODO: I need to adjust these variable values for input image size
         width = self.target_size[1]
         height = self.target_size[0]
-
-        coeff_y, coeff_cbcr = label[:seq], label[seq:]
-        coeff_y = self.resize_coeff_to_img_matrix(coeff_y, width, height)
-        coeff_cb = self.resize420to444(coeff_cbcr[:int(seq/4)], width, height)
-        coeff_cr = self.resize420to444(coeff_cbcr[int(seq/4):], width, height)
-        coeff3d = np.concatenate((coeff_y, coeff_cr, coeff_cb), axis=2)
+        import ipdb; ipdb.set_trace()
+        if self.sampling == 420:
+            seq = int(label.shape[0] * (2/3))
+            coeff_y, coeff_cbcr = label[:seq], label[seq:]
+            coeff_y = self.resize_coeff_to_img_matrix(coeff_y, width, height)
+            coeff_cb = self.resize420to444(coeff_cbcr[:int(seq/4)], width, height)
+            coeff_cr = self.resize420to444(coeff_cbcr[int(seq/4):], width, height)
+            coeff3d = np.concatenate((coeff_y, coeff_cr, coeff_cb), axis=2)
+        else:
+            seq = int(label.shape[0] * (1/3))
+            coeff_y, coeff_cb, coeff_cr = label[:seq], label[seq:2*seq], label[2*seq:]
+            coeff_y = self.resize_coeff_to_img_matrix(coeff_y, width, height)
+            coeff_cb = self.resize_coeff_to_img_matrix(coeff_cb, width, height)
+            coeff_cr = self.resize_coeff_to_img_matrix(coeff_cr, width, height)
+            coeff3d = np.concatenate((coeff_y, coeff_cr, coeff_cb), axis=2)
         return coeff3d
 
     def dct_csv2numpy_probability(self):
@@ -83,7 +92,7 @@ class DctCsvLoader(object):
 
 
 class Predictor(object):
-    def __init__(self, image, threshold, model_path, result_png_path, csv_path, guetzli_csv_path):
+    def __init__(self, image, threshold, model_path, result_png_path, csv_path, guetzli_csv_path, sampling):
         self.image = image
         self.threshold = threshold
         self.result_png_path = result_png_path
@@ -91,7 +100,7 @@ class Predictor(object):
         self.model = self.create_generator_3layer()
         self.model.load_weights(model_path)
         target_size = (self.image.shape[0], self.image.shape[1])
-        self.guetzli_dct = DctCsvLoader(guetzli_csv_path, target_size).get_csv()
+        self.guetzli_dct = DctCsvLoader(guetzli_csv_path, target_size, sampling).get_csv()
         self.predict_dct = None
     
     def predict(self):
@@ -308,6 +317,8 @@ if __name__ == "__main__":
                         help="threshold")
     parser.add_argument("--colorspace", "-cs", type=str, default="rgb",
                         help="rgb or ycrcb")
+    parser.add_argument("--sampling", "-samp", type=int, default=420,
+                        help="chroma sampling, 420 or 444")
     args = parser.parse_args()
 
 
@@ -321,7 +332,8 @@ if __name__ == "__main__":
                     model_path=args.modelpath, 
                     result_png_path=args.resultpath,
                     csv_path=args.csvpath,
-                    guetzli_csv_path=args.guetzli_csv_path)
+                    guetzli_csv_path=args.guetzli_csv_path,
+                    sampling=args.sampling)
     predictor.predict()
     predictor.eval()
     predictor.plot(plot_guetzli_dct=True, binary=True)

@@ -21,13 +21,14 @@ def main(validation_dir, save_dir, is_guetzli, sampling):
   elapsed = []
   score_dict = {}
   print(len(images))
-  if is_guetzli:
-    command = "guetzli"
-  else:
-    command = "bin/Release/biscotti"
   for image in images:
-    biscotti = [command, validation_dir + "/" + image, save_dir + "/" + image, 
-                "pb_model/output_graph_360.pb", "pb_model/output_model_444.pb"]
+    if is_guetzli:
+      command = "guetzli"
+      biscotti = [command, validation_dir + "/" + image, save_dir + "/" + image]
+    else:
+      command = "bin/Release/biscotti"
+      biscotti = [command, validation_dir + "/" + image, save_dir + "/" + image, 
+                  "pb_model/output_graph_360.pb", "pb_model/output_model_444.pb"]
     try:
       result_dict = {
         "butteraugli" : -1,

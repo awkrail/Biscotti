@@ -32,7 +32,6 @@ class DctCsvLoader(object):
         # TODO: I need to adjust these variable values for input image size
         width = self.target_size[1]
         height = self.target_size[0]
-        import ipdb; ipdb.set_trace()
         if self.sampling == 420:
             seq = int(label.shape[0] * (2/3))
             coeff_y, coeff_cbcr = label[:seq], label[seq:]

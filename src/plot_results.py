@@ -35,9 +35,9 @@ def print_result(title, array224, array512, array1200):
 
 def main():
   # butteraulgi score
-  validation_dirs = ["validations/biscotti_result224.json",
-                    "validations/biscotti_result512.json",
-                    "validations/biscotti_result1200.json"
+  validation_dirs = ["validations/results420/biscotti_result224.json",
+                    "validations/results420/biscotti_result512.json",
+                    "validations/results420/biscotti_result1200.json"
                     ]
   
   # butteraugli histogram
@@ -95,11 +95,13 @@ def main():
   plt.title("butteraugliのスコアの枚数")
   plt.ylabel("枚数")
   plt.xlabel("butteraugli")
-  plt.xticks(np.arange(0, 10.0, 1.0))
-  plt.hist([histos[0], histos[1], histos[2]], bins=8, align='mid', rwidth=0.8,
-    color=['red', 'blue', 'green'], label=['224', '512', '1200'], range=(0, 7))
+  # plt.xticks([0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10])
+  # ここももっと詳細にbutteraugliのスコアのヒストグラムがわかるようにするべきでは?
+  plt.hist([butteraugli224, butteraugli512, butteraugli1200], align='mid',
+    color=['red', 'blue', 'green'], label=['224', '512', '1200'])
+  # plt.hist(butteraugli224)
   plt.legend(loc="upper right")
-  plt.savefig("results/biscotti_histogram.png")
+  plt.savefig("results/biscotti_histogram_fixed.png")
 
   # file_size
   plt.clf()

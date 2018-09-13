@@ -64,6 +64,10 @@ def load_validation_dataset(dataset_path, test_files):
     return X, y
 
 
+def generator_loss_yuv444(y_true, y_pred):
+    return K.binary_crossentropy(y_true[:, :, :, 0], y_pred[:, :, :, 0]) + 0.5*K.binary_crossentropy(y_true[:, :, :, 1], y_pred[:, :, :, 1]) + 0.5*K.binary_crossentropy(y_true[:, :, :, 2], y_pred[:, :, :, 2])
+
+
 def train(args):
     # load data
     data_files = sorted(os.listdir(args.datasetpath))
@@ -80,7 +84,10 @@ def train(args):
     # load generator model
     target_size = (224, 224, 3)
     generator_model = nets.get_generator(target_size)
-    generator_model.compile(loss='binary_crossentropy', optimizer=opt_unet, metrics=['accuracy'])
+    if args.sampling_factor == 420:
+        generator_model.compile(loss='binary_crossentropy', optimizer=opt_unet, metrics=['accuracy'])
+    else:
+        generator_model.compile(loss=generator_loss_yuv444, optimizer=opt_unet, metrics=['accuracy'])
 
     # checkpoint
     checkpointer = ModelCheckpoint(filepath=output + "/model_weights_{epoch:02d}.h5", save_best_only=False)
@@ -110,6 +117,7 @@ def main():
     parser.add_argument("--outputfile", "-o", type=str, required=True)
     parser.add_argument("--batch_size", "-b", type=int, default=32)
     parser.add_argument("--epoch", type=int, default=400)
+    parser.add_argument("--sampling_factor", "-samp", type=int, default=420)
     args = parser.parse_args()
     K.set_image_data_format("channels_last")
 

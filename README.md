@@ -101,9 +101,9 @@ butteraugli score is rounded.
 
 ## Support
 - YUV420
+- YUV444
 
 ## WIP
-- alpha
 - I will change method to evaluate. This method is not good.
 - support YUV444, PNG(I have to train YUV444(convert jpg -> png, and make data))
 

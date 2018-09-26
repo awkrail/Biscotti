@@ -88,6 +88,47 @@ def generator_3layer(input_size):
 
     return fcn
 
+
+def generator_2layer(input_size):
+    inputs = Input((input_size[0], input_size[1], 3))
+    conv1 = Conv2D(32, (3, 3), padding='same')(inputs)
+    conv1 = LeakyReLU(0.2)(conv1)
+
+    conv2 = Conv2D(64, (3, 3), strides=(2, 2), padding='same')(conv1)
+    conv2 = LeakyReLU(0.2)(conv2)
+    conv2 = BatchNormalization(axis=-1)(conv2)
+
+    conv3 = Conv2D(128, (3, 3), strides=(2, 2), padding='same')(conv2)
+    conv3 = LeakyReLU(0.2)(conv3)
+    conv3 = BatchNormalization(axis=-1)(conv3)
+
+    """
+    conv4 = Conv2D(256, (3, 3), strides=(2, 2), padding='same')(conv3)
+    conv4 = Conv2D(256, (3, 3), padding="same")(conv4)
+    conv4 = Activation('relu')(conv4)
+    """
+
+    # Decoder Side
+    up1 = concatenate([UpSampling2D(size=(2, 2), data_format="channels_last")(conv3), conv2], axis=3)
+    conv5 = Conv2D(128, (3, 3), activation='relu', padding='same')(up1)
+    conv5 = BatchNormalization(axis=-1)(conv5)
+
+    up2 = concatenate([UpSampling2D(size=(2, 2), data_format="channels_last")(conv5), conv1], axis=3)
+    conv6 = Conv2D(64, (3, 3), activation='relu', padding='same')(up2)
+    conv6 = BatchNormalization(axis=-1)(conv6)
+
+    """
+    up3 = concatenate([UpSampling2D(size=(2, 2), data_format="channels_last")(conv6), conv1], axis=3)
+    conv7 = Conv2D(32, (3, 3), activation='relu', padding='same')(up3)
+    conv7 = BatchNormalization(axis=-1)(conv7)
+    """
+
+    conv7 = Conv2D(3, (1, 1), activation='sigmoid', data_format="channels_last")(conv6)
+    fcn = Model(input=inputs, output=conv7)
+
+    return fcn
+
+
 def generator_discriminator(generator, discriminator, img_shape, patch_size):
     raw_input = Input(shape=img_shape, name='DCGAN_input')
     generated_image = generator(raw_input)

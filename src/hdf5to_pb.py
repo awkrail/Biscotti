@@ -13,17 +13,18 @@ from keras import backend as K
 from tensorflow.python.framework import graph_util
 from tensorflow.python.framework import graph_io
 
-
+"""
 def generator_loss_yuv444(y_true, y_pred):
     return K.binary_crossentropy(y_true[:, :, :, 0], y_pred[:, :, :, 0]) + 0.5*K.binary_crossentropy(y_true[:, :, :, 1], y_pred[:, :, :, 1]) + 0.5*K.binary_crossentropy(y_true[:, :, :, 2], y_pred[:, :, :, 2])
-
+"""
 
 def main(model_path, out_dir, num_out, prefix, name, readable):
   if not os.path.exists(out_dir):
     os.mkdir(out_dir)
   
   K.set_learning_phase(0)
-  net_model = load_model(model_path, custom_objects={"generator_loss_yuv444" : generator_loss_yuv444})
+  # net_model = load_model(model_path, custom_objects={"generator_loss_yuv444" : generator_loss_yuv444})
+  net_model = load_model(model_path)
 
   pred = [None]*num_out
   pred_node_names = [None]*num_out

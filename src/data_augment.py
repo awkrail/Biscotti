@@ -30,3 +30,5 @@ if __name__ == "__main__":
     for i in range(10):
       cropped_image = random_crop(image)
       cv2.imwrite(args.output_images + image_file + "_" + str(i) + ".jpg")
+      print(args.output_images + image_file + "_" + str(i) + ".jpg" + ", done!")
+    print(image_file + ", done!")

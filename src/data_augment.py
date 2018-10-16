@@ -27,6 +27,8 @@ if __name__ == "__main__":
   image_files = os.listdir(args.input_images)
   for image_file in image_files:
     image = cv2.imread(args.input_images + image_file)
+    if image is None:
+      continue
     for i in range(10):
       cropped_image = random_crop(image)
       cv2.imwrite(args.output_images + image_file + "_" + str(i) + ".jpg", cropped_image)

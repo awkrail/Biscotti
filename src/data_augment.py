@@ -1,6 +1,6 @@
 import cv2
 import numpy as np
-from scipy.misc import imresize
+import os
 import argparse
 
 def random_crop(image, crop_size=(224, 224)):
@@ -29,6 +29,6 @@ if __name__ == "__main__":
     image = cv2.imread(args.input_images + image_file)
     for i in range(10):
       cropped_image = random_crop(image)
-      cv2.imwrite(args.output_images + image_file + "_" + str(i) + ".jpg")
+      cv2.imwrite(args.output_images + image_file + "_" + str(i) + ".jpg", cropped_image)
       print(args.output_images + image_file + "_" + str(i) + ".jpg" + ", done!")
     print(image_file + ", done!")

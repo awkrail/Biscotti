@@ -26,7 +26,7 @@ if __name__ == "__main__":
 
   image_files = os.listdir(args.input_images)
   for image_file in image_files:
-    file = image.split(".")[0]
+    file = image_file.split(".")[0]
     image = cv2.imread(args.input_images + image_file)
     if image is None:
       continue

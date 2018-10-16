@@ -110,11 +110,11 @@ def generator_2layer(input_size):
 
     # Decoder Side
     up1 = concatenate([UpSampling2D(size=(2, 2), data_format="channels_last")(conv3), conv2], axis=3)
-    conv5 = Conv2D(128, (3, 3), activation='relu', padding='same')(up1)
+    conv5 = Conv2D(64, (3, 3), activation='relu', padding='same')(up1)
     conv5 = BatchNormalization(axis=-1)(conv5)
 
     up2 = concatenate([UpSampling2D(size=(2, 2), data_format="channels_last")(conv5), conv1], axis=3)
-    conv6 = Conv2D(64, (3, 3), activation='relu', padding='same')(up2)
+    conv6 = Conv2D(32, (3, 3), activation='relu', padding='same')(up2)
     conv6 = BatchNormalization(axis=-1)(conv6)
 
     """

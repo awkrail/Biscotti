@@ -203,7 +203,7 @@ void Processor::MultiplyProbabilityWithCoefficients(const JPEGData& jpg,
 
           for(int i=0; i<input_order.size(); ++i) {
             float score = input_order[i].second;
-            if(score < 10) { // thresholdは考えもの => 5は小さすぎかも
+            if(score < 2) { // thresholdは考えもの => ここは可変にファイルの空間周波数を計算して決めるべき
               int idx = input_order[i].first;
               block[idx] *= predict[idx];
             }
@@ -329,7 +329,7 @@ bool Processor::ProcessJpegData(const Params& params, const JPEGData& jpg_in,
     for(int i=0; i<outputs[0].NumElements(); ++i) {
       int pixel = i / 3;
       int row = pixel / input_width;
-      int value = result_flat(i) >= 0.4 ? 1 : 0; // TODO : consider threshold
+      int value = result_flat(i) >= 0.5 ? 1 : 0; // TODO : consider threshold
       if(i % 3 == 0) {
         y[y_index] = value;
         ++y_index;
@@ -358,7 +358,7 @@ bool Processor::ProcessJpegData(const Params& params, const JPEGData& jpg_in,
     for(int i=0; i<outputs[0].NumElements(); ++i) {
       int pixel = i / 3;
       int row = pixel / input_width;
-      int value = result_flat(i) >= 0.4 ? 1 : 0; // TODO : consider threshold
+      int value = result_flat(i) >= 0.5 ? 1 : 0; // TODO : consider threshold
       if(i % 3 == 0) {
         y[y_index] = value;
         ++y_index;

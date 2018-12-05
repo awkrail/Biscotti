@@ -148,7 +148,7 @@ void Processor::CalculateCSFScoreFromBlock(
         score = static_cast<float>((std::abs(orig_block[idx]) - kJPEGZigZagOrder[k] / 64.0) *
                 kWeight[comp] / oldCsf[k]);
       }
-      input_order->push_back(std::make_pair(idx, score));
+      input_order->push_back(std::make_pair(idx, std::abs(score)));
     }
   }
 }
@@ -199,11 +199,12 @@ void Processor::MultiplyProbabilityWithCoefficients(const JPEGData& jpg,
           memcpy(&orig_block[0],
                 &comp.coeffs[block_ix * kDCTBlockSize],
                 kDCTBlockSize * sizeof(orig_block[0]));
+          // ここでブロックごとの空間周波数から, ブロックごとのthresholdを計算する
           CalculateCSFScoreFromBlock(block, orig_block, c, &input_order); // CSFの値を計算する
 
           for(int i=0; i<input_order.size(); ++i) {
             float score = input_order[i].second;
-            if(score < 2) { // thresholdは考えもの => ここは可変にファイルの空間周波数を計算して決めるべき
+            if(score < 10) { // thresholdは考えもの => ここは可変にファイルの空間周波数を計算して決めるべき
               int idx = input_order[i].first;
               block[idx] *= predict[idx];
             }

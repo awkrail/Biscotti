@@ -1,5 +1,5 @@
 import argparse
-from multiprocessing import process
+from multiprocessing import Process
 import subprocess
 import os
 
@@ -23,7 +23,8 @@ if __name__ == "__main__":
     batch_input_file_path = ["aug_cropped_images/" + input_file for input_file in input_files]
     batch_q_output_file_path = ["aug_cropped_q_images/" + input_file for input_file in input_files]
     batch_o_output_file_path = ["aug_cropped_o_images/" + input_file for input_file in input_files]
-    p = process(target=guetzli_dumper, args=(batch_input_files, batch_q_output_file_path, batch_o_output_file_path))
+    # p = 
+    p = Process(target=guetzli_dumper, args=(batch_input_files, batch_q_output_file_path, batch_o_output_file_path))
     p.start()
     print("start process")
     p.join()

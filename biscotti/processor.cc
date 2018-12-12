@@ -55,6 +55,10 @@ class Processor {
                                            std::vector<int>& y,
                                            std::vector<int>& cb,
                                            std::vector<int>& cr);
+  void CalculateThresholdFromBlock(const coeff_t block[kBlockSize],
+                                  int& y_threshold,
+                                  int& cb_threshold,
+                                  int& cr_threshold);
 
   Params params_;
   BiscottiOutput* final_output_;
@@ -153,6 +157,40 @@ void Processor::CalculateCSFScoreFromBlock(
   }
 }
 
+void Processor::CalculateThresholdFromBlock(const coeff_t block[kBlockSize], 
+                                          int& y_threshold,
+                                          int& cb_threshold,
+                                          int& cr_threshold) {
+
+  // Y成分のDCT
+  int y_count = 0;
+  int cb_count = 0;
+  int cr_count = 0;
+
+  for(int y_i=0; y_i<kDCTBlockSize; ++y_i) {
+    if( block[y_i] == 0 ) y_count++;
+  }
+
+  for(int cb_i=kDCTBlockSize; cb_i < 2 * kDCTBlockSize; ++cb_i) {
+    if( block[cb_i] == 0 ) cb_count++;
+  }
+
+  for(int cr_i=2*kDCTBlockSize; cr_i<kBlockSize; ++cr_i) {
+    if( block[cr_i] == 0 ) cr_count++;
+  }
+
+  if(y_count < 5) {
+    y_threshold = 20;
+  } else if(5 <= y_count && y_count < 10) {
+    y_threshold = 5;
+  } else {
+    y_threshold = 2;
+  }
+
+  cb_threshold = 10;
+  cr_threshold = 10;
+}
+
 void Processor::MultiplyProbabilityWithCoefficients(const JPEGData& jpg, 
                                                     OutputImage* img,
                                                     const uint8_t comp_mask,
@@ -200,13 +238,31 @@ void Processor::MultiplyProbabilityWithCoefficients(const JPEGData& jpg,
                 &comp.coeffs[block_ix * kDCTBlockSize],
                 kDCTBlockSize * sizeof(orig_block[0]));
           // ここでブロックごとの空間周波数から, ブロックごとのthresholdを計算する
+          
+          /**
+          int y_threshold = 0;
+          int cb_threshold = 0;
+          int cr_threshold = 0;
+          **/
+
+          //CalculateThresholdFromBlock(block, y_threshold, cb_threshold, cr_threshold);
           CalculateCSFScoreFromBlock(block, orig_block, c, &input_order); // CSFの値を計算する
 
           for(int i=0; i<input_order.size(); ++i) {
             float score = input_order[i].second;
-            if(score < 10) { // thresholdは考えもの => ここは可変にファイルの空間周波数を計算して決めるべき
-              int idx = input_order[i].first;
-              block[idx] *= predict[idx];
+            int idx = input_order[i].first;
+
+            // #include <iostream>
+            //std::cout << "idx : " << idx << std::endl;
+            //std::cout << "block : " << block[idx] << std::endl;
+            //std::cout << "score : " << score << std::endl;
+            //std::cout << "predict : " << predict[idx] << std::endl;
+            //std::cout << std::endl;
+
+            if((std::abs(block[idx]) > 30 && score < 5) || (score < 3)) {
+              if(predict[idx] == 0) {
+                block[idx] = 0;
+              }
             }
           }
           img->component(c).SetCoeffBlock(block_x, block_y, block);
